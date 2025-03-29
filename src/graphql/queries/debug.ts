@@ -8,6 +8,9 @@ export const DEBUG = gql`
 			randomShow {
 				id
 				shortName
+				episodes {
+					total
+				}
 			}
 		}
 	}

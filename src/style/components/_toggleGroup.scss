@@ -1,0 +1,68 @@
+.toggle-group {
+	display: inline-flex;
+	align-items: stretch;
+	flex-wrap: wrap;
+	border-radius: 9px;
+	border-width: 1px;
+	border-color: $gray-200;
+	border-style: solid;
+	box-shadow: $shadows-xs;
+
+	& > :not([hidden]) ~ :not([hidden]) {
+		border-color: $gray-100;
+	}
+
+	&.toggle-group--vertical {
+		flex-direction: column;
+
+		& > :not([hidden]) ~ :not([hidden]) {
+			border-block-start-width: 1px;
+			border-block-end-width: 0;
+		}
+	}
+
+	&.toggle-group--horizontal > :not([hidden]) ~ :not([hidden]) {
+		border-inline-start-width: 1px;
+		border-inline-end-width: 0;
+	}
+
+	.button--toggle {
+		display: flex;
+		align-items: center;
+		background-clip: padding-box;
+		border-radius: 0;
+
+		&:focus-visible {
+			z-index: 10;
+			outline-offset: -1px;
+		}
+
+		&[data-state="on"] {
+			background-color: $gray-50;
+		}
+	}
+
+	.toggle {
+		&.toggle--horizontal {
+			&:first-of-type {
+				border-start-start-radius: spacing(2);
+				border-end-start-radius: spacing(2);
+			}
+			&:last-of-type {
+				border-start-end-radius: spacing(2);
+				border-end-end-radius: spacing(2);
+			}
+		}
+
+		&.toggle--vertical {
+			&:first-of-type {
+				border-start-start-radius: spacing(2);
+				border-start-end-radius: spacing(2);
+			}
+			&:last-of-type {
+				border-end-start-radius: spacing(2);
+				border-end-end-radius: spacing(2);
+			}
+		}
+	}
+}

@@ -1,0 +1,12 @@
+.layout {
+	display: grid;
+	grid-template-columns: 240px 1fr;
+	max-height: 100vh;
+	height: 100vh;
+
+	main {
+		max-height: 100vh;
+		overflow: auto;
+		background-color: $background;
+	}
+}

@@ -1,0 +1,54 @@
+.textarea {
+	background-color: $white-50;
+	border-radius: $radius-md;
+	border: 1px solid $gray-200;
+	box-shadow: $gray-900;
+	display: flex;
+	@include text-sm-leading-6-font-normal;
+	min-height: 112px;
+	padding-block: spacing(2);
+	padding-inline: spacing(4);
+	transition-duration: 0.1s;
+	transition-property: color, background-color, border-color,
+		text-decoration-color, fill, stroke;
+	transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+	box-shadow: $shadows-xs;
+	outline-color: $purple-600;
+	color: $gray-900;
+
+	&::placeholder {
+		color: $gray-500;
+	}
+
+	&:focus {
+		outline-style: solid;
+		outline-width: 2px;
+		outline-offset: -1px;
+	}
+
+	&:hover {
+		border-color: $gray-300;
+	}
+
+	&.textarea--invalid {
+		border-color: $red-500;
+
+		&:focus {
+			outline-color: $red-500;
+		}
+
+		&:hover {
+			border-color: $red-500;
+		}
+	}
+
+	&.textarea--disabled {
+		background-color: $gray-50;
+		color: $gray-300;
+		cursor: not-allowed;
+
+		&::placeholder {
+			color: $gray-300;
+		}
+	}
+}

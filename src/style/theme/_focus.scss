@@ -1,0 +1,36 @@
+$focus--ring--light-2px--purple-500: 0px 0px 0px rgba(112, 71, 235, 1),
+	0px 0px 0px rgba(255, 255, 255, 1);
+$focus--ring--light-2px--red-500: 0px 0px 0px rgba(245, 61, 107, 1),
+	0px 0px 0px rgba(255, 255, 255, 1);
+$focus--ring--light-2px--gray-900: 0px 0px 0px rgba(18, 18, 23, 1),
+	0px 0px 0px rgba(255, 255, 255, 1);
+$focus--ring--light-1px--purple-500: 0px 0px 0px rgba(112, 71, 235, 1);
+$focus--ring--light-1px--red-500: 0px 0px 0px rgba(245, 61, 107, 1);
+$focus--ring--dark-2px--purple-400: 0px 0px 0px rgba(141, 108, 239, 1),
+	0px 0px 0px rgba(0, 0, 0, 1);
+$focus--ring--dark-2px--red-500: 0px 0px 0px rgba(245, 61, 107, 1),
+	0px 0px 0px rgba(0, 0, 0, 1);
+$focus--ring--dark-1px--purple-400: 0px 0px 0px rgba(141, 108, 239, 1);
+$focus--ring--dark-2px--white-900: 0px 0px 0px rgba(255, 255, 255, 1),
+	0px 0px 0px rgba(0, 0, 0, 1);
+
+@mixin focus-ring-base {
+	outline-offset: 2px;
+	outline-width: 2px;
+	outline-style: solid;
+}
+
+@mixin focus-ring-purple-500 {
+	@include focus-ring-base;
+	outline-color: $purple-500;
+}
+
+@mixin focus-ring-red-500 {
+	@include focus-ring-base;
+	outline-color: $red-500;
+}
+
+@mixin focus-ring-gray-900 {
+	@include focus-ring-base;
+	outline-color: $gray-900;
+}

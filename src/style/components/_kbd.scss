@@ -1,0 +1,30 @@
+.kbd {
+	display: inline-flex;
+	cursor: default;
+	align-items: center;
+	border-radius: $radius-3xl;
+	border: 1px solid $gray-200;
+	padding-inline: spacing(2);
+	color: $gray-500;
+	font-family: $font-family;
+	@include text-xs-leading-6-font-normal;
+
+	&.kbd--xs,
+	&.kbd--sm {
+		@include text-xs-leading-6-font-normal;
+	}
+
+	&.kbd--md {
+		@include text-base-leading-6-font-normal;
+		padding-block: spacing(0.5);
+	}
+
+	&.kbd--lg {
+		@include text-lg-leading-6-font-normal;
+		padding-block: spacing(0.5);
+	}
+
+	& > abbr {
+		text-decoration-line: none;
+	}
+}

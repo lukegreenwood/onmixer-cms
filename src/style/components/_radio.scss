@@ -1,0 +1,68 @@
+.radio {
+	display: flex;
+	gap: spacing(2);
+
+	.radio__radio {
+		position: relative;
+		display: flex;
+		width: 24px;
+		height: 24px;
+		align-items: center;
+		justify-content: center;
+		border-radius: $radius-3xl;
+		color: $gray-200;
+		outline-color: $purple-600;
+		transition-property: color, background-color, border-color,
+			text-decoration-color, fill, stroke;
+		transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+		transition-duration: 0.1s;
+
+		&:focus {
+			outline-style: none;
+		}
+
+		&:focus-visible {
+			outline-width: 2px;
+			outline-style: solid;
+			outline-offset: -2px;
+		}
+
+		&:has([data-state="checked"]) .mxr_unchcked {
+			display: none;
+		}
+
+		&.radio__radio--disabled {
+			pointer-events: none;
+			color: $gray-200;
+
+			.radio__radio-icon {
+				fill: $gray-50;
+
+				&.radio__radio-icon--checked {
+					color: $gray-200;
+				}
+			}
+		}
+
+		&:not(.radio__radio--disabled) {
+			&[data-state="checked"] {
+				color: $purple-600;
+			}
+
+			&:hover {
+				color: $gray-300;
+			}
+		}
+
+		.radio__radio-icon {
+			transform: scale(1);
+			aspect-ratio: 1 / 1;
+			width: 100%;
+
+			&.radio__radio-icon--checked {
+				position: absolute;
+				color: $purple-600;
+			}
+		}
+	}
+}

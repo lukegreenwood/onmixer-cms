@@ -1,0 +1,74 @@
+body {
+	font-family: $font-family;
+	font-size: $text-base_font-size;
+	color: $gray-900;
+}
+
+ul {
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+
+body,
+dl,
+dt,
+dd,
+ul,
+ol,
+li,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+pre,
+code,
+form,
+fieldset,
+legend,
+input,
+textarea,
+p,
+blockquote,
+th,
+td {
+	margin: 0;
+	padding: 0;
+}
+
+h1 {
+	font-size: $text-5xl_font-size;
+}
+
+h2 {
+	font-size: $text-4xl_font-size;
+}
+
+h3 {
+	font-size: $text-3xl_font-size;
+}
+
+h4 {
+	font-size: $text-2xl_font-size;
+}
+
+h5 {
+	font-size: $text-xl_font-size;
+}
+
+h6 {
+	font-size: $text-lg_font-size;
+}
+
+*,
+:after,
+:before {
+	box-sizing: border-box;
+	// border: 0 solid #e5e7eb;
+}
+
+button {
+	@include resetButtonStyles;
+}

@@ -1,0 +1,124 @@
+.tooltip {
+	z-index: 50;
+	border-radius: $radius-md - 2;
+	text-align: start;
+	color: $white-50;
+
+	// Default size SM
+	max-width: 320px;
+	padding-inline: spacing(3);
+	padding-block: spacing(2);
+	@include text-xs-leading-4-font-normal;
+
+	// Default color primary
+	color: $white-50;
+	background-color: $purple-600;
+
+	.tooltip__arrow {
+		color: $purple-600;
+	}
+
+	&.tooltip--sm {
+		max-width: 320px;
+		padding-inline: spacing(3);
+		padding-block: spacing(2);
+		@include text-xs-leading-4-font-normal;
+	}
+
+	&.tooltip--md {
+		max-width: 350px;
+		padding: spacing(4);
+		@include text-sm-leading-5-font-normal;
+	}
+
+	&.tooltip--primary {
+		color: $white-50;
+		background-color: $purple-600;
+
+		.tooltip__arrow {
+			color: $purple-600;
+		}
+	}
+
+	&.tooltip--secondary {
+		color: $white-50;
+		background-color: $gray-900;
+
+		.tooltip__arrow {
+			color: $gray-900;
+		}
+	}
+
+	&.tooltip--soft {
+		border: 1px solid transparent;
+		color: $gray-700;
+		box-shadow: $shadows--overlay--light;
+		background-color: $white-900;
+
+		.tooltip__arrow {
+			color: $white-900;
+		}
+	}
+
+	// Animations
+	&.tooltip--instant-open[data-state="instant-open"] {
+		animation: none !important;
+	}
+
+	&.tooltip--fade-in-down[data-side="bottom"] {
+		transform-origin: var(--radix-popper-transform-origin);
+		animation: fadeInDown 0.3s cubic-bezier(0.2, 1, 0.4, 1);
+	}
+
+	&.tooltip--fade-in-up[data-side="top"] {
+		transform-origin: var(--radix-popper-transform-origin);
+		animation: fadeInUp 0.3s cubic-bezier(0.2, 1, 0.4, 1);
+	}
+
+	&.tooltip--fade-in-left[data-side="left"] {
+		transform-origin: var(--radix-popper-transform-origin);
+		animation: fadeInLeft 0.3s cubic-bezier(0.2, 1, 0.4, 1);
+	}
+
+	&.tooltip--fade-in-right[data-side="right"] {
+		transform-origin: var(--radix-popper-transform-origin);
+		animation: fadeInRight 0.3s cubic-bezier(0.2, 1, 0.4, 1);
+	}
+	&.tooltip---fade-out[data-state="closed"] {
+		transform-origin: var(--radix-popper-transform-origin);
+		animation: fadeOut 0.15s cubic-bezier(0.2, 1, 0.4, 1);
+	}
+}
+
+.tooltip-trigger {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 9999px;
+	color: $gray-200;
+	transition-property: color, background-color, border-color,
+		text-decoration-color, fill, stroke;
+	transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+	transition-duration: 0.1s;
+	cursor: default;
+
+	&:focus-visible {
+		outline-color: $purple-600;
+		outline-offset: -2px;
+		outline-width: 2px;
+		color: $purple-600;
+	}
+
+	&:not([data-state="closed"]),
+	&[data-state="delayed-open"] {
+		color: $purple-600;
+	}
+
+	&[data-state="instant-open"] {
+		transition: none !important;
+	}
+
+	&.tooltip--clickable {
+		cursor: pointer;
+	}
+}

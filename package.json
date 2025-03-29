@@ -11,9 +11,11 @@
   "dependencies": {
     "@apollo/client": "^3.13.5",
     "@apollo/experimental-nextjs-app-support": "^0.11.11",
+    "@soundwaves/components": "^1.2.5",
     "next": "15.2.4",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "sass": "^1.86.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

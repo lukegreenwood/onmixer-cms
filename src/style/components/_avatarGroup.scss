@@ -1,0 +1,43 @@
+$spacing-sizes: (
+	xs: 1,
+	sm: 2,
+	md: 3,
+	lg: 4,
+	xl: 5,
+	2xl: 6,
+);
+
+.avatar-group {
+	display: flex;
+	flex-wrap: wrap;
+	row-gap: spacing(1);
+	align-items: center;
+
+	& > :not([hidden]) ~ :not([hidden]) {
+		margin-inline-start: spacing(-2);
+	}
+
+	@each $size, $value in $spacing-sizes {
+		&.avatar-group--#{$size} {
+			& > :not([hidden]) ~ :not([hidden]) {
+				margin-inline-start: -#{spacing($value)};
+			}
+		}
+	}
+
+	.avatar-group__item {
+		box-shadow: $ring-2;
+		backdrop-blur: blur(64px);
+	}
+
+	.avatar-group__more {
+		aspect-ratio: auto;
+		padding-inline: spacing(1);
+		box-shadow: $white-500 0px 0px 0px 0px, $white-500 0px 0px 0px 2px,
+			rgba(0, 0, 0, 0) 0px 0px 0px 0px;
+		height: 100%;
+		width: 100%;
+		font-weight: 500;
+		color: $white-500;
+	}
+}

@@ -1,0 +1,62 @@
+$border-radius: $radius-md + 1;
+
+.button-group {
+	display: inline-flex;
+	align-items: stretch;
+	flex-wrap: wrap;
+	box-shadow: $shadows-xs;
+	border: 1px solid $gray-200;
+	border-radius: $border-radius;
+
+	.button {
+		display: flex;
+		align-items: center;
+		border-radius: 0;
+		background-clip: padding-box;
+		border-radius: 0;
+	}
+
+	&.button-group--tertiary {
+		border-color: $gray-50;
+	}
+
+	&.button-group--horizontal {
+		.button {
+			border-inline: 1px solid $gray-100;
+
+			&:first-of-type {
+				border-start-start-radius: $border-radius;
+				border-end-start-radius: $border-radius;
+				border-inline-start-width: 0;
+				border-inline-end-width: 0;
+			}
+			&:last-of-type {
+				border-start-end-radius: $border-radius;
+				border-end-end-radius: $border-radius;
+				border-inline-start-width: 0;
+				border-inline-end-width: 0;
+			}
+		}
+	}
+
+	&.button-group--vertical {
+		flex-direction: column;
+
+		.button {
+			border-block: 1px solid $gray-100;
+
+			&:first-of-type {
+				border-start-start-radius: $border-radius;
+				border-start-end-radius: $border-radius;
+				border-block-start-width: 0;
+				border-block-end-width: 0;
+			}
+			&:last-of-type {
+				border-end-start-radius: $border-radius;
+				border-end-end-radius: $border-radius;
+				border-block-start-width: 0;
+				border-block-end-width: 0;
+			}
+		}
+	}
+}

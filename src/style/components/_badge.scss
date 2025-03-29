@@ -1,0 +1,132 @@
+.badge {
+	display: inline-flex;
+	padding-block: spacing(1);
+	padding-inline: spacing(2);
+	align-items: center;
+	border-radius: $radius-md;
+
+	// Default color
+	color: $gray-900;
+	outline-color: $gray-200;
+	background-color: $gray-50;
+
+	.badge__icon {
+		color: $gray-400;
+	}
+
+	.badge__content {
+		padding-inline: spacing(1);
+	}
+
+	&.badge--pill {
+		border-radius: 9999px;
+	}
+
+	&.badge--sm {
+		@include text-xs-leading-4-font-normal;
+
+		.badge__content {
+			padding-inline: spacing(0.5);
+		}
+	}
+
+	&.badge--md {
+		@include text-sm-leading-5-font-normal;
+	}
+
+	&.badge--gray {
+		color: $gray-900;
+		outline-color: $gray-200;
+		background-color: $gray-50;
+
+		.badge__icon {
+			color: $gray-400;
+		}
+	}
+
+	&.badge--green {
+		color: $green-800;
+		outline-color: $green-200;
+		background-color: $green-50;
+
+		.badge__icon {
+			color: $green-700;
+		}
+	}
+
+	&.badge--purple {
+		color: $purple-700;
+		outline-color: $purple-200;
+		background-color: $purple-50;
+
+		.badge__icon {
+			color: $purple-700;
+		}
+	}
+
+	&.badge--orange {
+		color: $orange-800;
+		outline-color: $orange-200;
+		background-color: $orange-50;
+
+		.badge__icon {
+			color: $orange-700;
+		}
+	}
+
+	&.badge--red {
+		color: $red-700;
+		outline-color: $red-200;
+		background-color: $red-50;
+
+		.badge__icon {
+			color: $red-700;
+		}
+	}
+
+	&.badge--pink {
+		color: $pink-800;
+		outline-color: $pink-200;
+		background-color: $pink-50;
+
+		.badge__icon {
+			color: $pink-700;
+		}
+	}
+
+	&.badge--blue {
+		color: $blue-700;
+		outline-color: $blue-200;
+		background-color: $blue-50;
+
+		.badge__icon {
+			color: $blue-700;
+		}
+	}
+
+	&.badge--yellow {
+		color: $yellow-800;
+		outline-color: $yellow-300;
+		background-color: $yellow-50;
+
+		.badge__icon {
+			color: $yellow-700;
+		}
+	}
+
+	&.badge--primary {
+		color: $purple-800;
+		outline-color: $purple-200;
+		background-color: $purple-50;
+
+		.badge__icon {
+			color: $purple-700;
+		}
+	}
+
+	&.badge--stroke {
+		outline-style: solid;
+		outline-width: 1px;
+		outline-offset: -1px;
+	}
+}

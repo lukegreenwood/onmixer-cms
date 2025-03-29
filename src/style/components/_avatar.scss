@@ -1,0 +1,219 @@
+$size-xxs: 12px;
+$size-xs: 24px;
+$size-sm: 32px;
+$size-md: 40px;
+$size-lg: 48px;
+$size-xl: 56px;
+$size-2xl: 64px;
+
+$notification-size-xxs: 4px;
+$notification-size-xs: 6px;
+$notification-size-sm: 8px;
+$notification-size-md: 10px;
+$notification-size-lg: 12px;
+$notification-size-xl: 14px;
+$notification-size-2xl: 16px;
+// "xxs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl"
+.avatar {
+	aspect-ratio: 1/1;
+	display: inline-flex;
+	flex-shrink: 0;
+	position: relative;
+	height: $size-md;
+	min-width: $size-md;
+
+	.avatar__image {
+		aspect-ratio: 1 / 1;
+		object-fit: cover;
+		object-position: center;
+		border-radius: 9999px;
+		width: 100%;
+	}
+
+	.avatar__status {
+		aspect-ratio: 1 / 1;
+		position: absolute;
+		right: 0;
+		bottom: 0;
+		border-radius: 9999px;
+		height: $notification-size-md;
+		background-color: $gray-500;
+
+		&.avatar__status--ring-1 {
+			box-shadow: $ring-1;
+		}
+		&.avatar__status--ring-2 {
+			box-shadow: $ring-2;
+		}
+	}
+
+	.avatar__notification {
+		aspect-ratio: 1 / 1;
+		position: absolute;
+		top: 0;
+		right: 0;
+		border-radius: 9999px;
+		height: $notification-size-md;
+		background-color: $gray-500;
+
+		&.avatar__notification--ring-1 {
+			box-shadow: $ring-1;
+		}
+		&.avatar__notification--ring-2 {
+			box-shadow: $ring-2;
+		}
+	}
+
+	.avatar__fallback {
+		aspect-ratio: 1 / 1;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		border-radius: 9999px;
+		background-color: $gray-500;
+
+		&.avatar__fallback--grey-text {
+			color: $gray-300;
+		}
+	}
+
+	.avatar__initals {
+		aspect-ratio: 1 / 1;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		border-radius: 9999px;
+		text-transform: uppercase;
+		user-select: none;
+
+		&.avatar__initals--purple {
+			background-color: $purple-500;
+		}
+		&.avatar__initals--pink {
+			background-color: $pink-500;
+		}
+		&.avatar__initals--yellow {
+			background-color: $yellow-500;
+		}
+		&.avatar__initals--blue {
+			background-color: $blue-500;
+		}
+		&.avatar__initals--red {
+			background-color: $red-500;
+		}
+		&.avatar__initals--green {
+			background-color: $green-500;
+		}
+		&.avatar__initals--orange {
+			background-color: $orange-500;
+		}
+	}
+
+	&.avatar--aspect-auto {
+		aspect-ratio: auto;
+		width: auto;
+	}
+
+	&.avatar--xxs,
+	&.avatar--xxs .avatar__fallback .avatar__fallback-icon {
+		@include text-xxs-leading-4-font-normal;
+		height: $size-xxs;
+		min-width: $size-xxs;
+
+		.avatar__status,
+		.avatar__notification {
+			height: $notification-size-xxs;
+		}
+	}
+
+	&.avatar--xs,
+	&.avatar--xs .avatar__fallback .avatar__fallback-icon {
+		@include text-xs-leading-4-font-normal;
+		height: $size-xs;
+		min-width: $size-xs;
+
+		.avatar__status,
+		.avatar__notification {
+			height: $notification-size-xs;
+		}
+	}
+
+	&.avatar--sm,
+	&.avatar--sm .avatar__fallback .avatar__fallback-icon {
+		@include text-sm-leading-5-font-normal;
+		height: $size-sm;
+		min-width: $size-sm;
+
+		.avatar__status,
+		.avatar__notification {
+			height: $notification-size-sm;
+		}
+	}
+
+	&.avatar--md,
+	&.avatar--md .avatar__fallback .avatar__fallback-icon {
+		@include text-base-leading-6-font-normal;
+		height: $size-md;
+		min-width: $size-md;
+
+		.avatar__status,
+		.avatar__notification {
+			height: $notification-size-md;
+		}
+	}
+
+	&.avatar--lg,
+	&.avatar--lg .avatar__fallback .avatar__fallback-icon {
+		@include text-lg-leading-6-font-normal;
+		height: $size-lg;
+		min-width: $size-lg;
+
+		.avatar__status,
+		.avatar__notification {
+			height: $notification-size-lg;
+		}
+	}
+
+	&.avatar--xl,
+	&.avatar--xl .avatar__fallback .avatar__fallback-icon {
+		@include text-xl-leading-7-font-normal;
+		height: $size-xl;
+		min-width: $size-xl;
+
+		.avatar__status,
+		.avatar__notification {
+			height: $notification-size-xl;
+		}
+	}
+
+	&.avatar--2xl,
+	&.avatar--2xl .avatar__fallback .avatar__fallback-icon {
+		@include text-2xl-leading-9-font-normal;
+		height: $size-2xl;
+		min-width: $size-2xl;
+
+		.avatar__status,
+		.avatar__notification {
+			height: $notification-size-2xl;
+		}
+	}
+
+	.avatar__indicator--red {
+		background-color: $red-500;
+	}
+
+	.avatar__indicator--green {
+		background-color: $green-500;
+	}
+
+	.avatar__indicator--yellow {
+		background-color: $yellow-500;
+	}
+
+	.avatar__indicator--gray {
+		background-color: $gray-500;
+	}
+	.avatar__indicator--primary {
+		background-color: $purple-500;
+	}
+}

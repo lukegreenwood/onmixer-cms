@@ -1,0 +1,55 @@
+/*
+ *  LGRadio Mixer
+ *  Mixins for helper functions
+ *  Copyright LGroup 2020
+*/
+
+@mixin resetButtonStyles() {
+	border: none;
+	background: none;
+	padding: 0;
+	margin: 0;
+}
+
+@mixin srOnly() {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	border: 0;
+}
+
+@function spacing($multiplier) {
+	@if $multiplier < 0 {
+		@return -($spacing-base-unit * abs($multiplier));
+	} @else {
+		@return $spacing-base-unit * $multiplier;
+	}
+}
+
+$breakpoints: (
+	"xs": 480px,
+	"sm": 640px,
+	"md": 768px,
+	"lg": 1024px,
+	"xl": 1280px,
+	"2xl": 1536px,
+);
+
+@mixin mq($breakpoint) {
+	@media (min-width: map-get($breakpoints, $breakpoint)) {
+		@content;
+	}
+}
+
+.mxr-antialiased {
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.text-white {
+	color: $white-50;
+}

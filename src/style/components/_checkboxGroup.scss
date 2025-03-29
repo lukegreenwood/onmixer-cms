@@ -1,0 +1,30 @@
+.checkbox-group {
+	display: flex;
+	flex-direction: column;
+	gap: spacing(4);
+
+	.checkbox-group__label-wrapper {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.checkbox-group__label {
+		display: inline-flex;
+		flex-direction: column;
+
+		.form-label {
+			cursor: default;
+		}
+	}
+
+	.checkbox-group__checkboxes {
+		display: flex;
+		flex-direction: column;
+		gap: spacing(2);
+
+		&.checkbox-group__checkboxes--horizontal {
+			flex-direction: row;
+			gap: spacing(6);
+		}
+	}
+}
