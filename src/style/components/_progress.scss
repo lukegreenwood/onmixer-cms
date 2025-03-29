@@ -1,130 +1,134 @@
+@use '../theme/palette';
+@use '../theme/sizing';
+@use '../theme/text';
+
 .progress-bar {
-	position: relative;
-	height: 8px;
-	width: 100%;
-	overflow: hidden;
-	border-radius: $radius-3xl;
-	background-color: $gray-100;
+  position: relative;
+  height: 8px;
+  width: 100%;
+  overflow: hidden;
+  border-radius: sizing.$radius-3xl;
+  background-color: palette.$gray-100;
 
-	&.progress-bar--disabled {
-		opacity: 0.5;
-	}
+  &.progress-bar--disabled {
+    opacity: 0.5;
+  }
 
-	.progress-bar__indicator {
-		width: 100%;
-		height: 100%;
-		border-radius: $radius-3xl;
+  .progress-bar__indicator {
+    width: 100%;
+    height: 100%;
+    border-radius: sizing.$radius-3xl;
 
-		&.progress-bar__indicator--animated {
-			transition-property: transform;
-			transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-			transition-duration: 0.15s;
-		}
+    &.progress-bar__indicator--animated {
+      transition-property: transform;
+      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      transition-duration: 0.15s;
+    }
 
-		&.progress-bar__indicator--primary {
-			background-color: $purple-600;
-		}
-		&.progress-bar__indicator--purple {
-			background-color: $purple-500;
-		}
-		&.progress-bar__indicator--green {
-			background-color: $green-500;
-		}
-		&.progress-bar__indicator--blue {
-			background-color: $blue-500;
-		}
-		&.progress-bar__indicator--orange {
-			background-color: $orange-500;
-		}
-		&.progress-bar__indicator--pink {
-			background-color: $pink-500;
-		}
-		&.progress-bar__indicator--yellow {
-			background-color: $yellow-500;
-		}
-		&.progress-bar__indicator--red {
-			background-color: $red-500;
-		}
-		&.progress-bar__indicator--secondary {
-			background-color: $gray-900;
-		}
-	}
+    &.progress-bar__indicator--primary {
+      background-color: palette.$purple-600;
+    }
+    &.progress-bar__indicator--purple {
+      background-color: palette.$purple-500;
+    }
+    &.progress-bar__indicator--green {
+      background-color: palette.$green-500;
+    }
+    &.progress-bar__indicator--blue {
+      background-color: palette.$blue-500;
+    }
+    &.progress-bar__indicator--orange {
+      background-color: palette.$orange-500;
+    }
+    &.progress-bar__indicator--pink {
+      background-color: palette.$pink-500;
+    }
+    &.progress-bar__indicator--yellow {
+      background-color: palette.$yellow-500;
+    }
+    &.progress-bar__indicator--red {
+      background-color: palette.$red-500;
+    }
+    &.progress-bar__indicator--secondary {
+      background-color: palette.$gray-900;
+    }
+  }
 }
 
 .progress-circle {
-	position: relative;
+  position: relative;
 
-	&.progress-circle--disabled {
-		opacity: 0.5;
-	}
+  &.progress-circle--disabled {
+    opacity: 0.5;
+  }
 
-	.progress-circle__circle {
-		fill: none;
-		stroke: $gray-100;
-		transform: scale(1);
+  .progress-circle__circle {
+    fill: none;
+    stroke: palette.$gray-100;
+    transform: scale(1);
 
-		&.progress-circle__circle--primary {
-			color: $purple-600;
-		}
-		&.progress-circle__circle--purple {
-			color: $purple-500;
-		}
-		&.progress-circle__circle--green {
-			color: $green-500;
-		}
-		&.progress-circle__circle--blue {
-			color: $blue-500;
-		}
-		&.progress-circle__circle--orange {
-			color: $orange-500;
-		}
-		&.progress-circle__circle--pink {
-			color: $pink-500;
-		}
-		&.progress-circle__circle--yellow {
-			color: $yellow-500;
-		}
-		&.progress-circle__circle--red {
-			color: $red-500;
-		}
-		&.progress-circle__circle--secondary {
-			color: $gray-900;
-		}
-	}
+    &.progress-circle__circle--primary {
+      color: palette.$purple-600;
+    }
+    &.progress-circle__circle--purple {
+      color: palette.$purple-500;
+    }
+    &.progress-circle__circle--green {
+      color: palette.$green-500;
+    }
+    &.progress-circle__circle--blue {
+      color: palette.$blue-500;
+    }
+    &.progress-circle__circle--orange {
+      color: palette.$orange-500;
+    }
+    &.progress-circle__circle--pink {
+      color: palette.$pink-500;
+    }
+    &.progress-circle__circle--yellow {
+      color: palette.$yellow-500;
+    }
+    &.progress-circle__circle--red {
+      color: palette.$red-500;
+    }
+    &.progress-circle__circle--secondary {
+      color: palette.$gray-900;
+    }
+  }
 
-	.progress-circle__label {
-		position: absolute;
-		top: 0px;
-		right: 0px;
-		bottom: 0px;
-		left: 0px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
+  .progress-circle__label {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    left: 0px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-		&.progress-circle__label--xl {
-			@include text-2xl-leading-8-font-normal;
-		}
+    &.progress-circle__label--xl {
+      @include text.text-2xl-leading-8-font-normal;
+    }
 
-		&.progress-circle__label--lg {
-			@include text-base-leading-6-font-normal;
-		}
+    &.progress-circle__label--lg {
+      @include text.text-base-leading-6-font-normal;
+    }
 
-		&.progress-circle__label--md {
-			@include text-xs-leading-4-font-normal;
-		}
-	}
+    &.progress-circle__label--md {
+      @include text.text-xs-leading-4-font-normal;
+    }
+  }
 
-	.progress-circle__background {
-	}
+  .progress-circle__background {
+  }
 
-	.progress-circle__foreground {
-		height: 100%;
+  .progress-circle__foreground {
+    height: 100%;
 
-		&.progress-circle__foreground--animate {
-			transition-property: all;
-			transition-timing-function: linear;
-			transition-duration: 0.3s;
-		}
-	}
+    &.progress-circle__foreground--animate {
+      transition-property: all;
+      transition-timing-function: linear;
+      transition-duration: 0.3s;
+    }
+  }
 }

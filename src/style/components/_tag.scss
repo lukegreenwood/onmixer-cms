@@ -1,29 +1,31 @@
+@use '../theme/palette';
+
 .tag {
-	.tag__icon {
-		height: 16px;
-		width: 16px;
-	}
+  .tag__icon {
+    height: 16px;
+    width: 16px;
+  }
 
-	.tag__close-button {
-		color: $gray-900;
-		width: auto;
-		height: auto;
-		padding: 0;
-		transition-duration: 0.18s;
-		transition-property: color, background-color, border-color,
-			text-decoration-color, fill, stroke;
-		transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  .tag__close-button {
+    color: palette.$gray-900;
+    width: auto;
+    height: auto;
+    padding: 0;
+    transition-duration: 0.18s;
+    transition-property: color, background-color, border-color,
+      text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 
-		&:hover {
-			color: $gray-600;
-		}
+    &:hover {
+      color: palette.$gray-600;
+    }
 
-		&:focus {
-			outline-width: 1px;
-		}
+    &:focus {
+      outline-width: 1px;
+    }
 
-		& > svg {
-			opacity: 1 !important;
-		}
-	}
+    & > svg {
+      opacity: 1 !important;
+    }
+  }
 }

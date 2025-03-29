@@ -1,22 +1,24 @@
+@use '../utils/mixins';
+
 .switch-group {
-	display: flex;
-	flex-direction: column;
-	gap: spacing(4);
+  display: flex;
+  flex-direction: column;
+  gap: mixins.spacing(4);
 
-	.switch-group__container {
-		display: flex;
-		flex-direction: column;
+  .switch-group__container {
+    display: flex;
+    flex-direction: column;
 
-		&.switch-group__container--gap {
-			gap: spacing(2);
-		}
-	}
+    &.switch-group__container--gap {
+      gap: mixins.spacing(2);
+    }
+  }
 
-	.switch-group__item {
-		&.switch-group__item--align-start {
-			display: flex;
-			width: 100%;
-			justify-content: space-between;
-		}
-	}
+  .switch-group__item {
+    &.switch-group__item--align-start {
+      display: flex;
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
 }

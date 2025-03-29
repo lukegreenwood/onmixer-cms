@@ -1,62 +1,66 @@
+@use '../theme/palette';
+@use '../theme/text';
+@use '../utils/mixins';
+
 .form-label {
-	display: inline-flex;
-	flex-shrink: 0;
-	align-items: center;
-	gap: spacing(1);
-	color: $gray-900;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: mixins.spacing(1);
+  color: palette.$gray-900;
 
-	.form-label__label {
-		display: inline-flex;
-		cursor: pointer;
-		align-items: center;
-		row-gap: 4px;
-		column-gap: 4px;
-		@include text-sm-leading-6-font-medium;
+  .form-label__label {
+    display: inline-flex;
+    cursor: pointer;
+    align-items: center;
+    row-gap: 4px;
+    column-gap: 4px;
+    @include text.text-sm-leading-6-font-medium;
 
-		&.form-label__label--disabled {
-			pointer-events: none;
-			color: $gray-300;
-		}
+    &.form-label__label--disabled {
+      pointer-events: none;
+      color: palette.$gray-300;
+    }
 
-		.form-label__required {
-			@include text-sm-leading-6-font-normal;
-			color: $red-500;
-		}
+    .form-label__required {
+      @include text.text-sm-leading-6-font-normal;
+      color: palette.$red-500;
+    }
 
-		.form-label__description {
-			@include text-sm-leading-6-font-normal;
-			color: $gray-500;
-		}
+    .form-label__description {
+      @include text.text-sm-leading-6-font-normal;
+      color: palette.$gray-500;
+    }
 
-		.form-label__description--disabled {
-			color: currentColor;
-		}
-	}
+    .form-label__description--disabled {
+      color: currentColor;
+    }
+  }
 }
 
 .form-label-helper-text {
-	@include text-sm-leading-6-font-normal;
-	text-align: start;
-	color: $gray-500;
+  @include text.text-sm-leading-6-font-normal;
+  text-align: start;
+  color: palette.$gray-500;
 
-	&.form-label-helper-text--error {
-		color: $red-500;
-	}
+  &.form-label-helper-text--error {
+    color: palette.$red-500;
+  }
 
-	&.form-label-helper-text--disabled {
-		color: $gray-300;
-	}
+  &.form-label-helper-text--disabled {
+    color: palette.$gray-300;
+  }
 }
 
 .form-label-container {
-	display: flex;
-	flex-direction: column;
+  display: flex;
+  flex-direction: column;
 
-	&.form-label-container--inline {
-		display: inline-flex;
-	}
+  &.form-label-container--inline {
+    display: inline-flex;
+  }
 
-	&.form-label-container--group .form-label {
-		font-weight: 400;
-	}
+  &.form-label-container--group .form-label {
+    font-weight: 400;
+  }
 }

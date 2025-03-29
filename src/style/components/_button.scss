@@ -1,360 +1,366 @@
+@use '../theme/focus';
+@use '../theme/palette';
+@use '../theme/sizing';
+@use '../theme/text';
+@use '../utils/mixins';
+
 .button {
-	@include resetButtonStyles;
-
-	display: inline-flex;
-	gap: spacing(1);
-	align-items: center;
-	padding: spacing(2) spacing(3);
-	border-radius: $radius-md;
-	@include text-sm-leading-6-font-medium;
-	transition-property: color, background-color, border-color,
-		text-decoration-color, fill, stroke;
-	transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-	transition-duration: 0.1s;
-	appearance: button;
-
-	.button-text {
-		padding-inline: spacing(1);
-	}
-
-	// Colour
-	&.button--primary {
-		background-color: $purple-500;
-		color: $white-900;
-
-		&:hover {
-			background-color: $purple-600;
-		}
-
-		&:disabled {
-			background-color: $purple-200;
-		}
-
-		&:focus-visible {
-			@include focus-ring-purple-500;
-		}
-
-		svg {
-			fill: $white-900;
-		}
-
-		&.button--destructive {
-			background-color: $red-500;
-
-			&:hover {
-				background-color: $red-600;
-			}
-
-			&:disabled {
-				background-color: $red-200;
-			}
-
-			&:focus-visible {
-				@include focus-ring-red-500;
-			}
-		}
-	}
-
-	&.button--secondary {
-		background-color: $gray-900;
-		color: $white-900;
-
-		&:hover {
-			background-color: $gray-700;
-		}
-
-		&:disabled {
-			background-color: $gray-200;
-		}
-
-		&:focus-visible {
-			@include focus-ring-gray-900;
-		}
-
-		svg {
-			fill: $white-900;
-		}
-
-		&.button--destructive {
-			background-color: $red-500;
-
-			&:hover {
-				background-color: $red-600;
-			}
-
-			&:disabled {
-				background-color: $red-200;
-			}
-
-			&:focus-visible {
-				@include focus-ring-red-500;
-			}
-		}
-	}
-
-	&.button--tertiary {
-		background-color: $gray-50;
-		color: $gray-900;
-
-		&:hover {
-			background-color: $gray-100;
-		}
-
-		&:disabled {
-			background-color: $gray-50;
-			color: $gray-300;
-
-			svg {
-				fill: $gray-200;
-			}
-		}
-
-		&:focus-visible {
-			@include focus-ring-purple-500;
-		}
-
-		svg {
-			fill: $gray-400;
-		}
-
-		&.button--destructive {
-			background-color: $red-50;
-			color: $red-700;
-
-			&:hover {
-				background-color: $red-100;
-			}
-
-			&:disabled {
-				background-color: $red-50;
-				color: $red-300;
-
-				svg {
-					fill: $red-300;
-				}
-			}
-
-			&:focus-visible {
-				@include focus-ring-red-500;
-			}
-
-			svg {
-				fill: $red-700;
-			}
-		}
-	}
-
-	&.button--outline {
-		background-color: $white-900;
-		color: $gray-900;
-		border: 1px solid $gray-200;
-
-		&:hover {
-			background-color: $gray-50;
-		}
-
-		&:disabled {
-			background-color: $white-900;
-			color: $gray-300;
-			border-color: $gray-100;
-
-			svg {
-				fill: $gray-200;
-			}
-		}
-
-		&:focus-visible {
-			@include focus-ring-purple-500;
-		}
-
-		svg {
-			fill: $gray-400;
-		}
-
-		&.button--destructive {
-			background-color: $white-900;
-			color: $red-700;
-			border-color: $red-200;
-
-			&:hover {
-				background-color: $red-50;
-			}
-
-			&:disabled {
-				background-color: $white-900;
-				color: $red-300;
-				border-color: $red-100;
-
-				svg {
-					fill: $red-300;
-				}
-			}
-
-			&:focus-visible {
-				@include focus-ring-red-500;
-			}
-
-			svg {
-				fill: $red-700;
-			}
-		}
-	}
-
-	&.button--transparent {
-		background-color: transparent;
-		color: $gray-900;
-
-		&:hover {
-			background-color: $gray-50;
-		}
-
-		&:disabled {
-			color: $gray-300;
-		}
-
-		&:focus-visible {
-			background-color: $white-900;
-			@include focus-ring-purple-500;
-		}
-
-		&.button--destructive {
-			background-color: transparent;
-			color: $red-700;
-
-			&:hover {
-				background-color: $red-50;
-			}
-
-			&:disabled {
-				color: $red-300;
-			}
-
-			&:focus-visible {
-				background-color: $white-900;
-				@include focus-ring-red-500;
-			}
-		}
-	}
-
-	&.button--link {
-		padding: 0;
-		border: 0;
-		text-decoration: underline;
-		border-radius: $radius-none;
-		color: $gray-900;
-		gap: spacing(2);
-
-		&:disabled {
-			color: $gray-300;
-
-			svg {
-				fill: $gray-200;
-			}
-		}
-
-		svg {
-			fill: $gray-400;
-		}
-
-		&.button--destructive {
-			color: $red-700;
-
-			&:hover {
-				color: $red-800;
-
-				svg {
-					fill: $red-800;
-				}
-			}
-
-			&:disabled {
-				color: $red-300;
-
-				svg {
-					fill: $red-300;
-				}
-			}
-
-			svg {
-				fill: $red-700;
-			}
-		}
-
-		&.button--sm {
-			gap: spacing(1);
-		}
-	}
-
-	// Shape
-	&.button--pill,
-	&.button--round {
-		border-radius: $radius-3xl;
-	}
-
-	&.button--rounded {
-		border-radius: $radius-md;
-	}
-
-	// Size
-	&.button--md {
-		padding: spacing(2) spacing(3);
-
-		&.button--outline {
-			padding: calc(spacing(2) - 1px) calc(spacing(3) - 1px);
-		}
-	}
-
-	&.button--sm {
-		padding: spacing(1) spacing(2);
-		gap: 0px;
-
-		&.button--outline {
-			padding: calc(spacing(1) - 1px) calc(spacing(2) - 1px);
-		}
-
-		svg {
-			width: 20px;
-			height: 20px;
-		}
-	}
-
-	&.button--icon-only {
-		gap: 0px;
-
-		&.button--md {
-			padding: spacing(2) spacing(2);
-
-			&.button--outline {
-				padding: calc(spacing(2) - 1px) calc(spacing(2) - 1px);
-			}
-		}
-
-		&.button--sm {
-			padding: 0;
-			width: 32px;
-			height: 32px;
-		}
-
-		&.button--xs {
-			padding: spacing(0.5) spacing(0.5);
-
-			&.button--outline {
-				padding: calc(spacing(0.5) - 1px) calc(spacing(0.5) - 1px);
-			}
-
-			svg {
-				width: 20px;
-				height: 20px;
-			}
-		}
-	}
-
-	&.button--toggle {
-		font-weight: 400;
-
-		&[data-state="on"] {
-			background-color: $gray-50;
-			font-weight: 500;
-		}
-	}
+  @include mixins.resetButtonStyles;
+
+  display: inline-flex;
+  gap: mixins.spacing(1);
+  align-items: center;
+  padding: mixins.spacing(2) mixins.spacing(3);
+  border-radius: sizing.$radius-md;
+  @include text.text-sm-leading-6-font-medium;
+  transition-property: color, background-color, border-color,
+    text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 0.1s;
+  appearance: button;
+
+  .button-text {
+    padding-inline: mixins.spacing(1);
+  }
+
+  // Colour
+  &.button--primary {
+    background-color: palette.$purple-500;
+    color: palette.$white-900;
+
+    &:hover {
+      background-color: palette.$purple-600;
+    }
+
+    &:disabled {
+      background-color: palette.$purple-200;
+    }
+
+    &:focus-visible {
+      @include focus.focus-ring-purple-500;
+    }
+
+    svg {
+      fill: palette.$white-900;
+    }
+
+    &.button--destructive {
+      background-color: palette.$red-500;
+
+      &:hover {
+        background-color: palette.$red-600;
+      }
+
+      &:disabled {
+        background-color: palette.$red-200;
+      }
+
+      &:focus-visible {
+        @include focus.focus-ring-red-500;
+      }
+    }
+  }
+
+  &.button--secondary {
+    background-color: palette.$gray-900;
+    color: palette.$white-900;
+
+    &:hover {
+      background-color: palette.$gray-700;
+    }
+
+    &:disabled {
+      background-color: palette.$gray-200;
+    }
+
+    &:focus-visible {
+      @include focus.focus-ring-gray-900;
+    }
+
+    svg {
+      fill: palette.$white-900;
+    }
+
+    &.button--destructive {
+      background-color: palette.$red-500;
+
+      &:hover {
+        background-color: palette.$red-600;
+      }
+
+      &:disabled {
+        background-color: palette.$red-200;
+      }
+
+      &:focus-visible {
+        @include focus.focus-ring-red-500;
+      }
+    }
+  }
+
+  &.button--tertiary {
+    background-color: palette.$gray-50;
+    color: palette.$gray-900;
+
+    &:hover {
+      background-color: palette.$gray-100;
+    }
+
+    &:disabled {
+      background-color: palette.$gray-50;
+      color: palette.$gray-300;
+
+      svg {
+        fill: palette.$gray-200;
+      }
+    }
+
+    &:focus-visible {
+      @include focus.focus-ring-purple-500;
+    }
+
+    svg {
+      fill: palette.$gray-400;
+    }
+
+    &.button--destructive {
+      background-color: palette.$red-50;
+      color: palette.$red-700;
+
+      &:hover {
+        background-color: palette.$red-100;
+      }
+
+      &:disabled {
+        background-color: palette.$red-50;
+        color: palette.$red-300;
+
+        svg {
+          fill: palette.$red-300;
+        }
+      }
+
+      &:focus-visible {
+        @include focus.focus-ring-red-500;
+      }
+
+      svg {
+        fill: palette.$red-700;
+      }
+    }
+  }
+
+  &.button--outline {
+    background-color: palette.$white-900;
+    color: palette.$gray-900;
+    border: 1px solid palette.$gray-200;
+
+    &:hover {
+      background-color: palette.$gray-50;
+    }
+
+    &:disabled {
+      background-color: palette.$white-900;
+      color: palette.$gray-300;
+      border-color: palette.$gray-100;
+
+      svg {
+        fill: palette.$gray-200;
+      }
+    }
+
+    &:focus-visible {
+      @include focus.focus-ring-purple-500;
+    }
+
+    svg {
+      fill: palette.$gray-400;
+    }
+
+    &.button--destructive {
+      background-color: palette.$white-900;
+      color: palette.$red-700;
+      border-color: palette.$red-200;
+
+      &:hover {
+        background-color: palette.$red-50;
+      }
+
+      &:disabled {
+        background-color: palette.$white-900;
+        color: palette.$red-300;
+        border-color: palette.$red-100;
+
+        svg {
+          fill: palette.$red-300;
+        }
+      }
+
+      &:focus-visible {
+        @include focus.focus-ring-red-500;
+      }
+
+      svg {
+        fill: palette.$red-700;
+      }
+    }
+  }
+
+  &.button--transparent {
+    background-color: transparent;
+    color: palette.$gray-900;
+
+    &:hover {
+      background-color: palette.$gray-50;
+    }
+
+    &:disabled {
+      color: palette.$gray-300;
+    }
+
+    &:focus-visible {
+      background-color: palette.$white-900;
+      @include focus.focus-ring-purple-500;
+    }
+
+    &.button--destructive {
+      background-color: transparent;
+      color: palette.$red-700;
+
+      &:hover {
+        background-color: palette.$red-50;
+      }
+
+      &:disabled {
+        color: palette.$red-300;
+      }
+
+      &:focus-visible {
+        background-color: palette.$white-900;
+        @include focus.focus-ring-red-500;
+      }
+    }
+  }
+
+  &.button--link {
+    padding: 0;
+    border: 0;
+    text-decoration: underline;
+    border-radius: sizing.$radius-none;
+    color: palette.$gray-900;
+    gap: mixins.spacing(2);
+
+    &:disabled {
+      color: palette.$gray-300;
+
+      svg {
+        fill: palette.$gray-200;
+      }
+    }
+
+    svg {
+      fill: palette.$gray-400;
+    }
+
+    &.button--destructive {
+      color: palette.$red-700;
+
+      &:hover {
+        color: palette.$red-800;
+
+        svg {
+          fill: palette.$red-800;
+        }
+      }
+
+      &:disabled {
+        color: palette.$red-300;
+
+        svg {
+          fill: palette.$red-300;
+        }
+      }
+
+      svg {
+        fill: palette.$red-700;
+      }
+    }
+
+    &.button--sm {
+      gap: mixins.spacing(1);
+    }
+  }
+
+  // Shape
+  &.button--pill,
+  &.button--round {
+    border-radius: sizing.$radius-3xl;
+  }
+
+  &.button--rounded {
+    border-radius: sizing.$radius-md;
+  }
+
+  // Size
+  &.button--md {
+    padding: mixins.spacing(2) mixins.spacing(3);
+
+    &.button--outline {
+      padding: calc(mixins.spacing(2) - 1px) calc(mixins.spacing(3) - 1px);
+    }
+  }
+
+  &.button--sm {
+    padding: mixins.spacing(1) mixins.spacing(2);
+    gap: 0px;
+
+    &.button--outline {
+      padding: calc(mixins.spacing(1) - 1px) calc(mixins.spacing(2) - 1px);
+    }
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  &.button--icon-only {
+    gap: 0px;
+
+    &.button--md {
+      padding: mixins.spacing(2) mixins.spacing(2);
+
+      &.button--outline {
+        padding: calc(mixins.spacing(2) - 1px) calc(mixins.spacing(2) - 1px);
+      }
+    }
+
+    &.button--sm {
+      padding: 0;
+      width: 32px;
+      height: 32px;
+    }
+
+    &.button--xs {
+      padding: mixins.spacing(0.5) mixins.spacing(0.5);
+
+      &.button--outline {
+        padding: calc(mixins.spacing(0.5) - 1px) calc(mixins.spacing(0.5) - 1px);
+      }
+
+      svg {
+        width: 20px;
+        height: 20px;
+      }
+    }
+  }
+
+  &.button--toggle {
+    font-weight: 400;
+
+    &[data-state='on'] {
+      background-color: palette.$gray-50;
+      font-weight: 500;
+    }
+  }
 }

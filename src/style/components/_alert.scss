@@ -1,170 +1,175 @@
+@use '../theme/palette';
+@use '../theme/sizing';
+@use '../theme/text';
+@use '../utils/mixins';
+
 .alert {
-	@include text-sm-leading-6-font-normal;
-	display: flex;
-	-webkit-font-smoothing: antialiased;
-	padding-inline: spacing(2);
-	padding-block: spacing(3);
-	color: $gray-500;
-	background-color: $gray-50;
-	border-color: $gray-500;
-	border-radius: $radius-md;
+  @include text.text-sm-leading-6-font-normal;
+  display: flex;
+  -webkit-font-smoothing: antialiased;
+  padding-inline: mixins.spacing(2);
+  padding-block: mixins.spacing(3);
+  color: palette.$gray-500;
+  background-color: palette.$gray-50;
+  border-color: palette.$gray-500;
+  border-radius: sizing.$radius-md;
 
-	@include mq("sm") {
-		align-items: center;
-	}
+  @include mixins.mq('sm') {
+    align-items: center;
+  }
 
-	.alert__before {
-		padding-inline-start: spacing(1);
-	}
+  .alert__before {
+    padding-inline-start: mixins.spacing(1);
+  }
 
-	.alert__after {
-		margin-block-start: spacing(3);
+  .alert__after {
+    margin-block-start: mixins.spacing(3);
 
-		@include mq("sm") {
-			margin-block-start: 0;
-			margin-inline-start: auto;
-		}
-	}
+    @include mixins.mq('sm') {
+      margin-block-start: 0;
+      margin-inline-start: auto;
+    }
+  }
 
-	.alert__icon {
-		width: 24px;
-		height: 24px;
-		flex-shrink: 0;
-	}
+  .alert__icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+  }
 
-	.alert__content {
-		display: flex;
-		flex-grow: 1;
-		flex-direction: row;
-		gap: spacing(2);
-		padding-inline: spacing(2);
-		align-items: center;
+  .alert__content {
+    display: flex;
+    flex-grow: 1;
+    flex-direction: row;
+    gap: mixins.spacing(2);
+    padding-inline: mixins.spacing(2);
+    align-items: center;
 
-		.alert__body {
-			display: flex;
-			flex-grow: 1;
-			flex-direction: row;
-			align-items: center;
-			gap: spacing(2);
-			text-align: start;
-		}
+    .alert__body {
+      display: flex;
+      flex-grow: 1;
+      flex-direction: row;
+      align-items: center;
+      gap: mixins.spacing(2);
+      text-align: start;
+    }
 
-		.alert__title {
-			font-weight: 500;
-			color: $gray-900;
-			text-align: start;
-		}
-	}
+    .alert__title {
+      font-weight: 500;
+      color: palette.$gray-900;
+      text-align: start;
+    }
+  }
 
-	.alert__close-button {
-		padding-inline-end: spacing(1);
-	}
+  .alert__close-button {
+    padding-inline-end: mixins.spacing(1);
+  }
 
-	&.alert--closeable {
-		.alert__content {
-			padding-inline-end: spacing(1);
-		}
-	}
+  &.alert--closeable {
+    .alert__content {
+      padding-inline-end: mixins.spacing(1);
+    }
+  }
 
-	&.alert--expanded {
-		border-inline-start-width: 2px;
-		border-inline-start-style: solid;
-		border-start-start-radius: 0;
-		border-end-start-radius: 0;
-		align-items: flex-start;
-		padding-inline: 14px spacing(4);
-		padding-block: spacing(4);
+  &.alert--expanded {
+    border-inline-start-width: 2px;
+    border-inline-start-style: solid;
+    border-start-start-radius: 0;
+    border-end-start-radius: 0;
+    align-items: flex-start;
+    padding-inline: 14px mixins.spacing(4);
+    padding-block: mixins.spacing(4);
 
-		.alert__content {
-			flex-direction: column;
-			align-items: flex-start;
-			gap: spacing(3);
-			padding-inline: spacing(3);
+    .alert__content {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: mixins.spacing(3);
+      padding-inline: mixins.spacing(3);
 
-			.alert__body {
-				flex-direction: column;
-				align-items: flex-start;
-				gap: 0;
-			}
-		}
-	}
+      .alert__body {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0;
+      }
+    }
+  }
 
-	&.alert--primary {
-		border-color: $purple-500;
-		color: $gray-500;
+  &.alert--primary {
+    border-color: palette.$purple-500;
+    color: palette.$gray-500;
 
-		.alert__icon {
-			color: $purple-500;
-		}
+    .alert__icon {
+      color: palette.$purple-500;
+    }
 
-		.alert__content {
-			.alert__title {
-				color: $gray-900;
-			}
-		}
-	}
+    .alert__content {
+      .alert__title {
+        color: palette.$gray-900;
+      }
+    }
+  }
 
-	&.alert--info {
-		border-color: $blue-500;
-		color: $blue-700;
-		background-color: $blue-50;
+  &.alert--info {
+    border-color: palette.$blue-500;
+    color: palette.$blue-700;
+    background-color: palette.$blue-50;
 
-		.alert__icon {
-			color: $blue-500;
-		}
+    .alert__icon {
+      color: palette.$blue-500;
+    }
 
-		.alert__content {
-			.alert__title {
-				color: $blue-800;
-			}
-		}
-	}
+    .alert__content {
+      .alert__title {
+        color: palette.$blue-800;
+      }
+    }
+  }
 
-	&.alert--success {
-		border-color: $green-500;
-		color: $green-700;
-		background-color: $green-50;
+  &.alert--success {
+    border-color: palette.$green-500;
+    color: palette.$green-700;
+    background-color: palette.$green-50;
 
-		.alert__icon {
-			color: $green-600;
-		}
+    .alert__icon {
+      color: palette.$green-600;
+    }
 
-		.alert__content {
-			.alert__title {
-				color: $green-800;
-			}
-		}
-	}
+    .alert__content {
+      .alert__title {
+        color: palette.$green-800;
+      }
+    }
+  }
 
-	&.alert--error {
-		border-color: $red-500;
-		color: $red-700;
-		background-color: $red-50;
+  &.alert--error {
+    border-color: palette.$red-500;
+    color: palette.$red-700;
+    background-color: palette.$red-50;
 
-		.alert__icon {
-			color: $red-500;
-		}
+    .alert__icon {
+      color: palette.$red-500;
+    }
 
-		.alert__content {
-			.alert__title {
-				color: $red-800;
-			}
-		}
-	}
+    .alert__content {
+      .alert__title {
+        color: palette.$red-800;
+      }
+    }
+  }
 
-	&.alert--warning {
-		border-color: $yellow-500;
-		color: $yellow-800;
-		background-color: $yellow-50;
+  &.alert--warning {
+    border-color: palette.$yellow-500;
+    color: palette.$yellow-800;
+    background-color: palette.$yellow-50;
 
-		.alert__icon {
-			color: $yellow-500;
-		}
+    .alert__icon {
+      color: palette.$yellow-500;
+    }
 
-		.alert__content {
-			.alert__title {
-				color: $yellow-800;
-			}
-		}
-	}
+    .alert__content {
+      .alert__title {
+        color: palette.$yellow-800;
+      }
+    }
+  }
 }

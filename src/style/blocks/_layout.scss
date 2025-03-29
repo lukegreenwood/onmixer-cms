@@ -1,12 +1,14 @@
-.layout {
-	display: grid;
-	grid-template-columns: 240px 1fr;
-	max-height: 100vh;
-	height: 100vh;
+@use '../theme/palette';
 
-	main {
-		max-height: 100vh;
-		overflow: auto;
-		background-color: $background;
-	}
+.layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  max-height: 100vh;
+  height: 100vh;
+
+  main {
+    max-height: 100vh;
+    overflow: auto;
+    background-color: palette.$background;
+  }
 }

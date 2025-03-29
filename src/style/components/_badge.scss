@@ -1,132 +1,137 @@
+@use '../theme/palette';
+@use '../theme/sizing';
+@use '../theme/text';
+@use '../utils/mixins';
+
 .badge {
-	display: inline-flex;
-	padding-block: spacing(1);
-	padding-inline: spacing(2);
-	align-items: center;
-	border-radius: $radius-md;
+  display: inline-flex;
+  padding-block: mixins.spacing(1);
+  padding-inline: mixins.spacing(2);
+  align-items: center;
+  border-radius: sizing.$radius-md;
 
-	// Default color
-	color: $gray-900;
-	outline-color: $gray-200;
-	background-color: $gray-50;
+  // Default color
+  color: palette.$gray-900;
+  outline-color: palette.$gray-200;
+  background-color: palette.$gray-50;
 
-	.badge__icon {
-		color: $gray-400;
-	}
+  .badge__icon {
+    color: palette.$gray-400;
+  }
 
-	.badge__content {
-		padding-inline: spacing(1);
-	}
+  .badge__content {
+    padding-inline: mixins.spacing(1);
+  }
 
-	&.badge--pill {
-		border-radius: 9999px;
-	}
+  &.badge--pill {
+    border-radius: 9999px;
+  }
 
-	&.badge--sm {
-		@include text-xs-leading-4-font-normal;
+  &.badge--sm {
+    @include text.text-xs-leading-4-font-normal;
 
-		.badge__content {
-			padding-inline: spacing(0.5);
-		}
-	}
+    .badge__content {
+      padding-inline: mixins.spacing(0.5);
+    }
+  }
 
-	&.badge--md {
-		@include text-sm-leading-5-font-normal;
-	}
+  &.badge--md {
+    @include text.text-sm-leading-5-font-normal;
+  }
 
-	&.badge--gray {
-		color: $gray-900;
-		outline-color: $gray-200;
-		background-color: $gray-50;
+  &.badge--gray {
+    color: palette.$gray-900;
+    outline-color: palette.$gray-200;
+    background-color: palette.$gray-50;
 
-		.badge__icon {
-			color: $gray-400;
-		}
-	}
+    .badge__icon {
+      color: palette.$gray-400;
+    }
+  }
 
-	&.badge--green {
-		color: $green-800;
-		outline-color: $green-200;
-		background-color: $green-50;
+  &.badge--green {
+    color: palette.$green-800;
+    outline-color: palette.$green-200;
+    background-color: palette.$green-50;
 
-		.badge__icon {
-			color: $green-700;
-		}
-	}
+    .badge__icon {
+      color: palette.$green-700;
+    }
+  }
 
-	&.badge--purple {
-		color: $purple-700;
-		outline-color: $purple-200;
-		background-color: $purple-50;
+  &.badge--purple {
+    color: palette.$purple-700;
+    outline-color: palette.$purple-200;
+    background-color: palette.$purple-50;
 
-		.badge__icon {
-			color: $purple-700;
-		}
-	}
+    .badge__icon {
+      color: palette.$purple-700;
+    }
+  }
 
-	&.badge--orange {
-		color: $orange-800;
-		outline-color: $orange-200;
-		background-color: $orange-50;
+  &.badge--orange {
+    color: palette.$orange-800;
+    outline-color: palette.$orange-200;
+    background-color: palette.$orange-50;
 
-		.badge__icon {
-			color: $orange-700;
-		}
-	}
+    .badge__icon {
+      color: palette.$orange-700;
+    }
+  }
 
-	&.badge--red {
-		color: $red-700;
-		outline-color: $red-200;
-		background-color: $red-50;
+  &.badge--red {
+    color: palette.$red-700;
+    outline-color: palette.$red-200;
+    background-color: palette.$red-50;
 
-		.badge__icon {
-			color: $red-700;
-		}
-	}
+    .badge__icon {
+      color: palette.$red-700;
+    }
+  }
 
-	&.badge--pink {
-		color: $pink-800;
-		outline-color: $pink-200;
-		background-color: $pink-50;
+  &.badge--pink {
+    color: palette.$pink-800;
+    outline-color: palette.$pink-200;
+    background-color: palette.$pink-50;
 
-		.badge__icon {
-			color: $pink-700;
-		}
-	}
+    .badge__icon {
+      color: palette.$pink-700;
+    }
+  }
 
-	&.badge--blue {
-		color: $blue-700;
-		outline-color: $blue-200;
-		background-color: $blue-50;
+  &.badge--blue {
+    color: palette.$blue-700;
+    outline-color: palette.$blue-200;
+    background-color: palette.$blue-50;
 
-		.badge__icon {
-			color: $blue-700;
-		}
-	}
+    .badge__icon {
+      color: palette.$blue-700;
+    }
+  }
 
-	&.badge--yellow {
-		color: $yellow-800;
-		outline-color: $yellow-300;
-		background-color: $yellow-50;
+  &.badge--yellow {
+    color: palette.$yellow-800;
+    outline-color: palette.$yellow-300;
+    background-color: palette.$yellow-50;
 
-		.badge__icon {
-			color: $yellow-700;
-		}
-	}
+    .badge__icon {
+      color: palette.$yellow-700;
+    }
+  }
 
-	&.badge--primary {
-		color: $purple-800;
-		outline-color: $purple-200;
-		background-color: $purple-50;
+  &.badge--primary {
+    color: palette.$purple-800;
+    outline-color: palette.$purple-200;
+    background-color: palette.$purple-50;
 
-		.badge__icon {
-			color: $purple-700;
-		}
-	}
+    .badge__icon {
+      color: palette.$purple-700;
+    }
+  }
 
-	&.badge--stroke {
-		outline-style: solid;
-		outline-width: 1px;
-		outline-offset: -1px;
-	}
+  &.badge--stroke {
+    outline-style: solid;
+    outline-width: 1px;
+    outline-offset: -1px;
+  }
 }

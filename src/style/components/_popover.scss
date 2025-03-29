@@ -1,40 +1,46 @@
+@use '../theme/palette';
+@use '../theme/shadows';
+@use '../theme/sizing';
+@use '../theme/text';
+@use '../utils/mixins';
+
 .popover {
-	display: flex;
-	flex-direction: column;
-	gap: spacing(2);
-	border-radius: $radius-md;
-	background-color: $white-50;
-	padding: spacing(4);
-	color: $gray-900;
-	@include text-sm-leading-6-font-normal;
-	transform-origin: var(--radix-popper-transform-origin);
-	box-shadow: $shadows--overlay--light;
+  display: flex;
+  flex-direction: column;
+  gap: mixins.spacing(2);
+  border-radius: sizing.$radius-md;
+  background-color: palette.$white-50;
+  padding: mixins.spacing(4);
+  color: palette.$gray-900;
+  @include text.text-sm-leading-6-font-normal;
+  transform-origin: var(--radix-popper-transform-origin);
+  box-shadow: shadows.$shadows--overlay--light;
 
-	&.popover--fade-in-down[data-side="bottom"] {
-		transform-origin: var(--radix-popper-transform-origin);
-		animation: fadeInDown 0.3s cubic-bezier(0.2, 1, 0.4, 1);
-	}
+  &.popover--fade-in-down[data-side='bottom'] {
+    transform-origin: var(--radix-popper-transform-origin);
+    animation: fadeInDown 0.3s cubic-bezier(0.2, 1, 0.4, 1);
+  }
 
-	&.popover--fade-in-up[data-side="top"] {
-		transform-origin: var(--radix-popper-transform-origin);
-		animation: fadeInUp 0.3s cubic-bezier(0.2, 1, 0.4, 1);
-	}
+  &.popover--fade-in-up[data-side='top'] {
+    transform-origin: var(--radix-popper-transform-origin);
+    animation: fadeInUp 0.3s cubic-bezier(0.2, 1, 0.4, 1);
+  }
 
-	&.popover--fade-in-left[data-side="left"] {
-		transform-origin: var(--radix-popper-transform-origin);
-		animation: fadeInLeft 0.3s cubic-bezier(0.2, 1, 0.4, 1);
-	}
+  &.popover--fade-in-left[data-side='left'] {
+    transform-origin: var(--radix-popper-transform-origin);
+    animation: fadeInLeft 0.3s cubic-bezier(0.2, 1, 0.4, 1);
+  }
 
-	&.popover--fade-in-right[data-side="right"] {
-		transform-origin: var(--radix-popper-transform-origin);
-		animation: fadeInRight 0.3s cubic-bezier(0.2, 1, 0.4, 1);
-	}
-	&.popover---fade-out[data-state="closed"] {
-		transform-origin: var(--radix-popper-transform-origin);
-		animation: fadeOut 0.15s cubic-bezier(0.2, 1, 0.4, 1);
-	}
+  &.popover--fade-in-right[data-side='right'] {
+    transform-origin: var(--radix-popper-transform-origin);
+    animation: fadeInRight 0.3s cubic-bezier(0.2, 1, 0.4, 1);
+  }
+  &.popover---fade-out[data-state='closed'] {
+    transform-origin: var(--radix-popper-transform-origin);
+    animation: fadeOut 0.15s cubic-bezier(0.2, 1, 0.4, 1);
+  }
 
-	.popover__arrow {
-		color: $white-900;
-	}
+  .popover__arrow {
+    color: palette.$white-900;
+  }
 }

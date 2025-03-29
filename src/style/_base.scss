@@ -1,13 +1,17 @@
+@use 'theme/palette';
+@use 'theme/text';
+@use 'utils/mixins';
+
 body {
-	font-family: $font-family;
-	font-size: $text-base_font-size;
-	color: $gray-900;
+  font-family: text.$font-family;
+  font-size: text.$text-base_font-size;
+  color: palette.$gray-900;
 }
 
 ul {
-	padding: 0;
-	margin: 0;
-	list-style: none;
+  padding: 0;
+  margin: 0;
+  list-style: none;
 }
 
 body,
@@ -34,41 +38,41 @@ p,
 blockquote,
 th,
 td {
-	margin: 0;
-	padding: 0;
+  margin: 0;
+  padding: 0;
 }
 
 h1 {
-	font-size: $text-5xl_font-size;
+  font-size: text.$text-5xl_font-size;
 }
 
 h2 {
-	font-size: $text-4xl_font-size;
+  font-size: text.$text-4xl_font-size;
 }
 
 h3 {
-	font-size: $text-3xl_font-size;
+  font-size: text.$text-3xl_font-size;
 }
 
 h4 {
-	font-size: $text-2xl_font-size;
+  font-size: text.$text-2xl_font-size;
 }
 
 h5 {
-	font-size: $text-xl_font-size;
+  font-size: text.$text-xl_font-size;
 }
 
 h6 {
-	font-size: $text-lg_font-size;
+  font-size: text.$text-lg_font-size;
 }
 
 *,
 :after,
 :before {
-	box-sizing: border-box;
-	// border: 0 solid #e5e7eb;
+  box-sizing: border-box;
+  // border: 0 solid #e5e7eb;
 }
 
 button {
-	@include resetButtonStyles;
+  @include mixins.resetButtonStyles;
 }

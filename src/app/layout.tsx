@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ApolloWrapper } from "@/lib";
 import "@/style/Chords.scss";
+import { NetworkProvider } from "@/contexts";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,7 +22,9 @@ export default function RootLayout({
 				<link rel="icon" href="/favicon.svg" />
 			</head>
 			<body className={inter.className}>
-				<ApolloWrapper>{children}</ApolloWrapper>
+				<ApolloWrapper>
+					<NetworkProvider>{children}</NetworkProvider>
+				</ApolloWrapper>
 			</body>
 		</html>
 	);

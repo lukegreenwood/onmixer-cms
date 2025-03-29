@@ -1,35 +1,40 @@
+@use '../theme/palette';
+@use '../theme/sizing';
+@use '../theme/text';
+@use '../utils/mixins';
+
 .form-input {
-	flex-grow: 1;
-	border: none;
-	padding-inline: spacing(2);
-	padding-block: spacing(2);
-	background-color: inherit;
-	color: $gray-900;
-	@include text-sm-leading-6-font-normal;
-	border-radius: $radius-md;
-	text-overflow: ellipsis;
+  flex-grow: 1;
+  border: none;
+  padding-inline: mixins.spacing(2);
+  padding-block: mixins.spacing(2);
+  background-color: inherit;
+  color: palette.$gray-900;
+  @include text.text-sm-leading-6-font-normal;
+  border-radius: sizing.$radius-md;
+  text-overflow: ellipsis;
 
-	&::placeholder {
-		color: $gray-500;
-	}
+  &::placeholder {
+    color: palette.$gray-500;
+  }
 
-	&:focus {
-		outline: none;
-	}
+  &:focus {
+    outline: none;
+  }
 
-	&.form-input--invalid {
-		border-color: $red-500;
+  &.form-input--invalid {
+    border-color: palette.$red-500;
 
-		&:focus {
-			outline-color: $red-500;
-		}
-	}
+    &:focus {
+      outline-color: palette.$red-500;
+    }
+  }
 
-	&.form-input--disabled {
-		color: $gray-300;
+  &.form-input--disabled {
+    color: palette.$gray-300;
 
-		&::placeholder {
-			color: $gray-300;
-		}
-	}
+    &::placeholder {
+      color: palette.$gray-300;
+    }
+  }
 }

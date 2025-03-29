@@ -1,201 +1,207 @@
+@use '../theme/palette';
+@use '../theme/shadows';
+@use '../theme/sizing';
+@use '../theme/text';
+@use '../utils/mixins';
+
 .tabs {
-	&.tabs--vertical {
-		display: flex;
-		flex-wrap: wrap;
+  &.tabs--vertical {
+    display: flex;
+    flex-wrap: wrap;
 
-		& > :not([hidden]) ~ :not([hidden]) {
-			margin-inline-start: spacing(6);
-			margin-inline-end: spacing(6);
-		}
-	}
-	&.tabs--horizontal > :not([hidden]) ~ :not([hidden]) {
-		margin-block-start: spacing(6);
-		margin-block-end: spacing(6);
-	}
+    & > :not([hidden]) ~ :not([hidden]) {
+      margin-inline-start: mixins.spacing(6);
+      margin-inline-end: mixins.spacing(6);
+    }
+  }
+  &.tabs--horizontal > :not([hidden]) ~ :not([hidden]) {
+    margin-block-start: mixins.spacing(6);
+    margin-block-end: mixins.spacing(6);
+  }
 
-	.tab__list {
-		display: flex;
-		align-items: center;
-		@include text-sm-leading-5-font-normal;
+  .tab__list {
+    display: flex;
+    align-items: center;
+    @include text.text-sm-leading-5-font-normal;
 
-		&.tab__list--stretch {
-			width: 100%;
-			flex-grow: 1;
+    &.tab__list--stretch {
+      width: 100%;
+      flex-grow: 1;
 
-			& > * {
-				flex-grow: 1;
-			}
-		}
+      & > * {
+        flex-grow: 1;
+      }
+    }
 
-		&.tab__list--fill {
-			gap: spacing(2);
-		}
+    &.tab__list--fill {
+      gap: mixins.spacing(2);
+    }
 
-		&.tab__list--underlined {
-			gap: spacing(1);
-			border-bottom: 1px solid $gray-100;
-		}
+    &.tab__list--underlined {
+      gap: mixins.spacing(1);
+      border-bottom: 1px solid palette.$gray-100;
+    }
 
-		&.tab__list--contained-top,
-		&.tab__list--contained-bottom {
-			overflow: hidden;
-			border-radius: $radius-md;
-			border: 1px solid $gray-200;
-			box-shadow: $shadows-xs;
+    &.tab__list--contained-top,
+    &.tab__list--contained-bottom {
+      overflow: hidden;
+      border-radius: sizing.$radius-md;
+      border: 1px solid palette.$gray-200;
+      box-shadow: shadows.$shadows-xs;
 
-			&:not(.tab__list--stretch) {
-				width: fit-content;
-			}
+      &:not(.tab__list--stretch) {
+        width: fit-content;
+      }
 
-			&:has(:focus-visible) {
-				overflow: visible;
-			}
-		}
-	}
+      &:has(:focus-visible) {
+        overflow: visible;
+      }
+    }
+  }
 
-	.tab__trigger {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		gap: spacing(1);
-		white-space: nowrap;
-		color: $gray-500;
-		outline-color: $purple-600;
-		transition-property: color, background-color, border-color,
-			text-decoration-color, fill, stroke;
-		transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-		transition-duration: 0.15s;
-		@include text-sm-leading-6-font-normal;
+  .tab__trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: mixins.spacing(1);
+    white-space: nowrap;
+    color: palette.$gray-500;
+    outline-color: palette.$purple-600;
+    transition-property: color, background-color, border-color,
+      text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 0.15s;
+    @include text.text-sm-leading-6-font-normal;
 
-		&:focus {
-			outline-width: 0;
-		}
+    &:focus {
+      outline-width: 0;
+    }
 
-		&:focus-visible {
-			outline-style: solid;
-			outline-width: 2px;
-			outline-offset: 2px;
-		}
+    &:focus-visible {
+      outline-style: solid;
+      outline-width: 2px;
+      outline-offset: 2px;
+    }
 
-		&:disabled {
-			opacity: 0.6;
-		}
+    &:disabled {
+      opacity: 0.6;
+    }
 
-		&[data-state="active"] {
-			@include text-sm-leading-6-font-medium;
-		}
+    &[data-state='active'] {
+      @include text.text-sm-leading-6-font-medium;
+    }
 
-		&.tab__trigger--fill {
-			border-radius: $radius-md;
-			background-color: #00000000;
-			padding-inline: spacing(3);
-			padding-block: spacing(2);
+    &.tab__trigger--fill {
+      border-radius: sizing.$radius-md;
+      background-color: #00000000;
+      padding-inline: mixins.spacing(3);
+      padding-block: mixins.spacing(2);
 
-			&:hover,
-			&[data-state="active"] {
-				background-color: $gray-50;
-				color: $gray-900;
-			}
-		}
+      &:hover,
+      &[data-state='active'] {
+        background-color: palette.$gray-50;
+        color: palette.$gray-900;
+      }
+    }
 
-		&.tab__trigger--underlined {
-			margin-block-end: -1px;
-			border-bottom: 2px solid transparent;
-			padding-inline: spacing(3);
-			padding-block-start: spacing(2);
-			padding-block-end: spacing(3);
+    &.tab__trigger--underlined {
+      margin-block-end: -1px;
+      border-bottom: 2px solid transparent;
+      padding-inline: mixins.spacing(3);
+      padding-block-start: mixins.spacing(2);
+      padding-block-end: mixins.spacing(3);
 
-			&:hover {
-				border-color: $gray-200;
-				color: $gray-900;
-			}
+      &:hover {
+        border-color: palette.$gray-200;
+        color: palette.$gray-900;
+      }
 
-			&:focus-visible {
-				outline-offset: -2px;
-			}
+      &:focus-visible {
+        outline-offset: -2px;
+      }
 
-			&[data-state="active"] {
-				color: $purple-600;
-				border-color: $purple-600;
-			}
-		}
+      &[data-state='active'] {
+        color: palette.$purple-600;
+        border-color: palette.$purple-600;
+      }
+    }
 
-		&.tab__trigger--contained-bottom {
-			border-block-end-width: 2px;
-			border-block-end-style: solid;
-			border-color: transparent;
+    &.tab__trigger--contained-bottom {
+      border-block-end-width: 2px;
+      border-block-end-style: solid;
+      border-color: transparent;
 
-			&:hover {
-				border-block-end-color: $gray-50;
-			}
+      &:hover {
+        border-block-end-color: palette.$gray-50;
+      }
 
-			&[data-state="active"] {
-				border-block-end-color: $purple-600;
-			}
-		}
+      &[data-state='active'] {
+        border-block-end-color: palette.$purple-600;
+      }
+    }
 
-		&.tab__trigger--contained-top {
-			border-block-start-width: 2px;
-			border-block-start-style: solid;
-			border-color: transparent;
+    &.tab__trigger--contained-top {
+      border-block-start-width: 2px;
+      border-block-start-style: solid;
+      border-color: transparent;
 
-			&:hover {
-				border-block-start-color: $gray-50;
-			}
+      &:hover {
+        border-block-start-color: palette.$gray-50;
+      }
 
-			&[data-state="active"] {
-				border-block-start-color: $purple-600;
-			}
-		}
+      &[data-state='active'] {
+        border-block-start-color: palette.$purple-600;
+      }
+    }
 
-		&.tab__trigger--contained-bottom,
-		&.tab__trigger--contained-top {
-			border-inline-end: 1px solid $gray-100;
-			background-color: transparent;
-			background-clip: padding-box;
-			padding-inline: spacing(4);
-			padding-block: spacing(3.5);
+    &.tab__trigger--contained-bottom,
+    &.tab__trigger--contained-top {
+      border-inline-end: 1px solid palette.$gray-100;
+      background-color: transparent;
+      background-clip: padding-box;
+      padding-inline: mixins.spacing(4);
+      padding-block: mixins.spacing(3.5);
 
-			&:hover:not(:disabled) {
-				background-color: $gray-50;
-				color: $gray-900;
-			}
+      &:hover:not(:disabled) {
+        background-color: palette.$gray-50;
+        color: palette.$gray-900;
+      }
 
-			&:first-child:focus-visible {
-				border-start-start-radius: 7px;
-				border-end-start-radius: 7px;
-			}
+      &:first-child:focus-visible {
+        border-start-start-radius: 7px;
+        border-end-start-radius: 7px;
+      }
 
-			&:last-child {
-				border-inline-end-width: 0;
+      &:last-child {
+        border-inline-end-width: 0;
 
-				&:focus-visible {
-					border-start-end-radius: 7px;
-					border-end-end-radius: 7px;
-				}
-			}
+        &:focus-visible {
+          border-start-end-radius: 7px;
+          border-end-end-radius: 7px;
+        }
+      }
 
-			&:focus-visible {
-				outline-offset: -2px;
-			}
+      &:focus-visible {
+        outline-offset: -2px;
+      }
 
-			&[data-state="active"] {
-				color: $purple-600;
-			}
-		}
-	}
+      &[data-state='active'] {
+        color: palette.$purple-600;
+      }
+    }
+  }
 
-	.tab__trigger-inner {
-		padding-inline: spacing(1);
-	}
+  .tab__trigger-inner {
+    padding-inline: mixins.spacing(1);
+  }
 
-	.tab__content {
-		outline-color: $purple-600;
+  .tab__content {
+    outline-color: palette.$purple-600;
 
-		&:focus-visible {
-			outline-style: solid;
-			outline-width: 2px;
-			outline-offset: 2px;
-		}
-	}
+    &:focus-visible {
+      outline-style: solid;
+      outline-width: 2px;
+      outline-offset: 2px;
+    }
+  }
 }
