@@ -1,31 +1,37 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import { ApolloWrapper } from "@/lib";
-import "@/style/Chords.scss";
-import { NetworkProvider } from "@/contexts";
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import { ApolloWrapper } from '@/lib';
+import '@/style/Chords.scss';
+import { NetworkProvider } from '@/contexts';
+import { Navigation } from '@/components/Navigation';
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-	title: "OnMixer CMS",
-	description: "Manage your networks with ease",
+  title: 'OnMixer CMS',
+  description: 'Manage your networks with ease',
 };
 
 export default function RootLayout({
-	children,
+  children,
 }: Readonly<{
-	children: React.ReactNode;
+  children: React.ReactNode;
 }>) {
-	return (
-		<html lang="en">
-			<head>
-				<link rel="icon" href="/favicon.svg" />
-			</head>
-			<body className={inter.className}>
-				<ApolloWrapper>
-					<NetworkProvider>{children}</NetworkProvider>
-				</ApolloWrapper>
-			</body>
-		</html>
-	);
+  return (
+    <html lang="en">
+      <head>
+        <link rel="icon" href="/favicon.svg" />
+      </head>
+      <body className={inter.className}>
+        <ApolloWrapper>
+          <NetworkProvider>
+            <div className="layout">
+              <Navigation />
+              <main>{children}</main>
+            </div>
+          </NetworkProvider>
+        </ApolloWrapper>
+      </body>
+    </html>
+  );
 }

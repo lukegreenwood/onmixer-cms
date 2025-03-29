@@ -8,16 +8,28 @@
   background-color: palette.$white-50;
   border-inline-end: 1px solid palette.$gray-100;
   padding: mixins.spacing(4);
+  max-height: 100vh;
+  overflow-y: auto;
 
   .navigation__logo {
     color: palette.$purple-500;
-    height: 40px;
-    margin-block-end: mixins.spacing(4);
+    padding-block-end: mixins.spacing(3);
+    position: sticky;
+    top: 0;
+    background-color: palette.$white-50;
 
     svg {
       height: 40px;
       width: auto;
     }
+  }
+
+  .navigation__menu-label {
+    padding-inline: mixins.spacing(2);
+    padding-block: mixins.spacing(1);
+    @include text.text-xs-leading-4-font-medium;
+    color: palette.$gray-500;
+    text-transform: capitalize;
   }
 
   .navigation__menu {
@@ -36,6 +48,10 @@
       @include text.text-sm-leading-6-font-normal;
       color: palette.$gray-900;
       text-decoration: none;
+
+      &.navigation__menu-item--level-1 {
+        margin-inline-start: mixins.spacing(8);
+      }
 
       .navigation__menu-item-text {
         flex-grow: 1;
@@ -56,6 +72,7 @@
     &.navigation__menu--divided {
       padding-block-end: mixins.spacing(4);
       border-block-end: 1px solid palette.$gray-100;
+      margin-block-end: mixins.spacing(4);
     }
   }
 }
