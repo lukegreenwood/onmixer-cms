@@ -15,13 +15,13 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  */
 type Documents = {
     "\n\tquery Debug {\n\t\tdebug {\n\t\t\tid\n\t\t\tstatus\n\t\t\trandomShow {\n\t\t\t\tid\n\t\t\t\tshortName\n\t\t\t\tepisodes {\n\t\t\t\t\ttotal\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n": typeof types.DebugDocument,
-    "\n\tquery GetNetworks {\n\t\tnetworks {\n\t\t\tid\n\t\t\tname\n\t\t\tcode\n\t\t}\n\t}\n": typeof types.GetNetworksDocument,
-    "\n\tquery GetNetwork($id: ID!) {\n\t\tnetwork(id: $id) {\n\t\t\tid\n\t\t\tname\n\t\t\tcode\n\t\t}\n\t}\n": typeof types.GetNetworkDocument,
+    "\n\tquery GetNetworks {\n\t\tnetworks {\n\t\t\tid\n\t\t\tname\n\t\t\tcode\n\t\t\tnetworkType\n\t\t\tlogoSvgIcon\n\t\t}\n\t}\n": typeof types.GetNetworksDocument,
+    "\n\tquery GetNetwork($id: ID!) {\n\t\tnetwork(id: $id) {\n\t\t\tid\n\t\t\tname\n\t\t\tcode\n\t\t\tnetworkType\n\t\t\tlogoSvgIcon\n\t\t}\n\t}\n": typeof types.GetNetworkDocument,
 };
 const documents: Documents = {
     "\n\tquery Debug {\n\t\tdebug {\n\t\t\tid\n\t\t\tstatus\n\t\t\trandomShow {\n\t\t\t\tid\n\t\t\t\tshortName\n\t\t\t\tepisodes {\n\t\t\t\t\ttotal\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n": types.DebugDocument,
-    "\n\tquery GetNetworks {\n\t\tnetworks {\n\t\t\tid\n\t\t\tname\n\t\t\tcode\n\t\t}\n\t}\n": types.GetNetworksDocument,
-    "\n\tquery GetNetwork($id: ID!) {\n\t\tnetwork(id: $id) {\n\t\t\tid\n\t\t\tname\n\t\t\tcode\n\t\t}\n\t}\n": types.GetNetworkDocument,
+    "\n\tquery GetNetworks {\n\t\tnetworks {\n\t\t\tid\n\t\t\tname\n\t\t\tcode\n\t\t\tnetworkType\n\t\t\tlogoSvgIcon\n\t\t}\n\t}\n": types.GetNetworksDocument,
+    "\n\tquery GetNetwork($id: ID!) {\n\t\tnetwork(id: $id) {\n\t\t\tid\n\t\t\tname\n\t\t\tcode\n\t\t\tnetworkType\n\t\t\tlogoSvgIcon\n\t\t}\n\t}\n": types.GetNetworkDocument,
 };
 
 /**
@@ -45,11 +45,11 @@ export function gql(source: "\n\tquery Debug {\n\t\tdebug {\n\t\t\tid\n\t\t\tsta
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n\tquery GetNetworks {\n\t\tnetworks {\n\t\t\tid\n\t\t\tname\n\t\t\tcode\n\t\t}\n\t}\n"): (typeof documents)["\n\tquery GetNetworks {\n\t\tnetworks {\n\t\t\tid\n\t\t\tname\n\t\t\tcode\n\t\t}\n\t}\n"];
+export function gql(source: "\n\tquery GetNetworks {\n\t\tnetworks {\n\t\t\tid\n\t\t\tname\n\t\t\tcode\n\t\t\tnetworkType\n\t\t\tlogoSvgIcon\n\t\t}\n\t}\n"): (typeof documents)["\n\tquery GetNetworks {\n\t\tnetworks {\n\t\t\tid\n\t\t\tname\n\t\t\tcode\n\t\t\tnetworkType\n\t\t\tlogoSvgIcon\n\t\t}\n\t}\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n\tquery GetNetwork($id: ID!) {\n\t\tnetwork(id: $id) {\n\t\t\tid\n\t\t\tname\n\t\t\tcode\n\t\t}\n\t}\n"): (typeof documents)["\n\tquery GetNetwork($id: ID!) {\n\t\tnetwork(id: $id) {\n\t\t\tid\n\t\t\tname\n\t\t\tcode\n\t\t}\n\t}\n"];
+export function gql(source: "\n\tquery GetNetwork($id: ID!) {\n\t\tnetwork(id: $id) {\n\t\t\tid\n\t\t\tname\n\t\t\tcode\n\t\t\tnetworkType\n\t\t\tlogoSvgIcon\n\t\t}\n\t}\n"): (typeof documents)["\n\tquery GetNetwork($id: ID!) {\n\t\tnetwork(id: $id) {\n\t\t\tid\n\t\t\tname\n\t\t\tcode\n\t\t\tnetworkType\n\t\t\tlogoSvgIcon\n\t\t}\n\t}\n"];
 
 export function gql(source: string) {
   return (documents as any)[source] ?? {};

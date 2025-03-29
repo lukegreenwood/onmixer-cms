@@ -3,11 +3,14 @@
 import { createContext } from 'react';
 import { useParams, usePathname } from 'next/navigation';
 import { useSuspenseQuery } from '@apollo/client';
-import { GET_NETWORK } from '@/graphql/queries/networks';
+import { GET_NETWORK, GET_NETWORKS } from '@/graphql/queries/networks';
 import { Network } from '@/graphql/__generated__/graphql';
 
 interface NetworkContextType {
-  currentNetwork: Pick<Network, 'id' | 'name' | 'code'> | null;
+  currentNetwork: Pick<
+    Network,
+    'id' | 'name' | 'code' | 'logoSvgIcon' | 'networkType'
+  > | null;
   isNetworkRoute: boolean;
 }
 
@@ -19,20 +22,22 @@ export function NetworkProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const params = useParams();
 
-  // Check if current route is a network route
   const isNetworkRoute = pathname?.startsWith('/networks/');
   const networkCode = isNetworkRoute ? (params.networkCode as string) : null;
 
-  // Fetch network details if we have a network ID
+  const { data: networksData } = useSuspenseQuery(GET_NETWORKS);
+
   const { data } = useSuspenseQuery(GET_NETWORK, {
     variables: { id: networkCode ?? '' },
     skip: !networkCode,
   });
 
+  const network = data?.network ?? networksData?.networks?.[0] ?? null;
+
   return (
     <NetworkContext.Provider
       value={{
-        currentNetwork: data?.network ?? null,
+        currentNetwork: network,
         isNetworkRoute,
       }}
     >

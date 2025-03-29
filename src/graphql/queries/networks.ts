@@ -1,4 +1,4 @@
-import { gql } from "../__generated__";
+import { gql } from '../__generated__';
 
 export const GET_NETWORKS = gql(`
 	query GetNetworks {
@@ -6,6 +6,8 @@ export const GET_NETWORKS = gql(`
 			id
 			name
 			code
+			networkType
+			logoSvgIcon
 		}
 	}
 `);
@@ -16,6 +18,8 @@ export const GET_NETWORK = gql(`
 			id
 			name
 			code
+			networkType
+			logoSvgIcon
 		}
 	}
 `);
