@@ -1,10 +1,13 @@
 'use client';
 
-import { useNetwork } from '@/hooks';
-import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { NavigationItem, navigation } from './routes';
+import { usePathname } from 'next/navigation';
+
+import { useNetwork } from '@/hooks';
+
 import { Logo } from '../Logo';
+
+import { NavigationItem, navigation } from './routes';
 
 export function Navigation() {
   const pathname = usePathname();

@@ -1,10 +1,11 @@
 'use client';
 
-import { createContext } from 'react';
-import { useParams, usePathname } from 'next/navigation';
 import { useSuspenseQuery } from '@apollo/client';
-import { GET_NETWORK, GET_NETWORKS } from '@/graphql/queries/networks';
+import { useParams, usePathname } from 'next/navigation';
+import { createContext } from 'react';
+
 import { Network } from '@/graphql/__generated__/graphql';
+import { GET_NETWORK, GET_NETWORKS } from '@/graphql/queries/networks';
 
 interface NetworkContextType {
   currentNetwork: Pick<

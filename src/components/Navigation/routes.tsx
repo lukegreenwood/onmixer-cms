@@ -16,6 +16,7 @@ import {
   ShowsIcon,
   TrackIcon,
 } from '@/components';
+
 import { NetworkSelector } from './NetworkSelector';
 
 export type NavigationItem =

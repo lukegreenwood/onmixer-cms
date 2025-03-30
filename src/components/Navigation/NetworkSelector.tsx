@@ -1,10 +1,11 @@
-import { useNetwork } from '@/hooks';
 import { useSuspenseQuery } from '@apollo/client';
-import { GET_NETWORKS } from '@/graphql';
-import Link from 'next/link';
 import { Badge, Popover } from '@soundwaves/components';
-import { NetworkType } from '@/graphql/__generated__/graphql';
+import Link from 'next/link';
 import { Suspense } from 'react';
+
+import { GET_NETWORKS } from '@/graphql';
+import { NetworkType } from '@/graphql/__generated__/graphql';
+import { useNetwork } from '@/hooks';
 
 const getColourForNetworkType = (networkType: NetworkType) => {
   switch (networkType) {

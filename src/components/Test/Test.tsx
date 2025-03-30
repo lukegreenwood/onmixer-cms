@@ -1,6 +1,7 @@
 "use client";
 
 import { useSuspenseQuery } from "@apollo/client";
+
 import { DEBUG } from "@/graphql";
 
 export const Test = () => {

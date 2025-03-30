@@ -1,5 +1,6 @@
-import { NetworkContext } from "@/contexts";
 import { useContext } from "react";
+
+import { NetworkContext } from "@/contexts";
 
 export function useNetwork() {
 	const context = useContext(NetworkContext);

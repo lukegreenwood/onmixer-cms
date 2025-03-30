@@ -1,35 +1,36 @@
 {
-	"name": "onmixer-cms",
-	"version": "0.1.0",
-	"private": true,
-	"scripts": {
-		"dev": "next dev --turbopack",
-		"build": "next build",
-		"start": "next start",
-		"lint": "next lint",
-		"compile": "graphql-codegen",
-		"watch": "graphql-codegen -w"
-	},
-	"dependencies": {
-		"@apollo/client": "^3.13.5",
-		"@apollo/experimental-nextjs-app-support": "^0.11.11",
-		"@soundwaves/components": "^1.2.5",
-		"next": "15.2.4",
-		"react": "^19.0.0",
-		"react-dom": "^19.0.0",
-		"sass": "^1.86.0"
-	},
-	"devDependencies": {
-		"@eslint/eslintrc": "^3",
-		"@graphql-codegen/cli": "^5.0.5",
-		"@graphql-codegen/client-preset": "^4.8.0",
-		"@graphql-typed-document-node/core": "^3.2.0",
-		"@types/node": "^20",
-		"@types/react": "^19",
-		"@types/react-dom": "^19",
-		"eslint": "^9",
-		"eslint-config-next": "15.2.4",
-		"graphql": "^16.10.0",
-		"typescript": "^5.8.2"
-	}
+  "name": "onmixer-cms",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "compile": "graphql-codegen",
+    "watch": "graphql-codegen -w"
+  },
+  "dependencies": {
+    "@apollo/client": "^3.13.5",
+    "@apollo/experimental-nextjs-app-support": "^0.11.11",
+    "@soundwaves/components": "^1.2.5",
+    "next": "15.2.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "sass": "^1.86.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@graphql-codegen/cli": "^5.0.5",
+    "@graphql-codegen/client-preset": "^4.8.0",
+    "@graphql-typed-document-node/core": "^3.2.0",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.2.4",
+    "graphql": "^16.10.0",
+    "typescript": "^5.8.2"
+  }
 }

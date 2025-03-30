@@ -1,9 +1,11 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import { ApolloWrapper } from '@/lib';
-import '@/style/Chords.scss';
-import { NetworkProvider } from '@/contexts';
+
 import { Navigation } from '@/components/Navigation';
+import { NetworkProvider } from '@/contexts';
+import { ApolloWrapper } from '@/lib';
+
+import '@/style/Chords.scss';
 
 const inter = Inter({ subsets: ['latin'] });
 
