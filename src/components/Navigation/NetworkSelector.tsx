@@ -4,6 +4,7 @@ import { GET_NETWORKS } from '@/graphql';
 import Link from 'next/link';
 import { Badge, Popover } from '@soundwaves/components';
 import { NetworkType } from '@/graphql/__generated__/graphql';
+import { Suspense } from 'react';
 
 const getColourForNetworkType = (networkType: NetworkType) => {
   switch (networkType) {
@@ -18,7 +19,7 @@ const getColourForNetworkType = (networkType: NetworkType) => {
   }
 };
 
-export function NetworkSelector() {
+function NetworkSelectorContent() {
   const { currentNetwork } = useNetwork();
   const { data } = useSuspenseQuery(GET_NETWORKS);
   const networks = data?.networks || [];
@@ -76,5 +77,23 @@ export function NetworkSelector() {
         </Popover.Content>
       </Popover>
     </div>
+  );
+}
+
+export function NetworkSelector() {
+  return (
+    <Suspense
+      fallback={
+        <div className="network-selector">
+          <div className="network-selector__trigger">
+            <div className="network-selector__trigger-text-container">
+              <span className="network-selector__trigger-text">Loading...</span>
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <NetworkSelectorContent />
+    </Suspense>
   );
 }
