@@ -1,6 +1,7 @@
 import { useSuspenseQuery } from '@apollo/client';
 import { Badge, Popover } from '@soundwaves/components';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Suspense } from 'react';
 
 import { GET_NETWORKS } from '@/graphql';
@@ -24,6 +25,14 @@ function NetworkSelectorContent() {
   const { currentNetwork } = useNetwork();
   const { data } = useSuspenseQuery(GET_NETWORKS);
   const networks = data?.networks || [];
+  const pathname = usePathname();
+
+  const getNetworkPath = (networkCode: string) => {
+    if (pathname.includes('/networks/')) {
+      return pathname.replace(/\/networks\/[^/]+/, `/networks/${networkCode}`);
+    }
+    return `/networks/${networkCode}`;
+  };
 
   return (
     <div className="network-selector">
@@ -48,7 +57,7 @@ function NetworkSelectorContent() {
           {networks.map((network) => (
             <Link
               key={network.id}
-              href={`/networks/${network.code}`}
+              href={getNetworkPath(network.code)}
               className="network-selector__item"
             >
               {network.logoSvgIcon && (

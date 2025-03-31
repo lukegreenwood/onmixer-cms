@@ -1,1 +1,2 @@
-export { useNetwork } from "./useNetwork";
+export { useNetwork } from './useNetwork';
+export { useSchedule } from './useSchedule';
