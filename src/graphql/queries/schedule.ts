@@ -17,6 +17,7 @@ export const GET_SCHEDULE = gql(`
 			networks {
 				id
                 name
+                logoSvgIcon
 			}
 			episode {
 				name

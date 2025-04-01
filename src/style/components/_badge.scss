@@ -17,6 +17,8 @@
 
   .badge__icon {
     color: palette.$gray-400;
+    align-items: center;
+    display: flex;
   }
 
   .badge__content {

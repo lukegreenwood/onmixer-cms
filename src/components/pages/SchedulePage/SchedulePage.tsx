@@ -2,24 +2,95 @@
 
 import {
   Alert,
+  Badge,
   Button,
   ButtonGroup,
   DropdownMenu,
 } from '@soundwaves/components';
-import { format, isValid, parse } from 'date-fns';
+import { createColumnHelper } from '@tanstack/react-table';
+import { format, isValid, parse, subDays, addDays } from 'date-fns';
+import { useRouter } from 'next/navigation';
 import { Fragment } from 'react';
 
 import {
   ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  DataTable,
   PageHeader,
 } from '@/components';
+import { ScheduleQuery } from '@/graphql/__generated__/graphql';
 import { useNetwork, useSchedule } from '@/hooks';
 
 interface SchedulePageProps {
   date: string;
 }
+
+type ScheduleItem = ScheduleQuery['schedule']['items'][0];
+const columnHelper = createColumnHelper<ScheduleItem>();
+
+const columns = [
+  columnHelper.accessor('id', {
+    header: 'ID',
+    cell: (props) => (
+      <Badge color="gray" shape="rounded" size="md">
+        {props.getValue()}
+      </Badge>
+    ),
+  }),
+  columnHelper.accessor('episode', {
+    header: 'Episode',
+    cell: (props) => {
+      const episode = props.getValue();
+      return (
+        <div>
+          <p>{episode.show.shortName}</p>
+          <p>{episode.name}</p>
+        </div>
+      );
+    },
+  }),
+  columnHelper.accessor('start', {
+    header: 'Broadcast Timings',
+    cell: (props) => {
+      const scheduleItem = props.row.original;
+      return (
+        <p>
+          {format(scheduleItem.start, 'HH:mm')} -{' '}
+          {format(scheduleItem.end, 'HH:mm')}
+        </p>
+      );
+    },
+  }),
+  columnHelper.display({
+    id: 'networks',
+    header: 'Networks',
+    cell: (props) => {
+      const networks = props.row.original.networks;
+      return networks.map((network) => (
+        <Badge
+          key={network.id}
+          color="blue"
+          shape="rounded"
+          size="md"
+          before={
+            <div
+              style={{
+                width: '16px',
+                height: '16px',
+              }}
+              dangerouslySetInnerHTML={{
+                __html: network.logoSvgIcon,
+              }}
+            />
+          }
+        >
+          {network.name}
+        </Badge>
+      ));
+    },
+  }),
+];
 
 const getDateFromParams = (date: string) => {
   try {
@@ -44,13 +115,15 @@ const getDateFromParams = (date: string) => {
 
 export const SchedulePage = ({ date }: SchedulePageProps) => {
   const scheduleDate = getDateFromParams(date);
+  const router = useRouter();
+
   const { currentNetwork } = useNetwork();
-  const { data: schedule, error } = useSchedule({
-    date: scheduleDate?.toISOString(),
+  const { data, error } = useSchedule({
+    date: scheduleDate,
     networkId: currentNetwork?.id,
   });
 
-  console.log(schedule);
+  console.log(data);
   if (!scheduleDate) {
     return (
       <Alert
@@ -80,11 +153,31 @@ export const SchedulePage = ({ date }: SchedulePageProps) => {
         actions={
           <Fragment>
             <ButtonGroup size="md">
-              <ButtonGroup.Item isIconOnly before={<ChevronLeftIcon />} />
+              <ButtonGroup.Item
+                isIconOnly
+                before={<ChevronLeftIcon />}
+                onClick={() => {
+                  const prevDate = subDays(scheduleDate, 1);
+                  const formattedDate = format(prevDate, 'yyyy-MM-dd');
+                  router.push(
+                    `/networks/${currentNetwork?.code}/schedule/${formattedDate}`,
+                  );
+                }}
+              />
               <ButtonGroup.Item>
                 {format(scheduleDate, 'dd/MM/yyyy')}
               </ButtonGroup.Item>
-              <ButtonGroup.Item isIconOnly after={<ChevronRightIcon />} />
+              <ButtonGroup.Item
+                isIconOnly
+                after={<ChevronRightIcon />}
+                onClick={() => {
+                  const nextDate = addDays(scheduleDate, 1);
+                  const formattedDate = format(nextDate, 'yyyy-MM-dd');
+                  router.push(
+                    `/networks/${currentNetwork?.code}/schedule/${formattedDate}`,
+                  );
+                }}
+              />
             </ButtonGroup>
 
             <DropdownMenu>
@@ -100,9 +193,14 @@ export const SchedulePage = ({ date }: SchedulePageProps) => {
                 </DropdownMenu.Group>
               </DropdownMenu.Content>
             </DropdownMenu>
+            <Button variant="outline" isIconOnly before={<ChevronLeftIcon />} />
+            <Button>Apply schedule template</Button>
           </Fragment>
         }
       />
+      {data?.schedule.items && (
+        <DataTable data={data.schedule.items} columns={columns} />
+      )}
     </Fragment>
   );
 };

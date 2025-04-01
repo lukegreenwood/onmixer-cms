@@ -6,11 +6,14 @@ export const useSchedule = ({
   date,
   networkId,
 }: {
-  date: string | undefined;
+  date: Date | undefined;
   networkId: number | undefined;
 }) => {
   const result = useSuspenseQuery(GET_SCHEDULE, {
-    variables: { from: date, network: networkId?.toString() ?? '' },
+    variables: {
+      from: date ?? new Date(),
+      network: networkId?.toString() ?? '',
+    },
     skip: !date || !networkId,
   });
 

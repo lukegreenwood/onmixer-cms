@@ -40,7 +40,8 @@
 // Blocks
 @use 'blocks/layout';
 @use 'blocks/navigation';
-@use 'blocks/page-header';
+@use 'blocks/pageHeader';
+@use 'blocks/dataTable';
 
 // CMS
 @use 'cms-components/networkSelector';

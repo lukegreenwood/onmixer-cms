@@ -18,6 +18,8 @@ const getColourForNetworkType = (networkType: NetworkType) => {
       return 'green';
     case NetworkType.Stream:
       return 'blue';
+    default:
+      return 'gray';
   }
 };
 
