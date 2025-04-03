@@ -2,6 +2,7 @@ import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
+  RowSelectionState,
   useReactTable,
 } from '@tanstack/react-table';
 
@@ -10,24 +11,27 @@ export type DataTableProps<TData> = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   columns: ColumnDef<TData, any>[];
   onRowClick?: (row: TData) => void;
-  selectedRows?: TData[];
+  selectedRows?: RowSelectionState | undefined;
 };
 
 export function DataTable<TData>({
   data,
   columns,
   onRowClick,
-  selectedRows = [],
+  selectedRows = {},
 }: DataTableProps<TData>) {
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    state: {
+      rowSelection: selectedRows,
+    },
   });
 
   return (
     <table className="data-table">
-      <thead>
+      <thead className="data-table__header">
         {table.getHeaderGroups().map((headerGroup) => (
           <tr key={headerGroup.id}>
             {headerGroup.headers.map((header) => (
@@ -35,10 +39,12 @@ export function DataTable<TData>({
                 key={header.id}
                 className="data-table__cell data-table__header-cell"
               >
-                {flexRender(
-                  header.column.columnDef.header,
-                  header.getContext(),
-                )}
+                {header.isPlaceholder
+                  ? null
+                  : flexRender(
+                      header.column.columnDef.header,
+                      header.getContext(),
+                    )}
               </th>
             ))}
           </tr>
@@ -50,7 +56,7 @@ export function DataTable<TData>({
             key={row.id}
             onClick={() => onRowClick?.(row.original)}
             className={
-              selectedRows.includes(row.original)
+              row.getIsSelected()
                 ? 'data-table__row data-table__row--selected'
                 : 'data-table__row'
             }

@@ -19,6 +19,15 @@
       }
     ],
     "paths": {
+      "@/components/*": ["./src/components/*"],
+      "@/blocks/*": ["./src/components/blocks/*"],
+      "@/blocks": ["./src/components/blocks"],
+      "@/pages/*": ["./src/components/pages/*"],
+      "@/pages": ["./src/components/pages"],
+      "@/icons/*": ["./src/components/icons/*"],
+      "@/icons": ["./src/components/icons"],
+      "@/utils/*": ["./src/utils/*"],
+      "@/utils": ["./src/utils"],
       "@/*": ["./src/*"]
     }
   },

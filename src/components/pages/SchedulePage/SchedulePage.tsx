@@ -12,15 +12,16 @@ import { format, isValid, parse, subDays, addDays } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { Fragment } from 'react';
 
+import { ItemSelector, PrimarySecondary } from '@/components';
+import { ScheduleQuery } from '@/graphql/__generated__/graphql';
+import { useNetwork, useSchedule } from '@/hooks';
+import { PageHeader, DataTable } from '@/blocks';
 import {
+  CalendarEditIcon,
   ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  DataTable,
-  PageHeader,
-} from '@/components';
-import { ScheduleQuery } from '@/graphql/__generated__/graphql';
-import { useNetwork, useSchedule } from '@/hooks';
+} from '@/icons';
 
 interface SchedulePageProps {
   date: string;
@@ -32,21 +33,18 @@ const columnHelper = createColumnHelper<ScheduleItem>();
 const columns = [
   columnHelper.accessor('id', {
     header: 'ID',
-    cell: (props) => (
-      <Badge color="gray" shape="rounded" size="md">
-        {props.getValue()}
-      </Badge>
-    ),
+    cell: (props) => <>#{props.getValue()}</>,
   }),
   columnHelper.accessor('episode', {
     header: 'Episode',
     cell: (props) => {
       const episode = props.getValue();
       return (
-        <div>
-          <p>{episode.show.shortName}</p>
-          <p>{episode.name}</p>
-        </div>
+        <ItemSelector
+          primaryText={episode.name}
+          secondaryText={episode.show.shortName}
+          content={<div>Selection component</div>}
+        />
       );
     },
   }),
@@ -55,10 +53,23 @@ const columns = [
     cell: (props) => {
       const scheduleItem = props.row.original;
       return (
-        <p>
-          {format(scheduleItem.start, 'HH:mm')} -{' '}
-          {format(scheduleItem.end, 'HH:mm')}
-        </p>
+        <ItemSelector
+          trigger={
+            <div className="primary-secondary-list">
+              <PrimarySecondary
+                primary={format(scheduleItem.start, 'HH:mm')}
+                secondary={format(scheduleItem.start, 'dd/MM/yyyy')}
+              />
+              <p>-</p>
+              <PrimarySecondary
+                primary={format(scheduleItem.end, 'HH:mm')}
+                secondary={format(scheduleItem.end, 'dd/MM/yyyy')}
+              />
+            </div>
+          }
+          content={<div>Selection component</div>}
+          icon={<CalendarEditIcon />}
+        />
       );
     },
   }),
@@ -126,22 +137,27 @@ export const SchedulePage = ({ date }: SchedulePageProps) => {
   console.log(data);
   if (!scheduleDate) {
     return (
-      <Alert
-        variant="expanded"
-        color="error"
-        title="Could not get schedule for date"
-      >
-        Please check the date provided is in the format YYYY-MM-DD or DD-MM-YYYY
-        or go back to today by clicking schedule from the menu to the left.
-      </Alert>
+      <div className="page-content">
+        <Alert
+          variant="expanded"
+          color="error"
+          title="Could not get schedule for date"
+        >
+          Please check the date provided is in the format YYYY-MM-DD or
+          DD-MM-YYYY or go back to today by clicking schedule from the menu to
+          the left.
+        </Alert>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Alert variant="expanded" color="error" title="Error fetching schedule">
-        {error.message}
-      </Alert>
+      <div className="page-content">
+        <Alert variant="expanded" color="error" title="Error fetching schedule">
+          {error.message}
+        </Alert>
+      </div>
     );
   }
 
@@ -186,10 +202,12 @@ export const SchedulePage = ({ date }: SchedulePageProps) => {
                   More options
                 </Button>
               </DropdownMenu.Trigger>
-              <DropdownMenu.Content>
+              <DropdownMenu.Content style={{ zIndex: 2 }}>
                 <DropdownMenu.Group>
-                  <DropdownMenu.Item>Item 1</DropdownMenu.Item>
-                  <DropdownMenu.Item>Item 2</DropdownMenu.Item>
+                  <DropdownMenu.Item>
+                    Schedule an existing episode
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Item>Schedule a new episode</DropdownMenu.Item>
                 </DropdownMenu.Group>
               </DropdownMenu.Content>
             </DropdownMenu>
@@ -198,9 +216,11 @@ export const SchedulePage = ({ date }: SchedulePageProps) => {
           </Fragment>
         }
       />
-      {data?.schedule.items && (
-        <DataTable data={data.schedule.items} columns={columns} />
-      )}
+      <div className="page-content">
+        {data?.schedule.items && (
+          <DataTable data={data.schedule.items} columns={columns} />
+        )}
+      </div>
     </Fragment>
   );
 };

@@ -1,14 +1,35 @@
 @use '../theme/palette';
+@use '../theme/sizing';
 @use '../theme/text';
 @use '../utils/mixins';
 
 .data-table {
   width: 100%;
   border-collapse: collapse;
+  border-radius: sizing.$radius-md;
+  background-color: palette.$white-50;
+  @include text.text-sm-leading-5-font-normal;
+
+  .data-table__header {
+    background-color: palette.$gray-50;
+    border-start-start-radius: sizing.$radius-md;
+    border-start-end-radius: sizing.$radius-md;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+
+    .data-table__header-cell:first-child {
+      border-start-start-radius: sizing.$radius-md;
+    }
+
+    .data-table__header-cell:last-child {
+      border-start-end-radius: sizing.$radius-md;
+    }
+  }
 
   .data-table__header-cell {
     text-align: left;
-    @include text.text-xs-leading-4-font-medium;
+    @include text.text-sm-leading-6-font-medium;
     color: palette.$gray-500;
     padding: mixins.spacing(2);
   }

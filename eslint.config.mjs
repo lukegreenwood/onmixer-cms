@@ -29,9 +29,17 @@ const eslintConfig = [
             'builtin',
             'external',
             'internal',
+            ['path', 'path-alias'],
             'parent',
             'sibling',
             'index',
+          ],
+          pathGroups: [
+            {
+              pattern: '@/**',
+              group: 'path-alias',
+              position: 'after',
+            },
           ],
           'newlines-between': 'always',
           alphabetize: {

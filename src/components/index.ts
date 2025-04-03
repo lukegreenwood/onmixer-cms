@@ -1,7 +1,8 @@
 export { Test } from './Test';
 export { Logo } from './Logo';
-export { PageHeader } from './PageHeader';
-export { DataTable } from './DataTable';
+export { ItemSelector } from './ItemSelector';
+export { PrimarySecondary } from './PrimarySecondary';
 
+export * from './blocks';
 export * from './icons';
 export * from './pages';

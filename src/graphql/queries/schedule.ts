@@ -7,7 +7,7 @@ export const GET_SCHEDULE = gql(`
 	$to: DateTime
 ) {
 	schedule(
-		filters: { from: $from, networkId: $network, to: $to }
+		filters: { from: $from, networkId: $network, to: $to, amount: 200 }
 	) {
 		total
 		items {

@@ -1,0 +1,8 @@
+@use '../theme/palette';
+@use '../theme/sizing';
+@use '../theme/text';
+@use '../utils/mixins';
+
+.page-content {
+  margin: mixins.spacing(8);
+}

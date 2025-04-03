@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { ReactNode } from 'react';
 
-import { ArrowBackIcon } from '../icons';
+import { ArrowBackIcon } from '@/icons';
 
 interface PageHeaderProps {
   heading: string;

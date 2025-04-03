@@ -41,7 +41,10 @@
 @use 'blocks/layout';
 @use 'blocks/navigation';
 @use 'blocks/pageHeader';
+@use 'blocks/pageContent';
 @use 'blocks/dataTable';
 
 // CMS
 @use 'cms-components/networkSelector';
+@use 'cms-components/itemSelector';
+@use 'cms-components/primarySecondary';
