@@ -1,0 +1,83 @@
+@use '../theme/focus';
+@use '../theme/palette';
+@use '../theme/sizing';
+@use '../theme/text';
+@use '../utils/mixins';
+
+.calendar {
+  min-width: 265px;
+
+  &.calendar--disabled {
+    .calendar__grid .calendar__cell {
+      opacity: 0.5;
+      cursor: default;
+    }
+  }
+
+  &.calendar--read-only .calendar__grid .calendar__cell {
+    &:hover:not(.calendar__cell--disabled):not(.calendar__cell--selected) {
+      background-color: transparent;
+      cursor: default;
+    }
+  }
+
+  .calendar__navigation {
+    display: flex;
+    gap: mixins.spacing(2);
+    align-items: center;
+    margin-block-end: mixins.spacing(2);
+
+    .select {
+      flex-grow: 1;
+    }
+  }
+
+  .calendar__grid {
+    width: 100%;
+    border-spacing: 0;
+
+    .calendar__cell {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: sizing.$radius-sm;
+      cursor: pointer;
+      @include text.text-xs-leading-4-font-normal;
+      font-variant-numeric: tabular-nums;
+      margin-inline: auto;
+
+      &:hover:not(.calendar__cell--disabled):not(.calendar__cell--selected) {
+        background-color: palette.$gray-50;
+      }
+
+      &.calendar__cell--focus {
+        @include focus.focus-ring-gray-900;
+      }
+
+      &.calendar__cell--selected {
+        background-color: palette.$purple-50;
+
+        &.calendar__cell--focus {
+          @include focus.focus-ring-purple-500;
+        }
+      }
+
+      &.calendar__cell--disabled {
+        color: palette.$gray-400;
+        cursor: default;
+      }
+    }
+
+    thead {
+      th {
+        width: 32px;
+        padding-block: mixins.spacing(2);
+        align-items: center;
+        justify-content: center;
+        @include text.text-xs-leading-4-font-medium;
+      }
+    }
+  }
+}

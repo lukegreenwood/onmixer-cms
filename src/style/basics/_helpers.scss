@@ -1,0 +1,17 @@
+@use '../utils/mixins';
+
+@for $i from 1 through 8 {
+  .padding-#{$i} {
+    padding: mixins.spacing($i);
+  }
+}
+
+@for $i from 1 through 8 {
+  .margin-#{$i} {
+    margin: mixins.spacing($i);
+  }
+}
+
+.width-300 {
+  width: 300px;
+}

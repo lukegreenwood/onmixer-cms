@@ -29,15 +29,16 @@ const eslintConfig = [
             'builtin',
             'external',
             'internal',
-            ['path', 'path-alias'],
             'parent',
             'sibling',
             'index',
+            'object',
+            'type',
           ],
           pathGroups: [
             {
               pattern: '@/**',
-              group: 'path-alias',
+              group: 'internal',
               position: 'after',
             },
           ],

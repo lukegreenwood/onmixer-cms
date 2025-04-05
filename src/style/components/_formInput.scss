@@ -13,6 +13,7 @@
   @include text.text-sm-leading-6-font-normal;
   border-radius: sizing.$radius-md;
   text-overflow: ellipsis;
+  width: 100%;
 
   &::placeholder {
     color: palette.$gray-500;
@@ -35,6 +36,37 @@
 
     &::placeholder {
       color: palette.$gray-300;
+    }
+  }
+
+  &.form-input--segments {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    gap: mixins.spacing(0.5);
+
+    .form-input__segment {
+      display: inline-block;
+      font-variant-numeric: tabular-nums;
+      border-radius: sizing.$radius-sm;
+      text-align: center;
+
+      &:focus {
+        outline: none;
+        background-color: palette.$purple-500;
+        color: palette.$white-900;
+
+        .form-input__segment-placeholder {
+          color: palette.$white-900;
+        }
+      }
+
+      .form-input__segment-placeholder {
+        display: block;
+        width: 100%;
+        text-align: center;
+        color: palette.$gray-500;
+      }
     }
   }
 }

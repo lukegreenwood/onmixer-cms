@@ -1,9 +1,10 @@
-import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 
 import { Navigation } from '@/components/Navigation';
 import { NetworkProvider } from '@/contexts';
 import { ApolloWrapper } from '@/lib';
+
+import type { Metadata } from 'next';
 
 import '@/style/Chords.scss';
 

@@ -82,6 +82,7 @@
     background-color: palette.$white-50;
     padding-block: mixins.spacing(2);
     box-shadow: shadows.$shadows--overlay--light;
+    max-height: calc(var(--radix-select-content-available-height) - 16px);
 
     &.select__content--fade-in-down[data-side='bottom'] {
       transform-origin: var(--radix-popper-transform-origin);
@@ -127,7 +128,6 @@
   }
 
   .select__viewport {
-    height: var(--radix-select-trigger-height);
     min-width: calc(var(--radix-select-trigger-width) + 1px);
   }
 

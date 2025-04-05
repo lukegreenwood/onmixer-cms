@@ -17,6 +17,7 @@
 @use 'components/badge';
 @use 'components/button';
 @use 'components/buttonGroup';
+@use 'components/calendar';
 @use 'components/checkbox';
 @use 'components/checkboxGroup';
 @use 'components/dropdownMenu';
@@ -48,3 +49,8 @@
 @use 'cms-components/networkSelector';
 @use 'cms-components/itemSelector';
 @use 'cms-components/primarySecondary';
+@use 'cms-components/scheduleItemEditor';
+
+// Basics
+@use 'basics/list';
+@use 'basics/helpers';

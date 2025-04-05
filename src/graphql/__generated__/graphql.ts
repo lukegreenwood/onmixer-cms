@@ -15,7 +15,7 @@ export type Scalars = {
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
   /** DateTime custom scalar type that expects ISO format strings */
-  DateTime: { input: Date; output: Date; }
+  DateTime: { input: string; output: string; }
   /** DayOfWeek custom scalar type that expects a valid day of the week */
   DayOfWeek: { input: any; output: any; }
   Upload: { input: any; output: any; }
@@ -1159,7 +1159,7 @@ export type ScheduleQueryVariables = Exact<{
 }>;
 
 
-export type ScheduleQuery = { __typename?: 'Query', schedule: { __typename?: 'ScheduleList', total: number, items: Array<{ __typename?: 'ScheduleItem', id: number, start: Date, end: Date, networks: Array<{ __typename?: 'Network', id: number, name: string, logoSvgIcon: string }>, episode: { __typename?: 'Episode', name: string, show: { __typename?: 'Show', shortName: string }, broadcasts: Array<{ __typename?: 'Broadcast', id: number, start: Date, end: Date }> } }> } };
+export type ScheduleQuery = { __typename?: 'Query', schedule: { __typename?: 'ScheduleList', total: number, items: Array<{ __typename?: 'ScheduleItem', id: number, start: string, end: string, networks: Array<{ __typename?: 'Network', id: number, name: string, logoSvgIcon: string }>, episode: { __typename?: 'Episode', name: string, show: { __typename?: 'Show', shortName: string }, broadcasts: Array<{ __typename?: 'Broadcast', id: number, start: string, end: string }> } }> } };
 
 
 export const DebugDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Debug"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"debug"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"randomShow"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"shortName"}},{"kind":"Field","name":{"kind":"Name","value":"episodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"total"}}]}}]}}]}}]}}]} as unknown as DocumentNode<DebugQuery, DebugQueryVariables>;

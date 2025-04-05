@@ -1,3 +1,5 @@
+'use client';
+
 import { Popover } from '@soundwaves/components';
 
 import { ChevronDownIcon } from '../icons';
@@ -50,7 +52,6 @@ export const ItemSelector = ({
         side="bottom"
         sideOffset={2}
         align="start"
-        asChild
         className="item-selector-content"
       >
         {content}

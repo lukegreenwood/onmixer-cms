@@ -11,7 +11,7 @@ export const useSchedule = ({
 }) => {
   const result = useSuspenseQuery(GET_SCHEDULE, {
     variables: {
-      from: date ?? new Date(),
+      from: date?.toISOString() ?? new Date().toISOString(),
       network: networkId?.toString() ?? '',
     },
     skip: !date || !networkId,

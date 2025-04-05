@@ -6,6 +6,7 @@ export { ChevronDownIcon } from './ChevronDown';
 export { ChevronLeftIcon } from './ChevronLeft';
 export { ChevronRightIcon } from './ChevronRight';
 export { ChevronUpIcon } from './ChevronUp';
+export { CopyIcon } from './Copy';
 export { DashboardIcon } from './Dashbaord';
 export { EpisodesIcon } from './Episodes';
 export { FeedIcon } from './Feed';

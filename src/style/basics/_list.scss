@@ -1,0 +1,12 @@
+@use '../utils/mixins';
+
+.list {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: mixins.spacing(1);
+
+  &.list--vertical {
+    flex-direction: column;
+  }
+}

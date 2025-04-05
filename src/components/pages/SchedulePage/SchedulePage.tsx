@@ -5,22 +5,30 @@ import {
   Badge,
   Button,
   ButtonGroup,
+  Calendar,
   DropdownMenu,
+  Popover,
+  Tooltip,
 } from '@soundwaves/components';
 import { createColumnHelper } from '@tanstack/react-table';
 import { format, isValid, parse, subDays, addDays } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { Fragment } from 'react';
 
-import { ItemSelector, PrimarySecondary } from '@/components';
+import { PageHeader, DataTable } from '@/blocks';
+import {
+  ItemSelector,
+  PrimarySecondary,
+  ScheduleItemEditor,
+} from '@/components';
 import { ScheduleQuery } from '@/graphql/__generated__/graphql';
 import { useNetwork, useSchedule } from '@/hooks';
-import { PageHeader, DataTable } from '@/blocks';
 import {
   CalendarEditIcon,
   ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  CopyIcon,
 } from '@/icons';
 
 interface SchedulePageProps {
@@ -67,7 +75,7 @@ const columns = [
               />
             </div>
           }
-          content={<div>Selection component</div>}
+          content={<ScheduleItemEditor item={scheduleItem} />}
           icon={<CalendarEditIcon />}
         />
       );
@@ -78,27 +86,32 @@ const columns = [
     header: 'Networks',
     cell: (props) => {
       const networks = props.row.original.networks;
-      return networks.map((network) => (
-        <Badge
-          key={network.id}
-          color="blue"
-          shape="rounded"
-          size="md"
-          before={
-            <div
-              style={{
-                width: '16px',
-                height: '16px',
-              }}
-              dangerouslySetInnerHTML={{
-                __html: network.logoSvgIcon,
-              }}
-            />
-          }
-        >
-          {network.name}
-        </Badge>
-      ));
+
+      return (
+        <div className="list">
+          {networks.map((network) => (
+            <Badge
+              key={network.id}
+              color="blue"
+              shape="rounded"
+              size="md"
+              before={
+                <div
+                  style={{
+                    width: '16px',
+                    height: '16px',
+                  }}
+                  dangerouslySetInnerHTML={{
+                    __html: network.logoSvgIcon,
+                  }}
+                />
+              }
+            >
+              {network.name}
+            </Badge>
+          ))}
+        </div>
+      );
     },
   }),
 ];
@@ -180,9 +193,29 @@ export const SchedulePage = ({ date }: SchedulePageProps) => {
                   );
                 }}
               />
-              <ButtonGroup.Item>
-                {format(scheduleDate, 'dd/MM/yyyy')}
-              </ButtonGroup.Item>
+              <Popover>
+                <Popover.Trigger asChild>
+                  <ButtonGroup.Item>
+                    {format(scheduleDate, 'dd/MM/yyyy')}
+                  </ButtonGroup.Item>
+                </Popover.Trigger>
+                <Popover.Portal>
+                  <Popover.Content style={{ zIndex: 3 }}>
+                    <Calendar
+                      value={scheduleDate}
+                      onChange={(date) => {
+                        const formattedDate = format(
+                          date.toDate('UTC'),
+                          'yyyy-MM-dd',
+                        );
+                        router.push(
+                          `/networks/${currentNetwork?.code}/schedule/${formattedDate}`,
+                        );
+                      }}
+                    />
+                  </Popover.Content>
+                </Popover.Portal>
+              </Popover>
               <ButtonGroup.Item
                 isIconOnly
                 after={<ChevronRightIcon />}
@@ -195,7 +228,6 @@ export const SchedulePage = ({ date }: SchedulePageProps) => {
                 }}
               />
             </ButtonGroup>
-
             <DropdownMenu>
               <DropdownMenu.Trigger asChild>
                 <Button variant="outline" after={<ChevronDownIcon />}>
@@ -211,7 +243,12 @@ export const SchedulePage = ({ date }: SchedulePageProps) => {
                 </DropdownMenu.Group>
               </DropdownMenu.Content>
             </DropdownMenu>
-            <Button variant="outline" isIconOnly before={<ChevronLeftIcon />} />
+            <Tooltip
+              content="Duplicate current days schedule"
+              color="secondary"
+            >
+              <Button variant="outline" isIconOnly before={<CopyIcon />} />
+            </Tooltip>
             <Button>Apply schedule template</Button>
           </Fragment>
         }

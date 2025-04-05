@@ -1,0 +1,21 @@
+@use '../utils/mixins';
+@use '../theme/text';
+
+.schedule-item-editor {
+  display: flex;
+  flex-direction: column;
+  gap: mixins.spacing(2);
+  padding: mixins.spacing(2);
+  width: 400px;
+
+  .schedule-item-editor__row {
+    display: grid;
+    grid-template-columns: 20% auto 30%;
+    align-items: center;
+    gap: mixins.spacing(2);
+
+    .schedule-item-editor__row-label {
+      @include text.text-sm-leading-6-font-medium;
+    }
+  }
+}
