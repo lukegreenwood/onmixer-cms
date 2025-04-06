@@ -4,26 +4,28 @@ import { Popover } from '@soundwaves/components';
 
 import { ChevronDownIcon } from '../icons';
 
-type ItemSelectorProps =
+type ItemSelectorProps = {
+  onOpenChange?: (open: boolean) => void;
+  content: React.ReactNode;
+  icon?: React.ReactNode;
+} & (
   | {
       primaryText: string;
       secondaryText: string;
-      content: React.ReactNode;
-      icon?: React.ReactNode;
     }
   | {
       trigger: React.ReactNode;
-      content: React.ReactNode;
-      icon?: React.ReactNode;
-    };
+    }
+);
 
 export const ItemSelector = ({
   content,
   icon,
+  onOpenChange,
   ...restProps
 }: ItemSelectorProps) => {
   return (
-    <Popover>
+    <Popover onOpenChange={onOpenChange}>
       <Popover.Trigger asChild>
         <button className="item-selector">
           <span className="item-selector__text">

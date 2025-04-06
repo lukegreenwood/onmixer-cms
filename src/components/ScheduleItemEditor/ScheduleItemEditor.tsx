@@ -1,5 +1,5 @@
 'use client';
-import { DatePicker, TimeField } from '@soundwaves/components';
+import { Button, DatePicker, Popover, TimeField } from '@soundwaves/components';
 import { format, parse, parseISO } from 'date-fns';
 import { Controller, useForm } from 'react-hook-form';
 
@@ -30,7 +30,6 @@ export const ScheduleItemEditor = ({
           name="start"
           render={({ field }) => {
             const { onChange, value: currentValue, ...rest } = field;
-
             return (
               <DatePicker
                 aria-labelledby={`${id}-start-label`}
@@ -38,9 +37,15 @@ export const ScheduleItemEditor = ({
                 value={currentValue}
                 onChange={(value) => {
                   if (value) {
-                    onChange(
-                      parse(value.toString(), 'yyyy-MM-dd', currentValue),
+                    const newDate = parse(
+                      value.toString(),
+                      'yyyy-MM-dd',
+                      new Date(),
                     );
+                    newDate.setHours(currentValue.getHours());
+                    newDate.setMinutes(currentValue.getMinutes());
+                    newDate.setSeconds(currentValue.getSeconds());
+                    onChange(newDate);
                   }
                 }}
               />
@@ -85,9 +90,15 @@ export const ScheduleItemEditor = ({
                 value={currentValue}
                 onChange={(value) => {
                   if (value) {
-                    onChange(
-                      parse(value.toString(), 'yyyy-MM-dd', currentValue),
+                    const newDate = parse(
+                      value.toString(),
+                      'yyyy-MM-dd',
+                      new Date(),
                     );
+                    newDate.setHours(currentValue.getHours());
+                    newDate.setMinutes(currentValue.getMinutes());
+                    newDate.setSeconds(currentValue.getSeconds());
+                    onChange(newDate);
                   }
                 }}
               />
@@ -114,6 +125,17 @@ export const ScheduleItemEditor = ({
             );
           }}
         />
+      </div>
+      <div className="schedule-item-editor__row">
+        <div />
+        <div />
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <Popover.Close asChild>
+            <Button variant="transparent" size="sm">
+              Cancel
+            </Button>
+          </Popover.Close>
+        </div>
       </div>
     </div>
   );

@@ -44,6 +44,7 @@
     align-items: center;
     flex-direction: row;
     gap: mixins.spacing(0.5);
+    padding-inline: 0;
 
     .form-input__segment {
       display: inline-block;

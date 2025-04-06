@@ -20,6 +20,7 @@ import {
   ItemSelector,
   PrimarySecondary,
   ScheduleItemEditor,
+  ScheduleItemSelector,
 } from '@/components';
 import { ScheduleQuery } from '@/graphql/__generated__/graphql';
 import { useNetwork, useSchedule } from '@/hooks';
@@ -60,25 +61,7 @@ const columns = [
     header: 'Broadcast Timings',
     cell: (props) => {
       const scheduleItem = props.row.original;
-      return (
-        <ItemSelector
-          trigger={
-            <div className="primary-secondary-list">
-              <PrimarySecondary
-                primary={format(scheduleItem.start, 'HH:mm')}
-                secondary={format(scheduleItem.start, 'dd/MM/yyyy')}
-              />
-              <p>-</p>
-              <PrimarySecondary
-                primary={format(scheduleItem.end, 'HH:mm')}
-                secondary={format(scheduleItem.end, 'dd/MM/yyyy')}
-              />
-            </div>
-          }
-          content={<ScheduleItemEditor item={scheduleItem} />}
-          icon={<CalendarEditIcon />}
-        />
-      );
+      return <ScheduleItemSelector item={scheduleItem} />;
     },
   }),
   columnHelper.display({
