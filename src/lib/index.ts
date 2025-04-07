@@ -1,1 +1,2 @@
-export { ApolloWrapper } from "./Apollo";
+export { ApolloWrapper } from './Apollo';
+export { toast } from './toast';

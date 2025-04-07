@@ -1,6 +1,7 @@
 import { Inter } from 'next/font/google';
+import { Toaster } from 'sonner';
 
-import { Navigation } from '@/components/Navigation';
+import { Navigation, InfoIcon } from '@/components';
 import { NetworkProvider } from '@/contexts';
 import { ApolloWrapper } from '@/lib';
 
@@ -28,6 +29,17 @@ export default function RootLayout({
       <body className={inter.className}>
         <ApolloWrapper>
           <NetworkProvider>
+            <Toaster
+              position="top-right"
+              expand
+              className="toaster"
+              icons={{
+                success: <InfoIcon />,
+                error: <InfoIcon />,
+                warning: <InfoIcon />,
+                info: <InfoIcon />,
+              }}
+            />
             <div className="layout">
               <Navigation />
               <main>{children}</main>

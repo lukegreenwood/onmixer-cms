@@ -16,16 +16,10 @@ import { useRouter } from 'next/navigation';
 import { Fragment } from 'react';
 
 import { PageHeader, DataTable } from '@/blocks';
-import {
-  ItemSelector,
-  PrimarySecondary,
-  ScheduleItemEditor,
-  ScheduleItemSelector,
-} from '@/components';
+import { ItemSelector, ScheduleItemSelector } from '@/components';
 import { ScheduleQuery } from '@/graphql/__generated__/graphql';
 import { useNetwork, useSchedule } from '@/hooks';
 import {
-  CalendarEditIcon,
   ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,

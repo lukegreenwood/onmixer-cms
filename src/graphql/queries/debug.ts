@@ -1,6 +1,6 @@
-import { gql } from "@apollo/client";
+import { gql } from '@apollo/client';
 
-export const DEBUG = gql`
+export const DEBUG = gql(`
 	query Debug {
 		debug {
 			id
@@ -14,4 +14,4 @@ export const DEBUG = gql`
 			}
 		}
 	}
-`;
+`);

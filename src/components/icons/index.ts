@@ -22,3 +22,4 @@ export { ScheduleIcon } from './Schedule';
 export { SeriesIcon } from './Series';
 export { ShowsIcon } from './Shows';
 export { TrackIcon } from './Track';
+export { InfoIcon } from './InfoIcon';

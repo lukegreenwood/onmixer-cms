@@ -1,0 +1,9 @@
+@use '../theme/palette';
+@use '../utils/mixins';
+
+.toaster {
+  .alert {
+    padding-inline: mixins.spacing(1);
+    padding-block: mixins.spacing(3);
+  }
+}

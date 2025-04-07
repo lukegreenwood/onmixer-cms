@@ -18,4 +18,10 @@
       @include text.text-sm-leading-6-font-medium;
     }
   }
+
+  .schedule-item-editor__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: mixins.spacing(1);
+  }
 }
