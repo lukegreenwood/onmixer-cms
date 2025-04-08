@@ -75,6 +75,7 @@ export const ScheduleItemSelector = ({ item }: ScheduleItemSelectorProps) => {
   const handleOpenChange = (open: boolean) => {
     setOpen(open);
   };
+
   return (
     <ItemSelector
       open={open}
