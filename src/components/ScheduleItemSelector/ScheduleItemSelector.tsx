@@ -1,19 +1,22 @@
 'use client';
 
+import { useMutation } from '@apollo/client';
+import { utc } from '@date-fns/utc';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Button,
   CalendarEditIcon,
   DatePicker,
-  Popover,
+  Loading,
   TimeField,
 } from '@soundwaves/components';
 import { format, parse, parseISO } from 'date-fns';
-import { useId } from 'react';
+import { useId, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { ScheduleItem } from '@/graphql/__generated__/graphql';
+import { UPDATE_SCHEDULE_ITEM } from '@/graphql/mutations/updateScheduleItem';
 import { toast } from '@/lib';
 
 import { ItemSelector } from '../ItemSelector';
@@ -29,40 +32,62 @@ const schema = z.object({
 });
 
 export const ScheduleItemSelector = ({ item }: ScheduleItemSelectorProps) => {
+  const [updateScheduleItem, { loading }] = useMutation(UPDATE_SCHEDULE_ITEM);
+  const [open, setOpen] = useState(false);
+
   const { control, handleSubmit, reset } = useForm({
     defaultValues: {
-      start: parseISO(item.start),
-      end: parseISO(item.end),
+      start: parseISO(item.start, { in: utc }),
+      end: parseISO(item.end, { in: utc }),
     },
     resolver: zodResolver(schema),
   });
   const id = useId();
 
   const handleSave = (values: z.infer<typeof schema>) => {
-    console.log('save', values);
-    toast('Schedule item saved', 'success');
+    updateScheduleItem({
+      variables: {
+        input: {
+          id: item.id.toString(),
+          start: values.start.toISOString(),
+          end: values.end.toISOString(),
+        },
+      },
+      onCompleted: () => {
+        toast('Schedule item saved', 'success');
+        setOpen(false);
+      },
+      onError: (error) => {
+        toast('There was an error saving schedule item', 'error');
+        console.error(error);
+      },
+    });
   };
-
   const handleInvalid = () => {
     toast(`There were issues saving schedule item`, 'error');
   };
 
   const handleCancel = () => {
     reset();
+    setOpen(false);
   };
 
+  const handleOpenChange = (open: boolean) => {
+    setOpen(open);
+  };
   return (
     <ItemSelector
+      open={open}
       trigger={
         <div className="primary-secondary-list">
           <PrimarySecondary
-            primary={format(item.start, 'HH:mm')}
-            secondary={format(item.start, 'dd/MM/yyyy')}
+            primary={format(item.start, 'HH:mm:ss', { in: utc })}
+            secondary={format(item.start, 'dd/MM/yyyy', { in: utc })}
           />
           <p>-</p>
           <PrimarySecondary
-            primary={format(item.end, 'HH:mm')}
-            secondary={format(item.end, 'dd/MM/yyyy')}
+            primary={format(item.end, 'HH:mm:ss', { in: utc })}
+            secondary={format(item.end, 'dd/MM/yyyy', { in: utc })}
           />
         </div>
       }
@@ -92,6 +117,7 @@ export const ScheduleItemSelector = ({ item }: ScheduleItemSelectorProps) => {
                           value.toString(),
                           'yyyy-MM-dd',
                           new Date(),
+                          { in: utc },
                         );
                         newDate.setHours(currentValue.getHours());
                         newDate.setMinutes(currentValue.getMinutes());
@@ -113,10 +139,12 @@ export const ScheduleItemSelector = ({ item }: ScheduleItemSelectorProps) => {
                     aria-labelledby={`${id}-start-label`}
                     locale="en-GB"
                     {...rest}
-                    value={format(currentValue, 'HH:mm:ss')}
+                    value={format(currentValue, 'HH:mm:ss', { in: utc })}
                     onChange={(value) => {
                       if (value) {
-                        onChange(parse(value, 'HH:mm:ss', currentValue));
+                        onChange(
+                          parse(value, 'HH:mm:ss', currentValue, { in: utc }),
+                        );
                       }
                     }}
                     errorMessage={fieldState.error?.message}
@@ -149,6 +177,7 @@ export const ScheduleItemSelector = ({ item }: ScheduleItemSelectorProps) => {
                           value.toString(),
                           'yyyy-MM-dd',
                           new Date(),
+                          { in: utc },
                         );
                         newDate.setHours(currentValue.getHours());
                         newDate.setMinutes(currentValue.getMinutes());
@@ -171,10 +200,12 @@ export const ScheduleItemSelector = ({ item }: ScheduleItemSelectorProps) => {
                     aria-labelledby={`${id}-end-label`}
                     locale="en-GB"
                     {...rest}
-                    value={format(currentValue, 'HH:mm:ss')}
+                    value={format(currentValue, 'HH:mm:ss', { in: utc })}
                     onChange={(value) => {
                       if (value) {
-                        onChange(parse(value, 'HH:mm:ss', currentValue));
+                        onChange(
+                          parse(value, 'HH:mm:ss', currentValue, { in: utc }),
+                        );
                       }
                     }}
                     errorMessage={fieldState.error?.message}
@@ -185,15 +216,15 @@ export const ScheduleItemSelector = ({ item }: ScheduleItemSelectorProps) => {
           </div>
 
           <div className="schedule-item-editor__actions">
-            <Popover.Close asChild>
-              <Button variant="transparent" size="sm" onClick={handleCancel}>
-                Cancel
-              </Button>
-            </Popover.Close>
+            <Button variant="transparent" size="sm" onClick={handleCancel}>
+              Cancel
+            </Button>
             <Button
               variant="secondary"
               size="sm"
               onClick={() => handleSubmit(handleSave, handleInvalid)()}
+              after={loading ? <Loading size="xxs" /> : undefined}
+              disabled={loading}
             >
               Save
             </Button>
@@ -201,11 +232,7 @@ export const ScheduleItemSelector = ({ item }: ScheduleItemSelectorProps) => {
         </div>
       }
       icon={<CalendarEditIcon />}
-      onOpenChange={(open) => {
-        if (!open) {
-          handleCancel();
-        }
-      }}
+      onOpenChange={handleOpenChange}
     />
   );
 };

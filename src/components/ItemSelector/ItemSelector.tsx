@@ -5,6 +5,7 @@ import { Popover } from '@soundwaves/components';
 import { ChevronDownIcon } from '../icons';
 
 type ItemSelectorProps = {
+  open?: boolean;
   onOpenChange?: (open: boolean) => void;
   content: React.ReactNode;
   icon?: React.ReactNode;
@@ -22,10 +23,11 @@ export const ItemSelector = ({
   content,
   icon,
   onOpenChange,
+  open,
   ...restProps
 }: ItemSelectorProps) => {
   return (
-    <Popover onOpenChange={onOpenChange}>
+    <Popover open={open} onOpenChange={onOpenChange}>
       <Popover.Trigger asChild>
         <button className="item-selector">
           <span className="item-selector__text">
