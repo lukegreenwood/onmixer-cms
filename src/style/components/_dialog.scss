@@ -1,0 +1,66 @@
+@use '../theme/palette';
+@use '../theme/shadows';
+@use '../theme/sizing';
+@use '../theme/text';
+@use '../utils/mixins';
+
+.dialog-overlay {
+  background-color: rgba(palette.$gray-900, 0.7);
+  position: fixed;
+  inset: 0;
+  animation: overlayShow 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dialog-content {
+  background-color: palette.$white-900;
+  border-radius: sizing.$radius-md;
+  box-shadow: shadows.$shadows-xl;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90vw;
+  max-width: 500px;
+  max-height: 85vh;
+  padding: mixins.spacing(4);
+  animation: contentShow 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+
+  .dialog-content__title {
+    @include text.text-xl-leading-8-font-semibold;
+  }
+
+  .dialog-content__description {
+    @include text.text-lg-leading-8-font-normal;
+  }
+
+  .dialog-content__close {
+    position: absolute;
+    top: mixins.spacing(4);
+    right: mixins.spacing(4);
+  }
+
+  &.dialog-content--with-close .dialog-content__title {
+    padding-inline-end: mixins.spacing(6);
+  }
+}
+
+@keyframes overlayShow {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes contentShow {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.96);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
