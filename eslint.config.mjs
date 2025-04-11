@@ -22,6 +22,7 @@ const eslintConfig = [
       'consistent-return': 'warn',
       'no-shadow': 'off',
       '@typescript-eslint/no-empty-object-type': 'off',
+      '@next/next/no-img-element': 'off',
       'import/order': [
         'error',
         {

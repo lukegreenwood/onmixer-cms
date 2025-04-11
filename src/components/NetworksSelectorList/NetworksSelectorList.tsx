@@ -81,20 +81,22 @@ export const NetworksSelectorList = ({
           </Button>
         </DropdownMenu.Trigger>
         <DropdownMenu.Content alignOffset={0}>
-          {availableNetworks?.map((network) => (
-            <DropdownMenu.Item
-              key={network.id}
-              onClick={() => handleAddNetwork(network.id)}
-            >
-              <div
-                className="network-icon"
-                dangerouslySetInnerHTML={{
-                  __html: network.logoSvgCircular ?? network.logoSvgIcon,
-                }}
-              />
-              {network.name}
-            </DropdownMenu.Item>
-          ))}
+          <DropdownMenu.Group>
+            {availableNetworks?.map((network) => (
+              <DropdownMenu.Item
+                key={network.id}
+                onClick={() => handleAddNetwork(network.id)}
+              >
+                <div
+                  className="network-icon"
+                  dangerouslySetInnerHTML={{
+                    __html: network.logoSvgCircular ?? network.logoSvgIcon,
+                  }}
+                />
+                {network.name}
+              </DropdownMenu.Item>
+            ))}
+          </DropdownMenu.Group>
         </DropdownMenu.Content>
       </DropdownMenu>
     </div>

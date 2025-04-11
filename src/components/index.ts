@@ -5,6 +5,7 @@ export { PrimarySecondary } from './PrimarySecondary';
 export { ScheduleItemSelector } from './ScheduleItemSelector/ScheduleItemSelector';
 export { Navigation } from './Navigation';
 export { NetworksSelectorList } from './NetworksSelectorList/NetworksSelectorList';
+export { EpisodeSelector } from './EpisodeSelector/EpisodeSelector';
 
 export * from './blocks';
 export * from './icons';

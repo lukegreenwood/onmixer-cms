@@ -22,6 +22,7 @@ export { PlaylistsIcon } from './PlaylistsIcon';
 export { PodcastsIcon } from './Podcasts';
 export { PresentersIcon } from './Presenters';
 export { ScheduleIcon } from './Schedule';
+export { SearchIcon } from './Search';
 export { SeriesIcon } from './Series';
 export { ShowsIcon } from './Shows';
 export { TrackIcon } from './Track';

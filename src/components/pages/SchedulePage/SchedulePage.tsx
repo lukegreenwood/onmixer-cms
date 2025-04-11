@@ -20,7 +20,7 @@ import { Fragment } from 'react';
 
 import { PageHeader, DataTable } from '@/blocks';
 import {
-  ItemSelector,
+  EpisodeSelector,
   NetworksSelectorList,
   ScheduleItemSelector,
 } from '@/components';
@@ -54,11 +54,7 @@ const columns = [
       const episode = props.getValue();
       return (
         <div className="flex flex--row flex--justify-between">
-          <ItemSelector
-            primaryText={episode.name}
-            secondaryText={episode.show.shortName}
-            content={<div>Selection component</div>}
-          />
+          <EpisodeSelector episode={episode} />
           <HoverCard>
             <HoverCard.Trigger asChild>
               <Badge color="gray" shape="rounded" size="md">
