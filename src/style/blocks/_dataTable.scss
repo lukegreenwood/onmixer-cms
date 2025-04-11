@@ -49,4 +49,10 @@
       background-color: palette.$gray-50;
     }
   }
+
+  &.data-table--no-hover {
+    .data-table__row:hover {
+      background-color: transparent;
+    }
+  }
 }

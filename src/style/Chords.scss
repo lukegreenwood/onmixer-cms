@@ -48,11 +48,14 @@
 @use 'blocks/dataTable';
 
 // CMS
-@use 'cms-components/networkSelector';
+@use 'cms-components/itemPreview';
 @use 'cms-components/itemSelector';
+@use 'cms-components/networkSelector';
 @use 'cms-components/primarySecondary';
 @use 'cms-components/scheduleItemEditor';
 @use 'cms-components/toaster';
+@use 'cms-components/networkIcon';
+
 // Basics
 @use 'basics/list';
 @use 'basics/helpers';

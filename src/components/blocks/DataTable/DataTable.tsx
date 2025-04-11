@@ -5,13 +5,14 @@ import {
   RowSelectionState,
   useReactTable,
 } from '@tanstack/react-table';
-
+import clsx from 'clsx';
 export type DataTableProps<TData> = {
   data: TData[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   columns: ColumnDef<TData, any>[];
   onRowClick?: (row: TData) => void;
   selectedRows?: RowSelectionState | undefined;
+  noHover?: boolean;
 };
 
 export function DataTable<TData>({
@@ -19,6 +20,7 @@ export function DataTable<TData>({
   columns,
   onRowClick,
   selectedRows = {},
+  noHover = false,
 }: DataTableProps<TData>) {
   const table = useReactTable({
     data,
@@ -30,7 +32,11 @@ export function DataTable<TData>({
   });
 
   return (
-    <table className="data-table">
+    <table
+      className={clsx('data-table', {
+        'data-table--no-hover': noHover,
+      })}
+    >
       <thead className="data-table__header">
         {table.getHeaderGroups().map((headerGroup) => (
           <tr key={headerGroup.id}>

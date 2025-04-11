@@ -20,14 +20,26 @@ export const GET_SCHEDULE = gql(`
                 logoSvgIcon
 			}
 			episode {
+				id
 				name
 				show {
 					shortName
 				}
+				description
 				broadcasts {
 					id
 					start
 					end
+				}
+				featuredImage {
+					urls {
+						square
+						customSquare(size: 150)
+					}
+				}
+				networks {
+					id
+					logoSvgIcon
 				}
 			}
 		}

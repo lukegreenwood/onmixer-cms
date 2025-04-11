@@ -93,14 +93,13 @@
     }
 
     svg {
-      opacity: 0.4;
       color: palette.$gray-900;
     }
 
     &.dropdown-menu__item--destructive {
       color: palette.$red-500;
       svg {
-        color: inherit;
+        color: currentColor;
       }
     }
   }
@@ -222,5 +221,6 @@
     width: 24px;
     height: 24px;
     color: palette.$gray-500;
+    opacity: 0.4;
   }
 }

@@ -1,3 +1,5 @@
+'use client';
+
 import { useSuspenseQuery } from '@apollo/client';
 import { Badge, Popover } from '@soundwaves/components';
 import Link from 'next/link';

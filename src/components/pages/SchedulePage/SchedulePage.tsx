@@ -2,29 +2,39 @@
 
 import {
   Alert,
+  Avatar,
   Badge,
   Button,
   ButtonGroup,
   Calendar,
   DropdownMenu,
+  HoverCard,
   Popover,
   Tooltip,
 } from '@soundwaves/components';
 import { createColumnHelper } from '@tanstack/react-table';
 import { format, isValid, parse, subDays, addDays } from 'date-fns';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Fragment } from 'react';
 
 import { PageHeader, DataTable } from '@/blocks';
-import { ItemSelector, ScheduleItemSelector } from '@/components';
+import {
+  ItemSelector,
+  NetworksSelectorList,
+  ScheduleItemSelector,
+} from '@/components';
 import { ScheduleQuery } from '@/graphql/__generated__/graphql';
 import { useNetwork, useSchedule } from '@/hooks';
 import {
+  BroadcastsIcon,
   ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   CopyIcon,
 } from '@/icons';
+import { getRoutePath } from '@/lib';
+import { pluralize } from '@/utils';
 
 interface SchedulePageProps {
   date: string;
@@ -43,11 +53,71 @@ const columns = [
     cell: (props) => {
       const episode = props.getValue();
       return (
-        <ItemSelector
-          primaryText={episode.name}
-          secondaryText={episode.show.shortName}
-          content={<div>Selection component</div>}
-        />
+        <div className="flex flex--row flex--justify-between">
+          <ItemSelector
+            primaryText={episode.name}
+            secondaryText={episode.show.shortName}
+            content={<div>Selection component</div>}
+          />
+          <HoverCard>
+            <HoverCard.Trigger asChild>
+              <Badge color="gray" shape="rounded" size="md">
+                {episode.id}
+              </Badge>
+            </HoverCard.Trigger>
+            <HoverCard.Content asChild>
+              <div className="item-preview">
+                <div className="item-preview__meta">
+                  <div className="item-preview__image">
+                    <img
+                      src={
+                        props.row.original.episode.featuredImage.urls
+                          .customSquare ??
+                        props.row.original.episode.featuredImage.urls.square
+                      }
+                      alt={props.row.original.episode.name}
+                    />
+                  </div>
+                  <div className="item-preview__meta-items">
+                    <Badge
+                      color="pink"
+                      shape="pill"
+                      size="sm"
+                      before={<BroadcastsIcon size={16} />}
+                    >
+                      {episode.broadcasts.length}{' '}
+                      {pluralize(episode.broadcasts.length, 'Broadcast')}
+                    </Badge>
+                    {episode.networks.map((network) => (
+                      <Avatar key={network.id} size="sm">
+                        <Avatar.Fallback
+                          dangerouslySetInnerHTML={{
+                            __html: network.logoSvgIcon,
+                          }}
+                        />
+                      </Avatar>
+                    ))}
+                  </div>
+                </div>
+                <div className="item-preview__detail">
+                  {episode.show.shortName}
+                </div>
+                <div className="item-preview__title">{episode.name}</div>
+                <div className="item-preview__footer">
+                  <div className="item-preview__description">
+                    {episode.description}
+                  </div>
+                  <Button variant="tertiary" size="sm" asChild>
+                    <Link href={getRoutePath('episodesEdit', [episode.id])}>
+                      Edit
+                    </Link>
+                  </Button>
+                </div>
+                <HoverCard.Arrow />
+              </div>
+            </HoverCard.Content>
+          </HoverCard>
+        </div>
       );
     },
   }),
@@ -63,31 +133,8 @@ const columns = [
     header: 'Networks',
     cell: (props) => {
       const networks = props.row.original.networks;
-
       return (
-        <div className="list">
-          {networks.map((network) => (
-            <Badge
-              key={network.id}
-              color="blue"
-              shape="rounded"
-              size="md"
-              before={
-                <div
-                  style={{
-                    width: '16px',
-                    height: '16px',
-                  }}
-                  dangerouslySetInnerHTML={{
-                    __html: network.logoSvgIcon,
-                  }}
-                />
-              }
-            >
-              {network.name}
-            </Badge>
-          ))}
-        </div>
+        <NetworksSelectorList id={props.row.original.id} networks={networks} />
       );
     },
   }),

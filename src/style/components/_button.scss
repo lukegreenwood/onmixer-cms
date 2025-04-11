@@ -18,6 +18,7 @@
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 0.1s;
   appearance: button;
+  text-decoration: none;
 
   .button-text {
     padding-inline: mixins.spacing(1);
@@ -38,10 +39,6 @@
 
     &:focus-visible {
       @include focus.focus-ring-purple-500;
-    }
-
-    svg {
-      fill: palette.$white-900;
     }
 
     &.button--destructive {
@@ -77,10 +74,6 @@
       @include focus.focus-ring-gray-900;
     }
 
-    svg {
-      fill: palette.$white-900;
-    }
-
     &.button--destructive {
       background-color: palette.$red-500;
 
@@ -109,18 +102,10 @@
     &:disabled {
       background-color: palette.$gray-50;
       color: palette.$gray-300;
-
-      svg {
-        fill: palette.$gray-200;
-      }
     }
 
     &:focus-visible {
       @include focus.focus-ring-purple-500;
-    }
-
-    svg {
-      fill: palette.$gray-400;
     }
 
     &.button--destructive {
@@ -134,18 +119,10 @@
       &:disabled {
         background-color: palette.$red-50;
         color: palette.$red-300;
-
-        svg {
-          fill: palette.$red-300;
-        }
       }
 
       &:focus-visible {
         @include focus.focus-ring-red-500;
-      }
-
-      svg {
-        fill: palette.$red-700;
       }
     }
   }
@@ -163,18 +140,10 @@
       background-color: palette.$white-900;
       color: palette.$gray-300;
       border-color: palette.$gray-100;
-
-      svg {
-        fill: palette.$gray-200;
-      }
     }
 
     &:focus-visible {
       @include focus.focus-ring-purple-500;
-    }
-
-    svg {
-      fill: palette.$gray-400;
     }
 
     &.button--destructive {
@@ -190,18 +159,10 @@
         background-color: palette.$white-900;
         color: palette.$red-300;
         border-color: palette.$red-100;
-
-        svg {
-          fill: palette.$red-300;
-        }
       }
 
       &:focus-visible {
         @include focus.focus-ring-red-500;
-      }
-
-      svg {
-        fill: palette.$red-700;
       }
     }
   }
@@ -252,14 +213,6 @@
 
     &:disabled {
       color: palette.$gray-300;
-
-      svg {
-        fill: palette.$gray-200;
-      }
-    }
-
-    svg {
-      fill: palette.$gray-400;
     }
 
     &.button--destructive {
@@ -267,22 +220,10 @@
 
       &:hover {
         color: palette.$red-800;
-
-        svg {
-          fill: palette.$red-800;
-        }
       }
 
       &:disabled {
         color: palette.$red-300;
-
-        svg {
-          fill: palette.$red-300;
-        }
-      }
-
-      svg {
-        fill: palette.$red-700;
       }
     }
 
@@ -308,6 +249,11 @@
     &.button--outline {
       padding: calc(mixins.spacing(2) - 1px) calc(mixins.spacing(3) - 1px);
     }
+
+    .button__icon {
+      width: 24px;
+      height: 24px;
+    }
   }
 
   &.button--sm {
@@ -318,40 +264,52 @@
       padding: calc(mixins.spacing(1) - 1px) calc(mixins.spacing(2) - 1px);
     }
 
-    svg {
+    .button__icon {
       width: 20px;
       height: 20px;
     }
   }
 
-  &.button--icon-only {
-    gap: 0px;
+  .button__icon {
+    color: currentColor;
+  }
 
+  &.button--icon-only {
     &.button--md {
-      padding: mixins.spacing(2) mixins.spacing(2);
+      padding: mixins.spacing(2);
 
       &.button--outline {
-        padding: calc(mixins.spacing(2) - 1px) calc(mixins.spacing(2) - 1px);
+        padding: calc(mixins.spacing(2) - 1px);
       }
     }
 
     &.button--sm {
-      padding: 0;
-      width: 32px;
-      height: 32px;
-    }
-
-    &.button--xs {
-      padding: mixins.spacing(0.5) mixins.spacing(0.5);
+      padding: mixins.spacing(1.5);
 
       &.button--outline {
-        padding: calc(mixins.spacing(0.5) - 1px) calc(mixins.spacing(0.5) - 1px);
+        padding: calc(mixins.spacing(1.5) - 1px);
+      }
+    }
+
+    &.button--xs-icon {
+      padding: mixins.spacing(0.5);
+
+      &.button--outline {
+        padding: calc(mixins.spacing(0.5) - 1px);
       }
 
-      svg {
+      .button__icon {
         width: 20px;
         height: 20px;
       }
+    }
+
+    &.button--non-destructive-icon-only:hover {
+      opacity: 0.7;
+    }
+
+    &.button--destructive {
+      opacity: 1;
     }
   }
 

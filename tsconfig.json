@@ -28,7 +28,6 @@
       "@/icons": ["./src/components/icons"],
       "@/utils/*": ["./src/utils/*"],
       "@/utils": ["./src/utils"],
-      "@/lib/*": ["./src/lib/*"],
       "@/lib": ["./src/lib"],
       "@/*": ["./src/*"]
     }

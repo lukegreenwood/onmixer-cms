@@ -4,10 +4,9 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 import { useNetwork } from '@/hooks';
+import { NavigationItem, navigationItems } from '@/lib';
 
 import { Logo } from '../Logo';
-
-import { NavigationItem, navigation } from './routes';
 
 export function Navigation() {
   const pathname = usePathname();
@@ -40,17 +39,16 @@ export function Navigation() {
     return `/networks/${currentNetwork.code}${fullPath}`;
   };
 
-  const groupedNavigation = navigation.reduce<Record<string, NavigationItem[]>>(
-    (acc, item) => {
-      const section = item.section || 'none';
-      if (!acc[section]) {
-        acc[section] = [];
-      }
-      acc[section].push(item);
-      return acc;
-    },
-    {},
-  );
+  const groupedNavigation = navigationItems.reduce<
+    Record<string, NavigationItem[]>
+  >((acc, item) => {
+    const section = item.section || 'none';
+    if (!acc[section]) {
+      acc[section] = [];
+    }
+    acc[section].push(item);
+    return acc;
+  }, {});
 
   const renderNavigationItems = (
     items: NavigationItem[],

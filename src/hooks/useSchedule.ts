@@ -7,7 +7,7 @@ export const useSchedule = ({
   networkId,
 }: {
   date: Date | undefined;
-  networkId: number | undefined;
+  networkId: string | undefined;
 }) => {
   const result = useSuspenseQuery(GET_SCHEDULE, {
     variables: {

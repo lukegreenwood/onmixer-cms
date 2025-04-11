@@ -8,6 +8,7 @@ export const GET_NETWORKS = gql(`
 			code
 			networkType
 			logoSvgIcon
+			logoSvgCircular
 		}
 	}
 `);
