@@ -19,8 +19,8 @@ import { ScheduleItem } from '@/graphql/__generated__/graphql';
 import { UPDATE_SCHEDULE_ITEM } from '@/graphql/mutations/updateScheduleItem';
 import { toast } from '@/lib';
 
-import { ItemSelector } from '../ItemSelector';
-import { PrimarySecondary } from '../PrimarySecondary';
+import { ItemSelector } from '../../ItemSelector';
+import { PrimarySecondary } from '../../PrimarySecondary';
 
 export type ScheduleItemSelectorProps = {
   item: Pick<ScheduleItem, 'id' | 'start' | 'end'>;

@@ -1,8 +1,8 @@
 import { gql } from '../__generated__';
 
-export const UPDATE_SCHEDULE_ITEM = gql(`
-  mutation UpdateScheduleItem($input: UpdateScheduleItemInput!) {
-    updateScheduleItem(input: $input) {
+export const CREATE_SCHEDULE_ITEM = gql(`
+  mutation CreateScheduleItem($input: CreateScheduleItemInput!) {
+    createScheduleItem(input: $input) {
       scheduleItem {
         id
         end

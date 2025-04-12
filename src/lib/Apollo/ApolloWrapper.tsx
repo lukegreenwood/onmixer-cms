@@ -5,7 +5,7 @@ import {
   ApolloNextAppProvider,
   ApolloClient,
   InMemoryCache,
-} from '@apollo/experimental-nextjs-app-support';
+} from '@apollo/client-integration-nextjs';
 import { setVerbosity } from 'ts-invariant';
 
 setVerbosity('debug');
@@ -17,7 +17,22 @@ const client = () => {
   });
 
   return new ApolloClient({
-    cache: new InMemoryCache(),
+    cache: new InMemoryCache({
+      typePolicies: {
+        Query: {
+          fields: {
+            episode: {
+              read(_, { args, toReference }) {
+                return toReference({
+                  __typename: 'Episode',
+                  id: args?.id,
+                });
+              },
+            },
+          },
+        },
+      },
+    }),
     link: httpLink,
   });
 };

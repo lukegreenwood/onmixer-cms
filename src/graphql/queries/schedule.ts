@@ -23,13 +23,12 @@ export const GET_SCHEDULE = gql(`
 				id
 				name
 				show {
+					id
 					shortName
 				}
 				description
 				broadcasts {
 					id
-					start
-					end
 				}
 				featuredImage {
 					urls {
