@@ -1,11 +1,21 @@
 'use client';
 
 import { useMutation } from '@apollo/client';
-import { utc } from '@date-fns/utc';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Dialog, Loading, TimeField } from '@soundwaves/components';
-import { format, parse } from 'date-fns';
-import { useId, useState } from 'react';
+import { parseAbsolute } from '@internationalized/date';
+import {
+  Button,
+  DatePicker,
+  Dialog,
+  Loading,
+  Select,
+  SelectContent,
+  SelectIcon,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@soundwaves/components';
+import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -14,12 +24,11 @@ import { CREATE_SCHEDULE_ITEM } from '@/graphql/mutations/createScheduleItem';
 import { GET_SCHEDULE } from '@/graphql/queries/schedule';
 import { toast } from '@/lib';
 
-import { EpisodeSelector } from '../../Episode/EpisodeSelector/EpisodeSelector';
-
 export type ScheduleExistingEpisodeProps = {
-  trigger: React.ReactNode;
   scheduleDate: Date;
   networkId: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 };
 
 const schema = z.object({
@@ -29,9 +38,10 @@ const schema = z.object({
 });
 
 export const ScheduleExistingEpisodeModal = ({
-  trigger,
   scheduleDate,
   networkId,
+  open,
+  onOpenChange,
 }: ScheduleExistingEpisodeProps) => {
   const [createScheduleItem, { loading }] = useMutation(CREATE_SCHEDULE_ITEM, {
     refetchQueries: [
@@ -44,7 +54,6 @@ export const ScheduleExistingEpisodeModal = ({
       },
     ],
   });
-  const [open, setOpen] = useState(false);
   const [selectedEpisode, setSelectedEpisode] = useState<
     ScheduleQuery['schedule']['items'][0]['episode'] | null
   >(null);
@@ -57,7 +66,6 @@ export const ScheduleExistingEpisodeModal = ({
     },
     resolver: zodResolver(schema),
   });
-  const id = useId();
 
   const handleSave = (values: z.infer<typeof schema>) => {
     if (!selectedEpisode) {
@@ -76,7 +84,7 @@ export const ScheduleExistingEpisodeModal = ({
       },
       onCompleted: () => {
         toast('Episode scheduled successfully', 'success');
-        setOpen(false);
+        onOpenChange(false);
       },
       onError: (error) => {
         toast('There was an error scheduling the episode', 'error');
@@ -92,11 +100,7 @@ export const ScheduleExistingEpisodeModal = ({
   const handleCancel = () => {
     reset();
     setSelectedEpisode(null);
-    setOpen(false);
-  };
-
-  const handleOpenChange = (open: boolean) => {
-    setOpen(open);
+    onOpenChange(false);
   };
 
   const handleEpisodeSelect = (episodeId: string) => {
@@ -104,95 +108,77 @@ export const ScheduleExistingEpisodeModal = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <Dialog.Trigger asChild>{trigger}</Dialog.Trigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <Dialog.Overlay />
       <Dialog.Content dismissable>
         <Dialog.Title>Schedule an existing episode</Dialog.Title>
-        <div className="schedule-item-editor">
-          <div className="schedule-item-editor__row">
-            <p className="schedule-item-editor__row-label">Episode</p>
-            {/* <EpisodeSelector
-              episode={selectedEpisode}
-              onSelect={handleEpisodeSelect}
-            /> */}
-          </div>
-          <div className="schedule-item-editor__row">
-            <p
-              className="schedule-item-editor__row-label"
-              id={`${id}-start-label`}
+        <div className="flex flex--column">
+          <Select label="Episode">
+            <SelectTrigger>
+              <SelectValue placeholder="Select episode" />
+              <SelectIcon />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="option-1">Option 1</SelectItem>
+              <SelectItem value="option-2">Option 2</SelectItem>
+              <SelectItem value="option-3">Option 3</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Controller
+            control={control}
+            name="start"
+            render={({ field, fieldState }) => {
+              const { onChange, value: currentValue, ...rest } = field;
+              return (
+                <DatePicker
+                  label="Start"
+                  {...rest}
+                  value={parseAbsolute(currentValue.toISOString(), 'UTC')}
+                  onChange={(value) => {
+                    if (value) {
+                      onChange(value.toDate('UTC'));
+                    }
+                  }}
+                  errorMessage={fieldState.error?.message}
+                />
+              );
+            }}
+          />
+          <Controller
+            control={control}
+            name="end"
+            render={({ field, fieldState }) => {
+              const { onChange, value: currentValue, ...rest } = field;
+              return (
+                <DatePicker
+                  label="End"
+                  {...rest}
+                  value={parseAbsolute(currentValue.toISOString(), 'UTC')}
+                  onChange={(value) => {
+                    if (value) {
+                      onChange(value.toDate('UTC'));
+                    }
+                  }}
+                  errorMessage={fieldState.error?.message}
+                />
+              );
+            }}
+          />
+
+          <div className="flex flex--row flex--justify-end width-full">
+            <Button variant="transparent" onClick={handleCancel}>
+              Cancel
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => handleSubmit(handleSave, handleInvalid)()}
+              after={loading ? <Loading size="xxs" /> : undefined}
+              disabled={loading}
             >
-              Start
-            </p>
-            <Controller
-              control={control}
-              name="start"
-              render={({ field, fieldState }) => {
-                const { onChange, value: currentValue, ...rest } = field;
-                return (
-                  <TimeField
-                    aria-labelledby={`${id}-start-label`}
-                    locale="en-GB"
-                    {...rest}
-                    value={format(currentValue, 'HH:mm:ss', { in: utc })}
-                    onChange={(value) => {
-                      if (value) {
-                        const newDate = parse(value, 'HH:mm:ss', currentValue, {
-                          in: utc,
-                        });
-                        onChange(newDate);
-                      }
-                    }}
-                    errorMessage={fieldState.error?.message}
-                  />
-                );
-              }}
-            />
+              Schedule
+            </Button>
           </div>
-          <div className="schedule-item-editor__row">
-            <p
-              className="schedule-item-editor__row-label"
-              id={`${id}-end-label`}
-            >
-              End
-            </p>
-            <Controller
-              control={control}
-              name="end"
-              render={({ field, fieldState }) => {
-                const { onChange, value: currentValue, ...rest } = field;
-                return (
-                  <TimeField
-                    aria-labelledby={`${id}-end-label`}
-                    locale="en-GB"
-                    {...rest}
-                    value={format(currentValue, 'HH:mm:ss', { in: utc })}
-                    onChange={(value) => {
-                      if (value) {
-                        const newDate = parse(value, 'HH:mm:ss', currentValue, {
-                          in: utc,
-                        });
-                        onChange(newDate);
-                      }
-                    }}
-                    errorMessage={fieldState.error?.message}
-                  />
-                );
-              }}
-            />
-          </div>
-        </div>
-        <div className="dialog-footer">
-          <Button variant="transparent" onClick={handleCancel}>
-            Cancel
-          </Button>
-          <Button
-            variant="secondary"
-            onClick={() => handleSubmit(handleSave, handleInvalid)()}
-            after={loading ? <Loading size="xxs" /> : undefined}
-            disabled={loading}
-          >
-            Schedule
-          </Button>
         </div>
       </Dialog.Content>
     </Dialog>

@@ -3,7 +3,7 @@
 import { Alert, Button, DropdownMenu, Tooltip } from '@soundwaves/components';
 import { format, isValid, parse } from 'date-fns';
 import { useRouter } from 'next/navigation';
-import { Fragment } from 'react';
+import { Fragment, useState } from 'react';
 
 import { PageHeader, DataTable } from '@/blocks';
 import { ScheduleExistingEpisodeModal } from '@/components/Schedule';
@@ -12,6 +12,7 @@ import { ChevronDownIcon, CopyIcon } from '@/icons';
 
 import { DateNavigation } from './DateNavigation';
 import { columns } from './tableColumns';
+
 interface SchedulePageProps {
   date: string;
 }
@@ -40,6 +41,7 @@ const getDateFromParams = (date: string) => {
 export const SchedulePage = ({ date }: SchedulePageProps) => {
   const scheduleDate = getDateFromParams(date);
   const router = useRouter();
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
 
   const { currentNetwork } = useNetwork();
   const { data, error } = useSchedule({
@@ -96,19 +98,16 @@ export const SchedulePage = ({ date }: SchedulePageProps) => {
                 </Button>
               </DropdownMenu.Trigger>
               <DropdownMenu.Content style={{ zIndex: 2 }}>
-                <DropdownMenu.Group>
-                  <ScheduleExistingEpisodeModal
-                    trigger={
-                      <DropdownMenu.Item>
-                        Schedule an existing episode
-                      </DropdownMenu.Item>
-                    }
-                    scheduleDate={scheduleDate}
-                    networkId={currentNetwork?.id || ''}
-                  />
-                  <DropdownMenu.Item>Schedule a new episode</DropdownMenu.Item>
-                  <DropdownMenu.Item>Schedule a new episode</DropdownMenu.Item>
-                </DropdownMenu.Group>
+                <DropdownMenu.Item
+                  onSelect={() => {
+                    setTimeout(() => {
+                      setShowScheduleModal(true);
+                    }, 1);
+                  }}
+                >
+                  Schedule an existing episode
+                </DropdownMenu.Item>
+                <DropdownMenu.Item>Schedule a new episode</DropdownMenu.Item>
               </DropdownMenu.Content>
             </DropdownMenu>
             <Tooltip
@@ -126,6 +125,13 @@ export const SchedulePage = ({ date }: SchedulePageProps) => {
           <DataTable data={data.schedule.items} columns={columns} />
         )}
       </div>
+
+      <ScheduleExistingEpisodeModal
+        scheduleDate={scheduleDate}
+        networkId={currentNetwork?.id || ''}
+        open={showScheduleModal}
+        onOpenChange={setShowScheduleModal}
+      />
     </Fragment>
   );
 };

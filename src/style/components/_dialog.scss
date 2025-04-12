@@ -9,6 +9,7 @@
   position: fixed;
   inset: 0;
   animation: overlayShow 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 500;
 }
 
 .dialog-content {
@@ -24,6 +25,7 @@
   max-height: 85vh;
   padding: mixins.spacing(4);
   animation: contentShow 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 501;
 
   .dialog-content__title {
     @include text.text-xl-leading-8-font-semibold;
@@ -35,8 +37,19 @@
 
   .dialog-content__close {
     position: absolute;
-    top: mixins.spacing(4);
-    right: mixins.spacing(4);
+    top: mixins.spacing(2);
+    right: mixins.spacing(2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1 / 1;
+    cursor: pointer;
+    padding: mixins.spacing(2);
+
+    &:hover {
+      background-color: palette.$gray-50;
+    }
   }
 
   &.dialog-content--with-close .dialog-content__title {
