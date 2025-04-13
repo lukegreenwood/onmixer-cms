@@ -68,6 +68,24 @@
         color: palette.$gray-400;
         cursor: default;
       }
+
+      &.calendar__cell--unavailable {
+        color: palette.$gray-500;
+        cursor: default;
+
+        &:hover:not(.calendar__cell--disabled):not(.calendar__cell--selected) {
+          background-color: transparent;
+        }
+      }
+
+      &.calendar__cell--invalid {
+        color: palette.$red-500;
+        cursor: default;
+
+        &.calendar__cell--selected {
+          background-color: palette.$red-50;
+        }
+      }
     }
 
     thead {

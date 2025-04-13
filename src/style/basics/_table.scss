@@ -1,0 +1,49 @@
+@use '../theme/sizing';
+@use '../theme/palette';
+@use '../theme/text';
+@use '../utils/mixins';
+
+.table {
+  width: 100%;
+  border-spacing: 0;
+  border-radius: sizing.$radius-md;
+  border: 1px solid palette.$gray-100;
+  overflow: hidden;
+
+  thead {
+    th:first-child {
+      border-start-start-radius: sizing.$radius-md;
+    }
+
+    th:last-child {
+      border-start-end-radius: sizing.$radius-md;
+    }
+
+    th {
+      background-color: palette.$gray-50;
+      text-align: left;
+      @include text.text-sm-leading-6-font-medium;
+      color: palette.$gray-500;
+      padding: mixins.spacing(2);
+      border-block-end: 1px solid palette.$gray-100;
+    }
+  }
+
+  td {
+    padding: mixins.spacing(2);
+  }
+
+  tbody {
+    tr {
+      border-block-end: 1px solid palette.$gray-100;
+
+      td {
+        border-block-end: 1px solid palette.$gray-100;
+      }
+
+      &:last-child td {
+        border-block-end: none;
+      }
+    }
+  }
+}

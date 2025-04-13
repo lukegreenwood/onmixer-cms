@@ -6,7 +6,10 @@ import { useRouter } from 'next/navigation';
 import { Fragment, useState } from 'react';
 
 import { PageHeader, DataTable } from '@/blocks';
-import { ScheduleExistingEpisodeModal } from '@/components/Schedule';
+import {
+  ApplyScheduleTemplateModal,
+  ScheduleExistingEpisodeModal,
+} from '@/components';
 import { useNetwork, useSchedule } from '@/hooks';
 import { ChevronDownIcon, CopyIcon } from '@/icons';
 
@@ -42,6 +45,7 @@ export const SchedulePage = ({ date }: SchedulePageProps) => {
   const scheduleDate = getDateFromParams(date);
   const router = useRouter();
   const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
 
   const { currentNetwork } = useNetwork();
   const { data, error } = useSchedule({
@@ -116,7 +120,9 @@ export const SchedulePage = ({ date }: SchedulePageProps) => {
             >
               <Button variant="outline" isIconOnly before={<CopyIcon />} />
             </Tooltip>
-            <Button>Apply schedule template</Button>
+            <Button onClick={() => setShowTemplateModal(true)}>
+              Apply schedule template
+            </Button>
           </Fragment>
         }
       />
@@ -132,6 +138,15 @@ export const SchedulePage = ({ date }: SchedulePageProps) => {
         open={showScheduleModal}
         onOpenChange={setShowScheduleModal}
       />
+
+      {showTemplateModal && (
+        <ApplyScheduleTemplateModal
+          scheduleDate={scheduleDate}
+          networkId={currentNetwork?.id || ''}
+          open={showTemplateModal}
+          onOpenChange={setShowTemplateModal}
+        />
+      )}
     </Fragment>
   );
 };
