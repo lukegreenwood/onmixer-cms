@@ -3,6 +3,7 @@
 @use '../theme/sizing';
 @use '../theme/text';
 @use '../utils/mixins';
+@use '../theme/focus';
 
 .dialog-overlay {
   background-color: rgba(palette.$gray-900, 0.7);
@@ -49,6 +50,14 @@
 
     &:hover {
       background-color: palette.$gray-50;
+    }
+
+    &:focus {
+      outline: none;
+    }
+
+    &:focus-visible {
+      @include focus.focus-ring-purple-500;
     }
   }
 

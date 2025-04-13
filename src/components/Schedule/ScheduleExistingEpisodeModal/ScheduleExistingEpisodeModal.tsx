@@ -1,27 +1,34 @@
 'use client';
 
-import { useMutation } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { parseAbsolute } from '@internationalized/date';
 import {
+  Autocomplete,
+  Badge,
   Button,
   DatePicker,
   Dialog,
   Loading,
-  Select,
-  SelectContent,
-  SelectIcon,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  MultiSelect,
+  Tag,
 } from '@soundwaves/components';
-import { useState } from 'react';
+import { useDebouncer } from '@tanstack/react-pacer';
+import { useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import { ScheduleQuery } from '@/graphql/__generated__/graphql';
+import { PrimarySecondary } from '@/components';
+import {
+  EpisodeFilterField,
+  FilterType,
+  OperatorType,
+} from '@/graphql/__generated__/graphql';
 import { CREATE_SCHEDULE_ITEM } from '@/graphql/mutations/createScheduleItem';
+import { SEARCH_EPISODES } from '@/graphql/queries/episodes';
+import { GET_NETWORKS } from '@/graphql/queries/networks';
 import { GET_SCHEDULE } from '@/graphql/queries/schedule';
+import { useNetwork } from '@/hooks';
 import { toast } from '@/lib';
 
 export type ScheduleExistingEpisodeProps = {
@@ -35,6 +42,7 @@ const schema = z.object({
   episode: z.string().min(1, 'Episode is required'),
   start: z.date(),
   end: z.date(),
+  networks: z.array(z.string()),
 });
 
 export const ScheduleExistingEpisodeModal = ({
@@ -43,6 +51,7 @@ export const ScheduleExistingEpisodeModal = ({
   open,
   onOpenChange,
 }: ScheduleExistingEpisodeProps) => {
+  const { currentNetwork } = useNetwork();
   const [createScheduleItem, { loading }] = useMutation(CREATE_SCHEDULE_ITEM, {
     refetchQueries: [
       {
@@ -54,32 +63,48 @@ export const ScheduleExistingEpisodeModal = ({
       },
     ],
   });
-  const [selectedEpisode, setSelectedEpisode] = useState<
-    ScheduleQuery['schedule']['items'][0]['episode'] | null
-  >(null);
 
-  const { control, handleSubmit, reset, setValue } = useForm({
+  const defaultFilters = useMemo(() => {
+    return {
+      filter: [
+        {
+          field: EpisodeFilterField.Networks,
+          value: currentNetwork?.id ?? '',
+          type: FilterType.List,
+        },
+      ],
+    };
+  }, [currentNetwork]);
+
+  const {
+    data,
+    loading: loadingEpisodes,
+    refetch,
+  } = useQuery(SEARCH_EPISODES, {
+    variables: {
+      filters: defaultFilters,
+    },
+  });
+  const { data: networksData } = useQuery(GET_NETWORKS);
+
+  const { control, handleSubmit, reset } = useForm({
     defaultValues: {
       episode: '',
       start: scheduleDate,
       end: scheduleDate,
+      networks: [networkId],
     },
     resolver: zodResolver(schema),
   });
 
   const handleSave = (values: z.infer<typeof schema>) => {
-    if (!selectedEpisode) {
-      toast('Please select an episode', 'error');
-      return;
-    }
-
     createScheduleItem({
       variables: {
         input: {
-          episode: selectedEpisode.id,
+          episode: values.episode,
           start: values.start.toISOString(),
           end: values.end.toISOString(),
-          networks: [networkId],
+          networks: values.networks,
         },
       },
       onCompleted: () => {
@@ -99,31 +124,88 @@ export const ScheduleExistingEpisodeModal = ({
 
   const handleCancel = () => {
     reset();
-    setSelectedEpisode(null);
     onOpenChange(false);
+    refetch({
+      filters: defaultFilters,
+    });
   };
 
-  const handleEpisodeSelect = (episodeId: string) => {
-    setValue('episode', episodeId);
+  const handleSearch = (value: string) => {
+    refetch({
+      filters: {
+        filter: [
+          {
+            field: EpisodeFilterField.Networks,
+            value: currentNetwork?.id ?? '',
+            type: FilterType.List,
+            operator: OperatorType.And,
+          },
+          {
+            group: [
+              {
+                field: EpisodeFilterField.Name,
+                value,
+                type: FilterType.Contains,
+              },
+              {
+                field: EpisodeFilterField.Id,
+                value,
+                type: FilterType.Equal,
+              },
+            ],
+            operator: OperatorType.Or,
+          },
+        ],
+      },
+    });
   };
+
+  const debouncedHandleSearch = useDebouncer(handleSearch, { wait: 500 });
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <Dialog.Overlay />
       <Dialog.Content dismissable>
         <Dialog.Title>Schedule an existing episode</Dialog.Title>
-        <div className="flex flex--column">
-          <Select label="Episode">
-            <SelectTrigger>
-              <SelectValue placeholder="Select episode" />
-              <SelectIcon />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="option-1">Option 1</SelectItem>
-              <SelectItem value="option-2">Option 2</SelectItem>
-              <SelectItem value="option-3">Option 3</SelectItem>
-            </SelectContent>
-          </Select>
+        <div className="flex flex--column form">
+          <Controller
+            control={control}
+            name="episode"
+            render={({ field, fieldState }) => {
+              return (
+                <Autocomplete
+                  label="Episode"
+                  {...field}
+                  options={
+                    data?.episodes.items.map((episode) => episode.id) ?? []
+                  }
+                  destructive={Boolean(fieldState.error)}
+                  helperText={fieldState.error?.message}
+                  onSearch={(value) => {
+                    debouncedHandleSearch.maybeExecute(value);
+                  }}
+                  after={loadingEpisodes ? <Loading size="xxs" /> : undefined}
+                  initialOpen
+                  renderOption={(option) => {
+                    const episode = data?.episodes.items.find(
+                      (episode) => episode.id === option.value,
+                    );
+                    return (
+                      <div className="flex flex--justify-between width-full">
+                        <PrimarySecondary
+                          secondary={episode?.show.shortName ?? ''}
+                          primary={episode?.name ?? option.label}
+                        />
+                        <Badge color="orange" shape="pill" size="sm">
+                          #{episode?.id ?? option.value}
+                        </Badge>
+                      </div>
+                    );
+                  }}
+                />
+              );
+            }}
+          />
 
           <Controller
             control={control}
@@ -161,6 +243,51 @@ export const ScheduleExistingEpisodeModal = ({
                     }
                   }}
                   errorMessage={fieldState.error?.message}
+                />
+              );
+            }}
+          />
+          <Controller
+            control={control}
+            name="networks"
+            render={({ field, fieldState }) => {
+              return (
+                <MultiSelect
+                  label="Networks"
+                  {...field}
+                  options={
+                    networksData?.networks.map((network) => ({
+                      label: network.name,
+                      value: network.id,
+                    })) ?? []
+                  }
+                  destructive={Boolean(fieldState.error)}
+                  helperText={
+                    fieldState.error?.message ??
+                    'Defaults to the active network'
+                  }
+                  renderTag={(option) => {
+                    const matchingNetwork = networksData?.networks.find(
+                      (network) => network.id === option.item.value,
+                    );
+                    return (
+                      <Tag
+                        size="sm"
+                        before={
+                          <div
+                            className="network-icon network-icon--sm"
+                            dangerouslySetInnerHTML={{
+                              __html: matchingNetwork?.logoSvgIcon ?? '',
+                            }}
+                          />
+                        }
+                        closable
+                        onClose={option.onRemove}
+                      >
+                        {option.item.label}
+                      </Tag>
+                    );
+                  }}
                 />
               );
             }}

@@ -1,6 +1,7 @@
 'use client';
 
-import { HttpLink } from '@apollo/client';
+import { from, HttpLink } from '@apollo/client';
+import { onError } from '@apollo/client/link/error';
 import {
   ApolloNextAppProvider,
   ApolloClient,
@@ -8,7 +9,20 @@ import {
 } from '@apollo/client-integration-nextjs';
 import { setVerbosity } from 'ts-invariant';
 
+import { toast } from '../toast';
+
 setVerbosity('debug');
+
+const errorLink = onError(({ graphQLErrors, networkError }) => {
+  if (graphQLErrors)
+    graphQLErrors.forEach(({ message, locations, path }) => {
+      console.log(
+        `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
+      );
+      toast(message, 'error');
+    });
+  if (networkError) console.error(`[Network error]: ${networkError}`);
+});
 
 const client = () => {
   const httpLink = new HttpLink({
@@ -33,7 +47,7 @@ const client = () => {
         },
       },
     }),
-    link: httpLink,
+    link: from([errorLink, httpLink]),
   });
 };
 

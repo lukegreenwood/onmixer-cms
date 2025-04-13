@@ -2,6 +2,7 @@ import { useMutation } from '@apollo/client';
 import { Button } from '@soundwaves/components';
 
 import { DELETE_SCHEDULE_ITEM } from '@/graphql/mutations/deleteScheduleItem';
+import { GET_SCHEDULE } from '@/graphql/queries/schedule';
 import { UnscheduleIcon } from '@/icons';
 
 interface ActionCellProps {
@@ -14,6 +15,11 @@ export const ActionCell = ({ scheduleItemId }: ActionCellProps) => {
   const handleDelete = () => {
     deleteScheduleItem({
       variables: { input: { id: scheduleItemId } },
+      refetchQueries: [
+        {
+          query: GET_SCHEDULE,
+        },
+      ],
     });
   };
 

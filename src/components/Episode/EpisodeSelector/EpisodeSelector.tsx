@@ -64,15 +64,13 @@ export const EpisodeSelector = ({
               {
                 field: EpisodeFilterField.Id,
                 value,
-                type: FilterType.Contains,
+                type: FilterType.Equal,
               },
             ],
             operator: OperatorType.Or,
           },
         ],
       },
-    }).catch((error) => {
-      console.error('Refetch error:', error);
     });
   };
 

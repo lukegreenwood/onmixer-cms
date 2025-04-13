@@ -31,7 +31,6 @@ export function Navigation() {
     return false;
   };
 
-  console.log({ currentNetwork });
   const getNetworkBasedUrl = (baseUrl: string, parentPath?: string) => {
     const fullPath = parentPath ? `${parentPath}${baseUrl}` : baseUrl;
 
