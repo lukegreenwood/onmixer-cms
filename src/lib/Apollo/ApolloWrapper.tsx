@@ -26,7 +26,7 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
 
 const client = () => {
   const httpLink = new HttpLink({
-    uri: 'http://localhost:4000/graphql',
+    uri: process.env.NEXT_PUBLIC_GRAPHQL_URL,
     fetchOptions: { cache: 'no-store' },
   });
 
