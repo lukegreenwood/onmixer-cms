@@ -1,5 +1,6 @@
 'use client';
 
+import { utc } from '@date-fns/utc';
 import { Alert, Button, DropdownMenu, Tooltip } from '@soundwaves/components';
 import { format, isValid, parse } from 'date-fns';
 import { useRouter } from 'next/navigation';
@@ -22,13 +23,17 @@ interface SchedulePageProps {
 
 const getDateFromParams = (date: string) => {
   try {
-    const parsedDate = parse(date, 'yyyy-MM-dd', new Date());
+    const parsedDate = parse(date, 'yyyy-MM-dd', new Date(), {
+      in: utc,
+    });
 
     if (isValid(parsedDate)) {
       return parsedDate;
     }
 
-    const fallbackParsedDate = parse(date, 'dd-MM-yyyy', new Date());
+    const fallbackParsedDate = parse(date, 'dd-MM-yyyy', new Date(), {
+      in: utc,
+    });
 
     if (isValid(fallbackParsedDate)) {
       return fallbackParsedDate;
