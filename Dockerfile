@@ -3,8 +3,7 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# RUN wget http://registry.gigantic.local:4873
-RUN cat /etc/hosts
+RUN cat .npmrc
 
 COPY package.json package-lock.json ./
 RUN npm ci
