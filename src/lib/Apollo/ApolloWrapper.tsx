@@ -27,7 +27,6 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
 const client = () => {
   const httpLink = new HttpLink({
     uri: process.env.NEXT_PUBLIC_GRAPHQL_URL,
-    fetchOptions: { cache: 'no-store' },
   });
 
   return new ApolloClient({
