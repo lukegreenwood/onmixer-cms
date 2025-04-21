@@ -3,6 +3,8 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
+RUN wget http://registry.gigantic.local:4873/
+RUN ping registry.gigantic.local
 
 COPY package.json package-lock.json ./
 RUN npm ci
