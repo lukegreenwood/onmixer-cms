@@ -3,6 +3,8 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
+RUN echo "192.168.1.88 registry.gigantic.local" >> /etc/hosts
+
 COPY package.json package-lock.json ./
 RUN npm ci
 
