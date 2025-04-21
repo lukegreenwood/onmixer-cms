@@ -3,9 +3,10 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-RUN cat .npmrc
 
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json .npmrc ./
+
+RUN cat .npmrc
 RUN npm ci
 
 COPY . .
