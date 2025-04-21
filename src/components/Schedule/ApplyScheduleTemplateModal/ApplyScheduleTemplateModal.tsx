@@ -12,8 +12,8 @@ import {
   ToggleGroup,
 } from '@soundwaves/components';
 import { format, addDays, getDay } from 'date-fns';
-import { useCallback, useMemo, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { useCallback, useMemo } from 'react';
+import { Controller, FieldErrors, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { APPLY_ASSIGNED_DEFAULT_SCHEDULE } from '@/graphql/mutations/applyAssignedDefaultSchedule';
@@ -26,10 +26,34 @@ export type ApplyScheduleTemplateModalProps = {
   onOpenChange: (open: boolean) => void;
 };
 
-const schema = z.object({
-  date: z.date(),
-  assignedTo: z.array(z.string()).min(1, 'At least one day must be selected'),
-});
+const schema = z
+  .object({
+    date: z.date(),
+    assignedTo: z.array(z.string()).min(1, 'At least one day must be selected'),
+  })
+  .superRefine((data, ctx) => {
+    const firstDay = sortDays(data.assignedTo)[0];
+    const dayObject = DAYS_OF_WEEK.find((day) => day.value === firstDay);
+
+    if (!dayObject) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Invalid day selected',
+        fatal: true,
+        path: ['assignedTo'],
+      });
+    }
+
+    const adjustedDayIndex =
+      data.date.getDay() === 0 ? 6 : data.date.getDay() - 1;
+    if (adjustedDayIndex !== dayObject?.dayIndex) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Date must be on a ${dayObject?.label}`,
+        path: ['date'],
+      });
+    }
+  });
 
 const DAYS_OF_WEEK = [
   { value: 'MONDAY', label: 'Mon', dayIndex: 0 },
@@ -59,11 +83,10 @@ export const ApplyScheduleTemplateModal = ({
   open,
   onOpenChange,
 }: ApplyScheduleTemplateModalProps) => {
-  const [previewDates, setPreviewDates] = useState<Date[]>([]);
-
   const [applyScheduleTemplate, { loading }] = useMutation(
     APPLY_ASSIGNED_DEFAULT_SCHEDULE,
     {
+      refetchQueries: ['Schedule'],
       onCompleted: (data) => {
         if (data.applyAssignedDefaultSchedule.success) {
           toast('Schedule template applied successfully', 'success');
@@ -94,45 +117,41 @@ export const ApplyScheduleTemplateModal = ({
   const selectedDate = watch('date');
   const selectedDays = watch('assignedTo');
 
-  // Update preview dates when selected days or date changes
-  useMemo(() => {
+  const previewDates = useMemo(() => {
     if (selectedDays.length === 0) {
-      setPreviewDates([]);
-      return;
+      return [];
     }
 
-    const dates: Date[] = [];
-    const startDate = new Date(selectedDate);
-
-    // Create a map of day values to their indices for easier lookup
     const sortedDays = sortDays(selectedDays);
 
-    let currentDate = startDate;
-    let daysChecked = 0;
+    // Create an array of the next 7 days starting from the selected date
+    const nextSevenDays = Array.from({ length: 7 }, (_, i) =>
+      addDays(new Date(selectedDate), i),
+    );
 
-    while (dates.length < sortedDays.length && daysChecked < 7) {
-      const dayIndex = currentDate.getDay();
-      const adjustedDayIndex = dayIndex === 0 ? 6 : dayIndex - 1; // Convert Sunday (0) to 6 for Monday-based index
+    return nextSevenDays
+      .filter((date) => {
+        const dayIndex = date.getDay();
+        const adjustedDayIndex = dayIndex === 0 ? 6 : dayIndex - 1;
 
-      const matchingDay = sortedDays.find(
-        (day) =>
-          dayValueToIndex[day] === adjustedDayIndex &&
-          !dates.some((d) => {
-            const dDayIndex = getDay(d);
-            const dAdjustedDayIndex = dDayIndex === 0 ? 6 : dDayIndex - 1;
-            return dAdjustedDayIndex === adjustedDayIndex;
-          }),
-      );
-
-      if (matchingDay) {
-        dates.push(new Date(currentDate));
-      }
-
-      currentDate = addDays(currentDate, 1);
-      daysChecked++;
-    }
-
-    setPreviewDates(dates);
+        // Check if this day is in our selected days
+        return sortedDays.some(
+          (day) => dayValueToIndex[day] === adjustedDayIndex,
+        );
+      })
+      .filter((date, index, self) => {
+        const dayIndex = date.getDay();
+        const adjustedDayIndex = dayIndex === 0 ? 6 : dayIndex - 1;
+        return (
+          self.findIndex((findDate) => {
+            const findDayIndex = getDay(findDate);
+            const findAdjustedDayIndex =
+              findDayIndex === 0 ? 6 : findDayIndex - 1;
+            return findAdjustedDayIndex === adjustedDayIndex;
+          }) === index
+        );
+      })
+      .slice(0, sortedDays.length); // Limit to the number of selected days
   }, [selectedDays, selectedDate]);
 
   const isDateUnavailable = useCallback(
@@ -160,13 +179,13 @@ export const ApplyScheduleTemplateModal = ({
     });
   };
 
-  const handleInvalid = () => {
+  const handleInvalid = (errors: FieldErrors<z.infer<typeof schema>>) => {
     toast('There were issues applying the schedule template', 'error');
+    console.log(errors);
   };
 
   const handleCancel = () => {
     reset();
-    setPreviewDates([]);
     onOpenChange(false);
   };
 
@@ -236,7 +255,7 @@ export const ApplyScheduleTemplateModal = ({
               <Controller
                 control={control}
                 name="date"
-                render={({ field }) => {
+                render={({ field, fieldState }) => {
                   const { onChange, value: currentValue, ...rest } = field;
                   return (
                     <DatePicker
@@ -251,6 +270,7 @@ export const ApplyScheduleTemplateModal = ({
                       isDateUnavailable={(date) =>
                         isDateUnavailable(date.toDate('UTC'))
                       }
+                      errorMessage={fieldState.error?.message}
                     />
                   );
                 }}

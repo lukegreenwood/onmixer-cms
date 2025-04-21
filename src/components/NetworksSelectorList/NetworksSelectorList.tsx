@@ -22,7 +22,9 @@ export const NetworksSelectorList = ({
   id,
   networks,
 }: NetworksSelectorListProps) => {
-  const [updateScheduleItem, { loading }] = useMutation(UPDATE_SCHEDULE_ITEM);
+  const [updateScheduleItem, { loading }] = useMutation(UPDATE_SCHEDULE_ITEM, {
+    refetchQueries: ['Schedule'],
+  });
   const { data: networksData } = useQuery(GET_NETWORKS);
 
   const availableNetworks = networksData?.networks.filter(
@@ -68,8 +70,12 @@ export const NetworksSelectorList = ({
               }}
             />
           }
-          closable
-          onClose={() => handleRemoveNetwork(network.id)}
+          {...(networks.length === 1
+            ? { closable: false }
+            : {
+                closable: true,
+                onClose: () => handleRemoveNetwork(network.id),
+              })}
         >
           {network.name}
         </Tag>

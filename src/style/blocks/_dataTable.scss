@@ -2,6 +2,7 @@
 @use '../theme/sizing';
 @use '../theme/text';
 @use '../utils/mixins';
+@use '../theme/shadows';
 
 .data-table {
   width: 100%;
@@ -9,6 +10,7 @@
   border-radius: sizing.$radius-md;
   background-color: palette.$white-50;
   @include text.text-sm-leading-5-font-normal;
+  box-shadow: shadows.$shadows-sm;
 
   .data-table__header {
     background-color: palette.$gray-50;

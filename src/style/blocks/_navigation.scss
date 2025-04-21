@@ -8,12 +8,14 @@
   background-color: palette.$white-50;
   border-inline-end: 1px solid palette.$gray-100;
   padding: mixins.spacing(4);
+  padding-block-start: 0;
   max-height: 100vh;
   overflow-y: auto;
 
   .navigation__logo {
     color: palette.$purple-500;
     padding-block-end: mixins.spacing(3);
+    padding-block-start: mixins.spacing(4);
     position: sticky;
     top: 0;
     background-color: palette.$white-50;
