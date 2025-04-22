@@ -61,8 +61,14 @@
     }
   }
 
-  &.dialog-content--with-close .dialog-content__title {
-    padding-inline-end: mixins.spacing(6);
+  &.dialog-content--with-close {
+    [data-radix-popper-content-wrapper] {
+      z-index: 10 !important;
+    }
+
+    .dialog-content__title {
+      padding-inline-end: mixins.spacing(6);
+    }
   }
 }
 
