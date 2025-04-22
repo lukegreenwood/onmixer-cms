@@ -46,7 +46,6 @@ export const ApplyScheduleTemplateModal = ({
           <Tabs.Content value="apply-custom-template">
             <ApplyTemplateTab
               scheduleDate={scheduleDate}
-              networkId={networkId}
               onOpenChange={onOpenChange}
             />
           </Tabs.Content>

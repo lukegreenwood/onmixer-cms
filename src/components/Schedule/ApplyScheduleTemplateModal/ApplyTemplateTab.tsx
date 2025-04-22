@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Loading } from '@soundwaves/components';
+import { Button, DatePicker, Loading } from '@soundwaves/components';
 import { Autocomplete } from '@soundwaves/components';
 import { Badge } from '@soundwaves/components';
 import { useDebouncer } from '@tanstack/react-pacer';
@@ -21,18 +21,13 @@ const schema = z.object({
     .string()
     .min(1, 'At least one default schedule must be selected'),
   date: z.date(),
-  networkId: z
-    .array(z.string())
-    .min(1, 'At least one network must be selected'),
 });
 
 export const ApplyTemplateTab = ({
   scheduleDate,
-  networkId,
   onOpenChange,
 }: {
   scheduleDate: Date;
-  networkId: string;
   onOpenChange: (open: boolean) => void;
 }) => {
   const [applyScheduleTemplate, { loading }] = useMutation(
@@ -73,7 +68,6 @@ export const ApplyTemplateTab = ({
   const { control, handleSubmit, reset } = useForm({
     defaultValues: {
       date: scheduleDate,
-      networkId: [networkId],
     },
     resolver: zodResolver(schema),
   });
@@ -131,7 +125,10 @@ export const ApplyTemplateTab = ({
               {...field}
               options={
                 defaultSchedules?.defaultSchedules.items.map(
-                  (defaultSchedule) => defaultSchedule.id,
+                  (defaultSchedule) => ({
+                    value: defaultSchedule.id,
+                    label: defaultSchedule.name,
+                  }),
                 ) ?? []
               }
               destructive={Boolean(fieldState.error)}
@@ -169,6 +166,26 @@ export const ApplyTemplateTab = ({
                   </div>
                 );
               }}
+            />
+          );
+        }}
+      />
+      <Controller
+        control={control}
+        name="date"
+        render={({ field, fieldState }) => {
+          const { onChange, value: currentValue, ...rest } = field;
+          return (
+            <DatePicker
+              label="Date"
+              {...rest}
+              value={currentValue}
+              onChange={(value) => {
+                if (value) {
+                  onChange(value.toDate('UTC'));
+                }
+              }}
+              errorMessage={fieldState.error?.message}
             />
           );
         }}
