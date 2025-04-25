@@ -1,4 +1,6 @@
 import { useSuspenseQuery } from '@apollo/client';
+import { utc } from '@date-fns/utc';
+import { endOfDay } from 'date-fns';
 
 import { GET_SCHEDULE } from '@/graphql/queries';
 
@@ -9,9 +11,12 @@ export const useSchedule = ({
   date: Date | undefined;
   networkId: string | undefined;
 }) => {
+  const fromDate = date ?? new Date();
+  const toDate = endOfDay(fromDate, { in: utc });
   const result = useSuspenseQuery(GET_SCHEDULE, {
     variables: {
-      from: date?.toISOString() ?? new Date().toISOString(),
+      from: fromDate.toISOString(),
+      to: toDate.toISOString(),
       network: networkId?.toString() ?? '',
     },
     skip: !date || !networkId,
