@@ -9,21 +9,7 @@ import { Suspense } from 'react';
 import { GET_NETWORKS } from '@/graphql';
 import { NetworkType } from '@/graphql/__generated__/graphql';
 import { useNetwork } from '@/hooks';
-
-const getColourForNetworkType = (networkType: NetworkType) => {
-  switch (networkType) {
-    case NetworkType.Internal:
-      return 'gray';
-    case NetworkType.Playlist:
-      return 'purple';
-    case NetworkType.Station:
-      return 'green';
-    case NetworkType.Stream:
-      return 'blue';
-    default:
-      return 'gray';
-  }
-};
+import { getColourForNetworkType } from '@/utils';
 
 function NetworkSelectorContent() {
   const { currentNetwork } = useNetwork();

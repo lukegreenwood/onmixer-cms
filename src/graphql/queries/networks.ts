@@ -7,6 +7,7 @@ export const GET_NETWORKS = gql(`
 			name
 			code
 			networkType
+			baseUrl
 			logoSvgIcon
 			logoSvgCircular
 		}
