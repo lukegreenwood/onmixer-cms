@@ -6,6 +6,7 @@ import { createColumnHelper } from '@tanstack/react-table';
 import Link from 'next/link';
 
 import { DataTable, PageHeader } from '@/components/blocks';
+import { LinkIcon } from '@/components/icons';
 import { GET_NETWORKS } from '@/graphql';
 import { GetNetworksQuery } from '@/graphql/__generated__/graphql';
 import { getColourForNetworkType } from '@/utils';
@@ -55,6 +56,23 @@ const columns = [
         {props.getValue()}
       </Badge>
     ),
+  }),
+  columnHelper.display({
+    header: 'Link',
+    id: 'link',
+    cell: (props) => {
+      const data = props.row.original;
+
+      return (
+        <Button asChild size="xs-icon" isIconOnly variant="outline">
+          <a
+            href={`https://onmixer.dev.gigantic.engineering/networks${data.baseUrl}`}
+          >
+            <LinkIcon />
+          </a>
+        </Button>
+      );
+    },
   }),
 ];
 

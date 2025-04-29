@@ -13,6 +13,7 @@ export { DashboardIcon } from './Dashbaord';
 export { EpisodesIcon } from './Episodes';
 export { FeedIcon } from './Feed';
 export { InfoIcon } from './InfoIcon';
+export { LinkIcon } from './Link';
 export { LogoutIcon } from './Logout';
 export { MediaIcon } from './Media';
 export { MixesIcon } from './Mixes';
