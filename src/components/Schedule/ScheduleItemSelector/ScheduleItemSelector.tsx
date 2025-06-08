@@ -1,7 +1,6 @@
 'use client';
 
 import { useMutation } from '@apollo/client';
-import { utc } from '@date-fns/utc';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Button,
@@ -37,8 +36,8 @@ export const ScheduleItemSelector = ({ item }: ScheduleItemSelectorProps) => {
 
   const { control, handleSubmit, reset } = useForm({
     defaultValues: {
-      start: parseISO(item.start, { in: utc }),
-      end: parseISO(item.end, { in: utc }),
+      start: parseISO(item.start),
+      end: parseISO(item.end),
     },
     resolver: zodResolver(schema),
   });
@@ -82,13 +81,13 @@ export const ScheduleItemSelector = ({ item }: ScheduleItemSelectorProps) => {
       trigger={
         <div className="primary-secondary-list">
           <PrimarySecondary
-            primary={format(item.start, 'HH:mm:ss', { in: utc })}
-            secondary={format(item.start, 'dd/MM/yyyy', { in: utc })}
+            primary={format(item.start, 'HH:mm:ss')}
+            secondary={format(item.start, 'dd/MM/yyyy')}
           />
           <p>-</p>
           <PrimarySecondary
-            primary={format(item.end, 'HH:mm:ss', { in: utc })}
-            secondary={format(item.end, 'dd/MM/yyyy', { in: utc })}
+            primary={format(item.end, 'HH:mm:ss')}
+            secondary={format(item.end, 'dd/MM/yyyy')}
           />
         </div>
       }
@@ -118,7 +117,6 @@ export const ScheduleItemSelector = ({ item }: ScheduleItemSelectorProps) => {
                           value.toString(),
                           'yyyy-MM-dd',
                           new Date(),
-                          { in: utc },
                         );
                         newDate.setHours(currentValue.getHours());
                         newDate.setMinutes(currentValue.getMinutes());
@@ -140,12 +138,10 @@ export const ScheduleItemSelector = ({ item }: ScheduleItemSelectorProps) => {
                     aria-labelledby={`${id}-start-label`}
                     locale="en-GB"
                     {...rest}
-                    value={format(currentValue, 'HH:mm:ss', { in: utc })}
+                    value={format(currentValue, 'HH:mm:ss')}
                     onChange={(value) => {
                       if (value) {
-                        onChange(
-                          parse(value, 'HH:mm:ss', currentValue, { in: utc }),
-                        );
+                        onChange(parse(value, 'HH:mm:ss', currentValue));
                       }
                     }}
                     errorMessage={fieldState.error?.message}
@@ -178,7 +174,6 @@ export const ScheduleItemSelector = ({ item }: ScheduleItemSelectorProps) => {
                           value.toString(),
                           'yyyy-MM-dd',
                           new Date(),
-                          { in: utc },
                         );
                         newDate.setHours(currentValue.getHours());
                         newDate.setMinutes(currentValue.getMinutes());
@@ -201,12 +196,10 @@ export const ScheduleItemSelector = ({ item }: ScheduleItemSelectorProps) => {
                     aria-labelledby={`${id}-end-label`}
                     locale="en-GB"
                     {...rest}
-                    value={format(currentValue, 'HH:mm:ss', { in: utc })}
+                    value={format(currentValue, 'HH:mm:ss')}
                     onChange={(value) => {
                       if (value) {
-                        onChange(
-                          parse(value, 'HH:mm:ss', currentValue, { in: utc }),
-                        );
+                        onChange(parse(value, 'HH:mm:ss', currentValue));
                       }
                     }}
                     errorMessage={fieldState.error?.message}

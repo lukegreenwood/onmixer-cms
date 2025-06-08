@@ -1,3 +1,5 @@
-export default function ShowsPage() {
-  return <div>Shows</div>;
+import { ShowsPage } from '@/components/pages';
+
+export default function ShowsPageRoot() {
+  return <ShowsPage />;
 }
