@@ -1,3 +1,5 @@
+'use client';
+
 import { Button, CloseIcon, Separator } from '@soundwaves/components';
 import { useEffect, useRef, useState } from 'react';
 

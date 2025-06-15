@@ -2,6 +2,7 @@
 
 import { utc } from '@date-fns/utc';
 import { Alert, Button, DropdownMenu, Tooltip } from '@soundwaves/components';
+import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { format, isValid, parse } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { Fragment, useState } from 'react';
@@ -56,6 +57,12 @@ export const SchedulePage = ({ date }: SchedulePageProps) => {
   const { data, error } = useSchedule({
     date: scheduleDate,
     networkId: currentNetwork?.id,
+  });
+
+  const table = useReactTable({
+    data: data?.schedule.items ?? [],
+    columns,
+    getCoreRowModel: getCoreRowModel(),
   });
 
   if (!scheduleDate) {
@@ -132,9 +139,7 @@ export const SchedulePage = ({ date }: SchedulePageProps) => {
         }
       />
       <div className="page-content">
-        {data?.schedule.items && (
-          <DataTable data={data.schedule.items} columns={columns} />
-        )}
+        <DataTable table={table} />
       </div>
 
       <ScheduleExistingEpisodeModal

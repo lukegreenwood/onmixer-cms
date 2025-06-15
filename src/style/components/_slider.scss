@@ -1,0 +1,44 @@
+@use '../theme/palette';
+@use '../theme/sizing';
+@use '../theme/shadows';
+
+.slider {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 8px;
+  width: 100%;
+  user-select: none;
+  touch-action: none;
+
+  .slider__track {
+    border-radius: sizing.$radius-3xl;
+    background-color: palette.$gray-100;
+    height: 8px;
+  }
+
+  &.slider--disabled {
+    opacity: 0.5;
+  }
+
+  .slider__range {
+    position: absolute;
+    height: 100%;
+    border-radius: sizing.$radius-3xl;
+    background-color: palette.$purple-600;
+  }
+
+  .slider__thumb {
+    display: block;
+    width: 16px;
+    height: 16px;
+    border-radius: sizing.$radius-3xl;
+    box-shadow: shadows.$shadows-sm;
+    background-color: palette.$purple-600;
+
+    &:hover,
+    &:focus {
+      outline: 3px solid rgba(palette.$purple-600, 0.2);
+    }
+  }
+}

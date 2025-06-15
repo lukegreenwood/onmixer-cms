@@ -29,3 +29,4 @@ export { SeriesIcon } from './Series';
 export { ShowsIcon } from './Shows';
 export { TrackIcon } from './Track';
 export { UnscheduleIcon } from './Unschedule';
+export { EllipsisIcon } from './Ellipsis';

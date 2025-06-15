@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Button,
   Checkbox,
@@ -16,6 +18,9 @@ import {
 } from 'react';
 import React from 'react';
 
+import { isAnyOf } from '../lib/array';
+import { getColumn } from '../lib/helpers';
+import { type Locale, t } from '../lib/i18n';
 import {
   Command,
   CommandEmpty,
@@ -23,11 +28,7 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command';
-
-import { isAnyOf } from '../lib/array';
-import { getColumn } from '../lib/helpers';
-import { type Locale, t } from '../lib/i18n';
+} from '../ui/command';
 
 import { FilterValueController } from './FilterValue';
 

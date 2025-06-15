@@ -2,7 +2,11 @@
 
 import { useSuspenseQuery } from '@apollo/client';
 import { Avatar, Badge, Button } from '@soundwaves/components';
-import { createColumnHelper } from '@tanstack/react-table';
+import {
+  createColumnHelper,
+  getCoreRowModel,
+  useReactTable,
+} from '@tanstack/react-table';
 import Link from 'next/link';
 
 import { DataTable, PageHeader } from '@/components/blocks';
@@ -79,6 +83,12 @@ const columns = [
 export const NetworksPage = () => {
   const { data } = useSuspenseQuery(GET_NETWORKS);
 
+  const table = useReactTable({
+    data: data.networks,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  });
+
   return (
     <>
       <PageHeader
@@ -91,7 +101,7 @@ export const NetworksPage = () => {
         }
       />
       <div className="page-content">
-        <DataTable data={data.networks} columns={columns} />
+        <DataTable table={table} />
       </div>
     </>
   );

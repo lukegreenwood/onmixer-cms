@@ -1,36 +1,16 @@
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  RowSelectionState,
-  useReactTable,
-} from '@tanstack/react-table';
+import { flexRender, Table } from '@tanstack/react-table';
 import clsx from 'clsx';
 export type DataTableProps<TData> = {
-  data: TData[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  columns: ColumnDef<TData, any>[];
+  table: Table<TData>;
   onRowClick?: (row: TData) => void;
-  selectedRows?: RowSelectionState | undefined;
   noHover?: boolean;
 };
 
 export function DataTable<TData>({
-  data,
-  columns,
+  table,
   onRowClick,
-  selectedRows = {},
   noHover = false,
 }: DataTableProps<TData>) {
-  const table = useReactTable({
-    data,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    state: {
-      rowSelection: selectedRows,
-    },
-  });
-
   return (
     <table
       className={clsx('data-table', {

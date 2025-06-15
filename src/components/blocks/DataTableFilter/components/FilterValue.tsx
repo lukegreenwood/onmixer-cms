@@ -1,14 +1,16 @@
+'use client';
+
 import {
   Button,
   Calendar,
   Checkbox,
   Popover,
+  Slider,
   Tabs,
 } from '@soundwaves/components';
 import clsx from 'clsx';
 import { isEqual } from 'date-fns';
 import { format } from 'date-fns';
-import { Ellipsis } from 'lucide-react';
 import {
   cloneElement,
   isValidElement,
@@ -19,6 +21,13 @@ import {
   useState,
 } from 'react';
 
+import { EllipsisIcon } from '@/components/icons';
+
+import { numberFilterOperators } from '../core/operators';
+import { useDebounceCallback } from '../hooks/useDebounceCallback';
+import { take } from '../lib/array';
+import { createNumberRange } from '../lib/helpers';
+import { type Locale, t } from '../lib/i18n';
 import {
   Command,
   CommandEmpty,
@@ -27,13 +36,7 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from '@/components/ui/command';
-
-import { numberFilterOperators } from '../core/operators';
-import { useDebounceCallback } from '../hooks/useDebounceCallback';
-import { take } from '../lib/array';
-import { createNumberRange } from '../lib/helpers';
-import { type Locale, t } from '../lib/i18n';
+} from '../ui/command';
 import { DebouncedInput } from '../ui/debouncedInput';
 
 import type {
@@ -44,7 +47,7 @@ import type {
   FilterModel,
   FilterStrategy,
 } from '../core/types';
-import type { DateRange } from 'react-day-picker';
+// import type { DateRange } from 'react-day-picker';
 
 interface FilterValueProps<TData, TType extends ColumnDataType> {
   filter: FilterModel<TType>;
@@ -290,7 +293,7 @@ export function FilterValueDateDisplay<TData>({
   locale = 'en',
 }: FilterValueDisplayProps<TData, 'date'>) {
   if (!filter) return null;
-  if (filter.values.length === 0) return <Ellipsis className="size-4" />;
+  if (filter.values.length === 0) return <EllipsisIcon />;
   if (filter.values.length === 1) {
     const value = filter.values[0];
 
@@ -312,7 +315,7 @@ export function FilterValueTextDisplay<TData>({
 }: FilterValueDisplayProps<TData, 'text'>) {
   if (!filter) return null;
   if (filter.values.length === 0 || filter.values[0].trim() === '')
-    return <Ellipsis className="size-4" />;
+    return <EllipsisIcon className="size-4" />;
 
   const value = filter.values[0];
 

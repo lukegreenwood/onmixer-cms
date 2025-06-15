@@ -1,3 +1,5 @@
+'use client';
+
 import { useIsMobile } from '../hooks/useMobile';
 
 import { ActiveFilters, ActiveFiltersMobileContainer } from './ActiveFilters';

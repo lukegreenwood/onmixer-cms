@@ -1,14 +1,7 @@
+'use client';
+
 import { Button, Popover } from '@soundwaves/components';
 import { useState } from 'react';
-
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command';
 
 import {
   dateFilterOperators,
@@ -19,6 +12,14 @@ import {
   textFilterOperators,
 } from '../core/operators';
 import { type Locale, t } from '../lib/i18n';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '../ui/command';
 
 import type {
   Column,

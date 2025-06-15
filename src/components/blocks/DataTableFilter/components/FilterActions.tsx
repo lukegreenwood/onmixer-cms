@@ -1,3 +1,5 @@
+'use client';
+
 import { Button } from '@soundwaves/components';
 import clsx from 'clsx';
 import { memo } from 'react';
