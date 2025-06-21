@@ -83,6 +83,34 @@
       color: palette.$gray-600;
     }
   }
+
+  .option-item {
+    display: flex;
+    align-items: center;
+    gap: mixins.spacing(1.5);
+
+    .option-item__icon {
+      width: 16px;
+      height: 16px;
+      color: palette.$gray-600;
+    }
+
+    .option-item__count {
+      @include text.text-xxs-leading-4-font-medium;
+      margin-inline-start: mixins.spacing(0.5);
+      font-variant-numeric: tabular-nums;
+      font-weight: 500;
+      color: palette.$gray-500;
+
+      &.option-item__count--hidden {
+        display: none;
+      }
+
+      &.option-item__count--slashed-zero {
+        font-variant-numeric: slashed-zero;
+      }
+    }
+  }
 }
 
 /* Active Filters Mobile Container */

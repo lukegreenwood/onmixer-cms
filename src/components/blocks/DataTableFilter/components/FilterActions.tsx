@@ -1,7 +1,6 @@
 'use client';
 
 import { Button } from '@soundwaves/components';
-import clsx from 'clsx';
 import { memo } from 'react';
 
 import { FilterClearIcon } from '@/components/icons';
@@ -22,12 +21,9 @@ function __FilterActions({
   actions,
   locale = 'en',
 }: FilterActionsProps) {
-  return (
+  return hasFilters ? (
     <Button
-      className={clsx(
-        'filter-actions__clear-button',
-        !hasFilters && 'filter-actions__clear-button--hidden',
-      )}
+      className="filter-actions__clear-button"
       variant="primary"
       destructive
       size="sm"
@@ -38,5 +34,5 @@ function __FilterActions({
         {t('clear', locale)}
       </span>
     </Button>
-  );
+  ) : null;
 }

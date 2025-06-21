@@ -1,0 +1,14 @@
+@use '../theme/sizing';
+
+.preview-image {
+  overflow: hidden;
+  border-radius: sizing.$radius-sm;
+  width: 88px;
+  height: 88px;
+
+  img {
+    width: 88px;
+    object-fit: contain;
+    transition: transform 200ms ease-in-out;
+  }
+}

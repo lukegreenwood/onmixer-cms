@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import {
@@ -449,29 +451,22 @@ const OptionItem = memo(function OptionItem({
   }, [onToggle, value, selected]);
 
   return (
-    <CommandItem
-      key={value}
-      onSelect={handleSelect}
-      className="group flex items-center justify-between gap-1.5"
-    >
-      <div className="flex items-center gap-1.5">
-        <Checkbox
-          checked={selected}
-          className="opacity-0 data-[state=checked]:opacity-100 group-data-[selected=true]:opacity-100 dark:border-ring mr-1"
-        />
+    <CommandItem key={value} onSelect={handleSelect} className="group">
+      <div className="option-item">
+        <Checkbox checked={selected} />
         {Icon &&
           (isValidElement(Icon) ? (
             Icon
           ) : (
-            <Icon className="size-4 text-primary" />
+            <Icon className="option-item__icon" />
           ))}
         <span>
           {label}
           <sup
             className={clsx(
-              count == null && 'hidden',
-              'ml-0.5 tabular-nums tracking-tight text-muted-foreground',
-              count === 0 && 'slashed-zero',
+              count == null && 'option-item__count--hidden',
+              'option-item__count',
+              count === 0 && 'option-item__count--slashed-zero',
             )}
           >
             {typeof count === 'number' ? (count < 100 ? count : '100+') : ''}
@@ -646,12 +641,16 @@ export function FilterValueDateController<TData>({
   column,
   actions,
 }: FilterValueControllerProps<TData, 'date'>) {
-  const [date, setDate] = useState<DateRange | undefined>({
+  const [date, setDate] = useState<
+    { from: Date | undefined; to: Date | undefined } | undefined
+  >({
     from: filter?.values[0] ?? new Date(),
     to: filter?.values[1] ?? undefined,
   });
 
-  function changeDateRange(value: DateRange | undefined) {
+  function changeDateRange(
+    value: { from: Date | undefined; to: Date | undefined } | undefined,
+  ) {
     const start = value?.from;
     const end =
       start && value && value.to && !isEqual(start, value.to)

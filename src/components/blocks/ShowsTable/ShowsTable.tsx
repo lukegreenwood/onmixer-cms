@@ -1,17 +1,15 @@
 'use client';
 
 import { useSuspenseQuery } from '@apollo/client';
-import { Alert } from '@soundwaves/components';
+import { Alert, Badge, Tag } from '@soundwaves/components';
 import { createColumnHelper } from '@tanstack/react-table';
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { useState } from 'react';
 
 import { NetworksIcon, PresentersIcon, ShowsIcon } from '@/components/icons';
 import {
-  FilterType,
   GetNetworksQuery,
   GetPresentersQuery,
-  PresenterFilterField,
   SearchShowsQuery,
 } from '@/graphql/__generated__/graphql';
 import { GET_NETWORKS, GET_PRESENTERS, SEARCH_SHOWS } from '@/graphql/queries';
@@ -30,9 +28,61 @@ const tableColumns = [
     header: 'ID',
     cell: (props) => <>#{props.getValue()}</>,
   }),
+  columnHelper.display({
+    id: 'image',
+    header: 'Image',
+    cell: (props) => {
+      return (
+        <div className="preview-image">
+          <img
+            src={props.row.original.featuredImage.urls.square}
+            alt={props.row.original.shortName}
+          />
+        </div>
+      );
+    },
+  }),
   columnHelper.accessor('shortName', {
     header: 'Short Name',
     cell: (props) => props.getValue(),
+  }),
+  columnHelper.accessor('presenters', {
+    header: 'Presenters',
+    cell: (props) =>
+      props
+        .getValue()
+        .map((presenter) => presenter.name)
+        .join(', '),
+  }),
+  columnHelper.accessor('networks', {
+    header: 'Networks',
+    cell: (props) =>
+      props.getValue().map((network) => (
+        <Tag
+          key={network.id}
+          color="blue"
+          size="md"
+          before={
+            <div
+              className="network-icon network-icon--sm"
+              dangerouslySetInnerHTML={{
+                __html: network.logoSvgIcon,
+              }}
+            />
+          }
+        >
+          {network.name}
+        </Tag>
+      )),
+  }),
+  columnHelper.accessor('hidden', {
+    header: 'Status',
+    cell: (props) =>
+      props.getValue() ? (
+        <Badge color="red">Hidden</Badge>
+      ) : (
+        <Badge color="green">Visible</Badge>
+      ),
   }),
 ];
 
@@ -56,14 +106,14 @@ const columnsConfig = [
   columnConfigHelper
     .multiOption()
     .id('presenters')
-    .accessor((row) => row.presenters.map((presenter) => presenter.name))
+    .accessor((row) => row.presenters.map((presenter) => presenter.id))
     .displayName('Presenters')
     .icon(PresentersIcon)
     .build(),
   columnConfigHelper
     .multiOption()
     .id('networks')
-    .accessor((row) => row.networks.map((network) => network.name))
+    .accessor((row) => row.networks.map((network) => network.id))
     .displayName('Networks')
     .icon(NetworksIcon)
     .build(),
@@ -103,22 +153,17 @@ const makeOptions = (
 
 export const ShowsTable = () => {
   const { currentNetwork } = useNetwork();
-  const [filtersState, setFiltersState] = useState<FiltersState>([]);
+  const [filtersState, setFiltersState] = useState<FiltersState>([
+    {
+      columnId: 'networks',
+      operator: 'include',
+      type: 'multiOption',
+      values: [currentNetwork?.id ?? ''],
+    },
+  ]);
   const { data, error } = useSuspenseQuery(SEARCH_SHOWS);
   const { data: networks } = useSuspenseQuery(GET_NETWORKS);
-  const { data: presenters } = useSuspenseQuery(GET_PRESENTERS, {
-    variables: {
-      filters: {
-        filter: [
-          {
-            field: PresenterFilterField.Networks,
-            type: FilterType.Equal,
-            value: currentNetwork?.id ?? '1',
-          },
-        ],
-      },
-    },
-  });
+  const { data: presenters } = useSuspenseQuery(GET_PRESENTERS);
 
   const { filters, columns, actions, strategy } = useDataTableFilters({
     strategy: 'server',
@@ -130,6 +175,10 @@ export const ShowsTable = () => {
       presenters: makeOptions(presenters.presenters.items),
       networks: makeOptions(networks.networks),
     },
+    // faceted: {
+    //   presenters: makeOptions(presenters.presenters.items),
+    //   networks: makeOptions(networks.networks),
+    // },
   });
 
   console.log(filters);
