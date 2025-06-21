@@ -18,6 +18,8 @@ import {
 } from 'react';
 import React from 'react';
 
+import { FilterAddIcon } from '@/components';
+
 import { isAnyOf } from '../lib/array';
 import { getColumn } from '../lib/helpers';
 import { type Locale, t } from '../lib/i18n';
@@ -82,7 +84,6 @@ function FilterSelectorInternal<TData>({
     if (!open) setTimeout(() => setValue(''), 150);
   }, [open]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: need filters to be updated
   const content = useMemo(
     () =>
       property && column ? (
@@ -110,7 +111,7 @@ function FilterSelectorInternal<TData>({
             placeholder={t('search', locale)}
           />
           <CommandEmpty>{t('noresults', locale)}</CommandEmpty>
-          <CommandList className="max-h-fit">
+          <CommandList>
             <CommandGroup>
               {columns.map((column) => (
                 <FilterableColumn
@@ -131,6 +132,7 @@ function FilterSelectorInternal<TData>({
           </CommandList>
         </Command>
       ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [property, column, filter, filters, columns, actions, value],
   );
 
@@ -145,16 +147,18 @@ function FilterSelectorInternal<TData>({
       <Popover.Trigger asChild>
         <Button
           variant="outline"
-          className={clsx('h-7', hasFilters && 'w-fit !px-2')}
+          size="sm"
+          before={<FilterAddIcon />}
+          isIconOnly={hasFilters}
         >
-          <FilterIcon className="size-4" />
-          {!hasFilters && <span>{t('filter', locale)}</span>}
+          {!hasFilters && t('filter', locale)}
         </Button>
       </Popover.Trigger>
       <Popover.Content
         align="start"
         side="bottom"
-        className="w-fit p-0 origin-(--radix-popover-content-transform-origin)"
+        style={{ zIndex: 3 }}
+        className="popover--no-padding"
       >
         {content}
       </Popover.Content>
@@ -212,12 +216,16 @@ export function FilterableColumn<TData, TType extends ColumnDataType, TVal>({
       className="group"
       onMouseEnter={prefetch}
     >
-      <div className="flex w-full items-center justify-between">
-        <div className="inline-flex items-center gap-1.5">
-          {<column.icon strokeWidth={2.25} className="size-4" />}
+      <div className="filter-selector__column-item-content">
+        <div className="filter-selector__column-item-info">
+          <column.icon
+            strokeWidth={2.25}
+            className="filter-selector__column-item-icon"
+          />
+
           <span>{column.displayName}</span>
         </div>
-        <ChevronRightIcon className="size-4 opacity-0 group-aria-selected:opacity-100" />
+        <ChevronRightIcon className="filter-selector__column-item-chevron" />
       </div>
     </CommandItem>
   );
@@ -241,8 +249,8 @@ function QuickSearchFiltersInternal<TData>({
   filters,
   columns,
   actions,
-  strategy,
-  locale = 'en',
+  strategy: _strategy,
+  locale: _locale = 'en',
 }: QuickSearchFiltersProps<TData>) {
   const cols = useMemo(
     () =>
@@ -280,33 +288,35 @@ function QuickSearchFiltersInternal<TData>({
                   onSelect={() => {
                     handleOptionSelect(v.value, !checked);
                   }}
-                  className="group"
+                  className="group quick-search-filters"
                 >
-                  <div className="flex items-center gap-1.5 group">
+                  <div className="quick-search-filters__option-container">
                     <Checkbox
                       checked={checked}
-                      className="opacity-0 data-[state=checked]:opacity-100 group-data-[selected=true]:opacity-100 dark:border-ring mr-1"
+                      className="quick-search-filters__option-checkbox"
                     />
-                    <div className="flex items-center w-4 justify-center">
+                    <div className="quick-search-filters__option-icon-wrapper">
                       {v.icon &&
                         (isValidElement(v.icon) ? (
                           v.icon
                         ) : (
-                          <v.icon className="size-4 text-primary" />
+                          <v.icon className="quick-search-filters__option-icon" />
                         ))}
                     </div>
-                    <div className="flex items-center gap-0.5">
-                      <span className="text-muted-foreground">
+                    <div className="quick-search-filters__option-info">
+                      <span className="quick-search-filters__option-column-name">
                         {column.displayName}
                       </span>
-                      <ChevronRightIcon className="size-3.5 text-muted-foreground/75" />
+                      <ChevronRightIcon className="quick-search-filters__option-chevron" />
                       <span>
                         {v.label}
                         <sup
                           className={clsx(
-                            !optionsCount && 'hidden',
-                            'ml-0.5 tabular-nums tracking-tight text-muted-foreground',
-                            count === 0 && 'slashed-zero',
+                            !optionsCount &&
+                              'quick-search-filters__option-count--hidden',
+                            'quick-search-filters__option-count',
+                            count === 0 &&
+                              'quick-search-filters__option-count--zero',
                           )}
                         >
                           {count < 100 ? count : '100+'}

@@ -1,0 +1,124 @@
+@use '../theme/palette';
+@use '../theme/sizing';
+@use '../theme/text';
+@use '../utils/mixins';
+@use '../theme/shadows';
+
+/* Data Table Filter */
+.data-table-filter {
+  display: flex;
+  width: 100%;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: mixins.spacing(2);
+  margin-bottom: mixins.spacing(2);
+
+  &:not(.data-table-filter--mobile) .data-table-filter__content {
+    display: flex;
+    gap: mixins.spacing(2);
+    width: 100%;
+    flex: 1;
+
+    @include mixins.mq('md') {
+      flex-wrap: wrap;
+    }
+  }
+
+  &.data-table-filter--mobile {
+    .data-table-filter__content {
+      display: flex;
+      gap: mixins.spacing(1);
+    }
+  }
+
+  .active-filter {
+    display: flex;
+    min-height: 32px;
+    align-items: center;
+    border-radius: sizing.$radius-2xl;
+    border: 1px solid palette.$gray-100;
+    background-color: palette.$white-50;
+    box-shadow: shadows.$shadows-xs;
+    overflow: hidden;
+
+    .active-filter__close-button {
+      border-radius: 0;
+
+      .active-filter__close-button-icon {
+        border-radius: 0;
+        transform: translateX(-2px);
+        color: palette.$gray-500;
+      }
+    }
+
+    .separator {
+      background-color: palette.$gray-100;
+      width: 1px;
+      height: 100%;
+    }
+  }
+
+  .filter-operator__trigger {
+    color: palette.$gray-400;
+    font-weight: 400;
+  }
+
+  .filter-operator__trigger,
+  .filter-value__trigger {
+    border-radius: 0;
+  }
+
+  .filter-subject {
+    display: flex;
+    align-items: center;
+    gap: mixins.spacing(1);
+    white-space: nowrap;
+    padding-inline: mixins.spacing(2);
+    user-select: none;
+    @include text.text-sm-leading-5-font-medium;
+
+    .filter-subject__icon {
+      width: 16px;
+      height: 16px;
+      color: palette.$gray-600;
+    }
+  }
+}
+
+/* Active Filters Mobile Container */
+.active-filters-mobile {
+  position: relative;
+  width: 100%;
+  overflow-x: hidden;
+
+  .active-filters-mobile__container {
+    display: flex;
+    gap: mixins.spacing(2);
+    overflow-x: scroll;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .active-filters-mobile__blur {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: mixins.spacing(16);
+    z-index: 10;
+    pointer-events: none;
+
+    &.active-filters-mobile__blur--left {
+      left: 0;
+      background: linear-gradient(to right, palette.$white-50, transparent);
+    }
+
+    &.active-filters-mobile__blur--right {
+      right: 0;
+      background: linear-gradient(to left, palette.$white-50, transparent);
+    }
+  }
+}

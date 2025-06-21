@@ -35,9 +35,14 @@
     transform-origin: var(--radix-popper-transform-origin);
     animation: fadeInRight 0.3s cubic-bezier(0.2, 1, 0.4, 1);
   }
+
   &.popover---fade-out[data-state='closed'] {
     transform-origin: var(--radix-popper-transform-origin);
     animation: fadeOut 0.15s cubic-bezier(0.2, 1, 0.4, 1);
+  }
+
+  &.popover--no-padding {
+    padding: 0;
   }
 
   .popover__arrow {

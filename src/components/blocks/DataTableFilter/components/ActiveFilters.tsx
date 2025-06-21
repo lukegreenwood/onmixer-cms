@@ -76,7 +76,7 @@ export function ActiveFilter<TData, TType extends ColumnDataType>({
   locale = 'en',
 }: ActiveFilterProps<TData, TType>) {
   return (
-    <div className="flex h-7 items-center rounded-2xl border border-border bg-background shadow-xs text-xs">
+    <div className="active-filter">
       <FilterSubject column={column} />
       <Separator orientation="vertical" />
       <FilterOperator
@@ -96,10 +96,12 @@ export function ActiveFilter<TData, TType extends ColumnDataType>({
       <Separator orientation="vertical" />
       <Button
         variant="transparent"
+        size="sm"
         onClick={() => actions.removeFilter(filter.columnId)}
         isIconOnly
+        className="active-filter__close-button"
       >
-        <CloseIcon className="size-4 -translate-x-0.5" />
+        <CloseIcon className="active-filter__close-button-icon" />
       </Button>
     </div>
   );
@@ -155,16 +157,16 @@ export function ActiveFiltersMobileContainer({
   }, [children]);
 
   return (
-    <div className="relative w-full overflow-x-hidden">
+    <div className="active-filters-mobile">
       {/* Left blur effect */}
       {showLeftBlur && (
-        <div className="absolute left-0 top-0 bottom-0 w-16 z-10 pointer-events-none bg-gradient-to-r from-background to-transparent animate-in fade-in-0" />
+        <div className="active-filters-mobile__blur active-filters-mobile__blur--left" />
       )}
 
       {/* Scrollable container */}
       <div
         ref={scrollContainerRef}
-        className="flex gap-2 overflow-x-scroll no-scrollbar"
+        className="active-filters-mobile__container"
         onScroll={checkScroll}
       >
         {children}
@@ -172,7 +174,7 @@ export function ActiveFiltersMobileContainer({
 
       {/* Right blur effect */}
       {showRightBlur && (
-        <div className="absolute right-0 top-0 bottom-0 w-16 z-10 pointer-events-none bg-gradient-to-l from-background to-transparent animate-in fade-in-0 " />
+        <div className="active-filters-mobile__blur active-filters-mobile__blur--right" />
       )}
     </div>
   );

@@ -54,7 +54,8 @@ export function FilterOperator<TData, TType extends ColumnDataType>({
       <Popover.Trigger asChild>
         <Button
           variant="transparent"
-          className="m-0 h-full w-fit whitespace-nowrap rounded-none p-0 px-2 text-xs"
+          size="sm"
+          className="filter-operator__trigger"
         >
           <FilterOperatorDisplay
             filter={filter}
@@ -65,7 +66,8 @@ export function FilterOperator<TData, TType extends ColumnDataType>({
       </Popover.Trigger>
       <Popover.Content
         align="start"
-        className="w-fit p-0 origin-(--radix-popover-content-transform-origin)"
+        className="popover--no-padding"
+        style={{ zIndex: 3 }}
       >
         <Command loop>
           <CommandInput placeholder={t('search', locale)} />
@@ -99,7 +101,7 @@ export function FilterOperatorDisplay<TType extends ColumnDataType>({
   const operator = filterTypeOperatorDetails[columnType][filter.operator];
   const label = t(operator.key, locale);
 
-  return <span className="text-muted-foreground">{label}</span>;
+  return <span className="filter-operator__display">{label}</span>;
 }
 
 interface FilterOperatorControllerProps<TData, TType extends ColumnDataType> {

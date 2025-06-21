@@ -24,13 +24,19 @@ function __FilterActions({
 }: FilterActionsProps) {
   return (
     <Button
-      className={clsx('h-7 !px-2', !hasFilters && 'hidden')}
+      className={clsx(
+        'filter-actions__clear-button',
+        !hasFilters && 'filter-actions__clear-button--hidden',
+      )}
       variant="primary"
       destructive
+      size="sm"
       onClick={actions?.removeAllFilters}
+      before={<FilterClearIcon />}
     >
-      <FilterClearIcon />
-      <span className="hidden md:block">{t('clear', locale)}</span>
+      <span className="filter-actions__clear-button-text">
+        {t('clear', locale)}
+      </span>
     </Button>
   );
 }

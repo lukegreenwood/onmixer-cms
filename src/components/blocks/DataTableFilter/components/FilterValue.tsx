@@ -70,11 +70,12 @@ function FilterValueInternal<TData, TType extends ColumnDataType>({
 }: FilterValueProps<TData, TType>) {
   return (
     <Popover>
-      <Popover.Anchor className="h-full" />
+      <Popover.Anchor className="height-full" />
       <Popover.Trigger asChild>
         <Button
           variant="transparent"
-          className="m-0 h-full w-fit whitespace-nowrap rounded-none p-0 px-2 text-xs"
+          size="sm"
+          className="filter-value__trigger"
         >
           <FilterValueDisplay
             filter={filter}
@@ -87,7 +88,8 @@ function FilterValueInternal<TData, TType extends ColumnDataType>({
       <Popover.Content
         align="start"
         side="bottom"
-        className="w-fit p-0 origin-(--radix-popover-content-transform-origin)"
+        className="popover--no-padding"
+        style={{ zIndex: 3 }}
       >
         <FilterValueController
           filter={filter}
@@ -185,12 +187,12 @@ export function FilterValueOptionDisplay<TData>({
     const { label, icon: Icon } = selected[0];
     const hasIcon = !!Icon;
     return (
-      <span className="inline-flex items-center gap-1">
+      <span className="filter-value__option-display">
         {hasIcon &&
           (isValidElement(Icon) ? (
             Icon
           ) : (
-            <Icon className="size-4 text-primary" />
+            <Icon className="filter-value__option-display-icon" />
           ))}
         <span>{label}</span>
       </span>
@@ -203,17 +205,23 @@ export function FilterValueOptionDisplay<TData>({
   const hasOptionIcons = !options?.some((o) => !o.icon);
 
   return (
-    <div className="inline-flex items-center gap-0.5">
-      {hasOptionIcons &&
-        take(selected, 3).map(({ value, icon }) => {
-          const Icon = icon!;
-          return isValidElement(Icon) ? (
-            Icon
-          ) : (
-            <Icon key={value} className="size-4" />
-          );
-        })}
-      <span className={clsx(hasOptionIcons && 'ml-1.5')}>
+    <div className="filter-value__option-display">
+      {hasOptionIcons && (
+        <span className="filter-value__option-display-icons">
+          {take(selected, 3).map(({ value, icon }) => {
+            const Icon = icon!;
+            return isValidElement(Icon) ? (
+              Icon
+            ) : (
+              <Icon
+                key={value}
+                className="filter-value__option-display-icons-item"
+              />
+            );
+          })}
+        </span>
+      )}
+      <span className="filter-value__option-display-count">
         {selected.length} {pluralName}
       </span>
     </div>
@@ -233,12 +241,12 @@ export function FilterValueMultiOptionDisplay<TData>({
     const { label, icon: Icon } = selected[0];
     const hasIcon = !!Icon;
     return (
-      <span className="inline-flex items-center gap-1.5">
+      <span className="filter-value__option-display">
         {hasIcon &&
           (isValidElement(Icon) ? (
             Icon
           ) : (
-            <Icon className="size-4 text-primary" />
+            <Icon className="filter-value__option-display-icon" />
           ))}
 
         <span>{label}</span>

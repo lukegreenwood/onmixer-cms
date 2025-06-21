@@ -12,6 +12,7 @@ export { CopyIcon } from './Copy';
 export { DashboardIcon } from './Dashbaord';
 export { EpisodesIcon } from './Episodes';
 export { FeedIcon } from './Feed';
+export { FilterAddIcon } from './FilterAdd';
 export { FilterClearIcon } from './FilterClear';
 export { InfoIcon } from './InfoIcon';
 export { LinkIcon } from './Link';

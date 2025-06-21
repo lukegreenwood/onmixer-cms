@@ -4,29 +4,140 @@ import { useSuspenseQuery } from '@apollo/client';
 import { Alert } from '@soundwaves/components';
 import { createColumnHelper } from '@tanstack/react-table';
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import { useState } from 'react';
 
-import { SearchShowsQuery } from '@/graphql/__generated__/graphql';
-import { SEARCH_SHOWS } from '@/graphql/queries';
+import { NetworksIcon, PresentersIcon, ShowsIcon } from '@/components/icons';
+import {
+  FilterType,
+  GetNetworksQuery,
+  GetPresentersQuery,
+  PresenterFilterField,
+  SearchShowsQuery,
+} from '@/graphql/__generated__/graphql';
+import { GET_NETWORKS, GET_PRESENTERS, SEARCH_SHOWS } from '@/graphql/queries';
+import { useNetwork } from '@/hooks';
 
 import { DataTable } from '../DataTable';
+import { DataTableFilter, useDataTableFilters } from '../DataTableFilter';
+import { createColumnConfigHelper } from '../DataTableFilter/core/filters';
+import { FiltersState } from '../DataTableFilter/core/types';
 
 const columnHelper =
   createColumnHelper<SearchShowsQuery['shows']['items'][number]>();
-const columns = [
+
+const tableColumns = [
   columnHelper.accessor('id', {
     header: 'ID',
     cell: (props) => <>#{props.getValue()}</>,
   }),
+  columnHelper.accessor('shortName', {
+    header: 'Short Name',
+    cell: (props) => props.getValue(),
+  }),
 ];
 
-export const ShowsTable = () => {
-  const { data, error } = useSuspenseQuery(SEARCH_SHOWS);
+const columnConfigHelper =
+  createColumnConfigHelper<SearchShowsQuery['shows']['items'][number]>();
+const columnsConfig = [
+  columnConfigHelper
+    .text()
+    .id('id')
+    .accessor((row) => row.id)
+    .displayName('ID')
+    .icon(ShowsIcon)
+    .build(),
+  columnConfigHelper
+    .text()
+    .id('shortName')
+    .accessor((row) => row.shortName)
+    .displayName('Short Name')
+    .icon(ShowsIcon)
+    .build(),
+  columnConfigHelper
+    .multiOption()
+    .id('presenters')
+    .accessor((row) => row.presenters.map((presenter) => presenter.name))
+    .displayName('Presenters')
+    .icon(PresentersIcon)
+    .build(),
+  columnConfigHelper
+    .multiOption()
+    .id('networks')
+    .accessor((row) => row.networks.map((network) => network.name))
+    .displayName('Networks')
+    .icon(NetworksIcon)
+    .build(),
+  columnConfigHelper
+    .option()
+    .id('status')
+    .accessor((row) => (row.hidden ? 'Hidden' : 'Visible'))
+    .displayName('Status')
+    .icon(ShowsIcon)
+    .options([
+      {
+        value: 'true',
+        label: 'Visible',
+      },
+      {
+        value: 'false',
+        label: 'Hidden',
+      },
+    ])
+    .build(),
+] as const;
 
+const makeOptions = (
+  data:
+    | GetNetworksQuery['networks']
+    | GetPresentersQuery['presenters']['items'],
+) => {
+  if (data[0].__typename === 'Network') {
+    return data.map((network) => ({ value: network.id, label: network.name }));
+  }
+
+  return data.map((presenter) => ({
+    value: presenter.id,
+    label: presenter.name,
+  }));
+};
+
+export const ShowsTable = () => {
+  const { currentNetwork } = useNetwork();
+  const [filtersState, setFiltersState] = useState<FiltersState>([]);
+  const { data, error } = useSuspenseQuery(SEARCH_SHOWS);
+  const { data: networks } = useSuspenseQuery(GET_NETWORKS);
+  const { data: presenters } = useSuspenseQuery(GET_PRESENTERS, {
+    variables: {
+      filters: {
+        filter: [
+          {
+            field: PresenterFilterField.Networks,
+            type: FilterType.Equal,
+            value: currentNetwork?.id ?? '1',
+          },
+        ],
+      },
+    },
+  });
+
+  const { filters, columns, actions, strategy } = useDataTableFilters({
+    strategy: 'server',
+    data: data.shows.items,
+    filters: filtersState,
+    onFiltersChange: setFiltersState,
+    columnsConfig,
+    options: {
+      presenters: makeOptions(presenters.presenters.items),
+      networks: makeOptions(networks.networks),
+    },
+  });
+
+  console.log(filters);
   console.log(data);
 
   const table = useReactTable({
     data: data.shows.items,
-    columns,
+    columns: tableColumns,
     getCoreRowModel: getCoreRowModel(),
   });
 
@@ -40,5 +151,15 @@ export const ShowsTable = () => {
     );
   }
 
-  return <DataTable table={table} />;
+  return (
+    <div>
+      <DataTableFilter
+        filters={filters}
+        columns={columns}
+        actions={actions}
+        strategy={strategy}
+      />
+      <DataTable table={table} />
+    </div>
+  );
 };

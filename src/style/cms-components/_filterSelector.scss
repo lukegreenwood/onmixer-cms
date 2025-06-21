@@ -1,0 +1,34 @@
+@use '../theme/palette';
+@use '../theme/sizing';
+@use '../theme/text';
+@use '../utils/mixins';
+
+/* Filter Selector */
+
+.filter-selector__column-item-content {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+
+  .filter-selector__column-item-info {
+    display: inline-flex;
+    align-items: center;
+    gap: mixins.spacing(2);
+  }
+
+  .filter-selector__column-item-icon {
+    width: 16px;
+    height: 16px;
+    stroke-width: 2;
+    color: palette.$gray-600;
+  }
+
+  .filter-selector__column-item-chevron {
+    width: 16px;
+    height: 16px;
+    color: palette.$gray-400;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+}
