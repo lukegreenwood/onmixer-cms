@@ -1,8 +1,8 @@
 import { gql } from '../__generated__';
 
 export const SEARCH_SHOWS = gql(`
-  query SearchShows($filters: ShowListInput) {
-    shows(filters: $filters) {
+  query SearchShows($filters: ShowListInputV2) {
+    showsV2(filters: $filters) {
       items {
         id
         shortName

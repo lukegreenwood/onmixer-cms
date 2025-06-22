@@ -103,7 +103,7 @@ export function useDataTableFilters<
         const facetedOptionsInput =
           faceted[config.id as OptionColumnIds<TColumns>];
         if (!facetedOptionsInput || !isColumnOptionMap(facetedOptionsInput))
-          return config;
+          return final;
 
         final = { ...final, facetedOptions: facetedOptionsInput };
       }

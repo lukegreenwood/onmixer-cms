@@ -570,7 +570,7 @@ export function FilterValueMultiOptionController<TData>({
         ...o,
         selected,
         initialSelected: selected,
-        count: counts?.get(o.value) ?? 0,
+        count: counts?.get(o.value),
       };
     });
   }, []);

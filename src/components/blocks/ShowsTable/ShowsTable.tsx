@@ -4,7 +4,7 @@ import { useSuspenseQuery } from '@apollo/client';
 import { Alert, Badge, Tag } from '@soundwaves/components';
 import { createColumnHelper } from '@tanstack/react-table';
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { NetworksIcon, PresentersIcon, ShowsIcon } from '@/components/icons';
 import {
@@ -14,6 +14,7 @@ import {
 } from '@/graphql/__generated__/graphql';
 import { GET_NETWORKS, GET_PRESENTERS, SEARCH_SHOWS } from '@/graphql/queries';
 import { useNetwork } from '@/hooks';
+import { convertFiltersStateToGraphQL } from '@/utils/filtersToGraphql';
 
 import { DataTable } from '../DataTable';
 import { DataTableFilter, useDataTableFilters } from '../DataTableFilter';
@@ -21,7 +22,7 @@ import { createColumnConfigHelper } from '../DataTableFilter/core/filters';
 import { FiltersState } from '../DataTableFilter/core/types';
 
 const columnHelper =
-  createColumnHelper<SearchShowsQuery['shows']['items'][number]>();
+  createColumnHelper<SearchShowsQuery['showsV2']['items'][number]>();
 
 const tableColumns = [
   columnHelper.accessor('id', {
@@ -87,7 +88,7 @@ const tableColumns = [
 ];
 
 const columnConfigHelper =
-  createColumnConfigHelper<SearchShowsQuery['shows']['items'][number]>();
+  createColumnConfigHelper<SearchShowsQuery['showsV2']['items'][number]>();
 const columnsConfig = [
   columnConfigHelper
     .text()
@@ -151,6 +152,14 @@ const makeOptions = (
   }));
 };
 
+const makeFaceted = (
+  data:
+    | GetNetworksQuery['networks']
+    | GetPresentersQuery['presenters']['items'],
+) => {
+  return new Map(data.map((item) => [item.id, 0]));
+};
+
 export const ShowsTable = () => {
   const { currentNetwork } = useNetwork();
   const [filtersState, setFiltersState] = useState<FiltersState>([
@@ -161,13 +170,22 @@ export const ShowsTable = () => {
       values: [currentNetwork?.id ?? ''],
     },
   ]);
-  const { data, error } = useSuspenseQuery(SEARCH_SHOWS);
+
+  // Convert filters to GraphQL format
+  const graphqlFilters = useMemo(
+    () => convertFiltersStateToGraphQL(filtersState),
+    [filtersState],
+  );
+
+  const { data, error } = useSuspenseQuery(SEARCH_SHOWS, {
+    variables: { filters: graphqlFilters },
+  });
   const { data: networks } = useSuspenseQuery(GET_NETWORKS);
   const { data: presenters } = useSuspenseQuery(GET_PRESENTERS);
 
   const { filters, columns, actions, strategy } = useDataTableFilters({
     strategy: 'server',
-    data: data.shows.items,
+    data: data.showsV2.items,
     filters: filtersState,
     onFiltersChange: setFiltersState,
     columnsConfig,
@@ -176,8 +194,8 @@ export const ShowsTable = () => {
       networks: makeOptions(networks.networks),
     },
     // faceted: {
-    //   presenters: makeOptions(presenters.presenters.items),
-    //   networks: makeOptions(networks.networks),
+    //   presenters: makeFaceted(presenters.presenters.items),
+    //   networks: makeFaceted(networks.networks),
     // },
   });
 
@@ -185,7 +203,7 @@ export const ShowsTable = () => {
   console.log(data);
 
   const table = useReactTable({
-    data: data.shows.items,
+    data: data.showsV2.items,
     columns: tableColumns,
     getCoreRowModel: getCoreRowModel(),
   });
