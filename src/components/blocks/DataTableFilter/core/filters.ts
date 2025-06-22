@@ -164,6 +164,7 @@ interface FluentColumnConfigHelper<TData> {
   text: () => ColumnConfigBuilder<TData, 'text', string>;
   number: () => ColumnConfigBuilder<TData, 'number', number>;
   date: () => ColumnConfigBuilder<TData, 'date', Date>;
+  boolean: () => ColumnConfigBuilder<TData, 'boolean', boolean>;
   option: () => ColumnConfigBuilder<TData, 'option', string>;
   multiOption: () => ColumnConfigBuilder<TData, 'multiOption', string[]>;
 }
@@ -176,6 +177,8 @@ export function createColumnConfigHelper<
     text: () => new ColumnConfigBuilder<TData, 'text', string>('text'),
     number: () => new ColumnConfigBuilder<TData, 'number', number>('number'),
     date: () => new ColumnConfigBuilder<TData, 'date', Date>('date'),
+    boolean: () =>
+      new ColumnConfigBuilder<TData, 'boolean', boolean>('boolean'),
     option: () => new ColumnConfigBuilder<TData, 'option', string>('option'),
     multiOption: () =>
       new ColumnConfigBuilder<TData, 'multiOption', string[]>('multiOption'),

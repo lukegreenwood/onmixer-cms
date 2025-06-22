@@ -41,6 +41,8 @@ export type ColumnDataType =
   | 'text'
   | 'number'
   | 'date'
+  /* The column value is a boolean. */
+  | 'boolean'
   /* The column value can be a single value from a list of options. */
   | 'option'
   /* The column value can be zero or more values from a list of options. */
@@ -61,6 +63,7 @@ export type ColumnDataNativeMap = {
   text: string;
   number: number;
   date: Date;
+  boolean: boolean;
   option: string;
   multiOption: string[];
 };
@@ -266,11 +269,15 @@ export type MultiOptionFilterOperator =
   | 'exclude if any of'
   | 'exclude if all';
 
+/* Operators for boolean data */
+export type BooleanFilterOperator = 'is' | 'is not';
+
 /* Maps filter operators to their respective data types */
 export type FilterOperators = {
   text: TextFilterOperator;
   number: NumberFilterOperator;
   date: DateFilterOperator;
+  boolean: BooleanFilterOperator;
   option: OptionFilterOperator;
   multiOption: MultiOptionFilterOperator;
 };

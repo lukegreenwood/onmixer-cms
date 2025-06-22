@@ -23,6 +23,10 @@ export const DEFAULT_OPERATORS: Record<
     single: 'is',
     multiple: 'is between',
   },
+  boolean: {
+    single: 'is',
+    multiple: 'is',
+  },
   option: {
     single: 'is',
     multiple: 'is any of',
@@ -357,10 +361,31 @@ export const numberFilterOperators = {
   },
 } as const satisfies FilterDetails<'number'>;
 
+/* Details for all the filter operators for boolean data type */
+export const booleanFilterOperators = {
+  is: {
+    key: 'filters.boolean.is',
+    value: 'is',
+    target: 'single',
+    relativeOf: 'is not',
+    isNegated: false,
+    negation: 'is not',
+  },
+  'is not': {
+    key: 'filters.boolean.isNot',
+    value: 'is not',
+    target: 'single',
+    relativeOf: 'is',
+    isNegated: true,
+    negationOf: 'is',
+  },
+} as const satisfies FilterDetails<'boolean'>;
+
 export const filterTypeOperatorDetails: FilterTypeOperatorDetails = {
   text: textFilterOperators,
   number: numberFilterOperators,
   date: dateFilterOperators,
+  boolean: booleanFilterOperators,
   option: optionFilterOperators,
   multiOption: multiOptionFilterOperators,
 };

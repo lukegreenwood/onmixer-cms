@@ -7,6 +7,7 @@ import {
   Calendar,
   Checkbox,
   Popover,
+  RadioGroup,
   Slider,
   Tabs,
 } from '@soundwaves/components';
@@ -160,6 +161,15 @@ export function FilterValueDisplay<TData, TType extends ColumnDataType>({
         <FilterValueNumberDisplay
           filter={filter as FilterModel<'number'>}
           column={column as Column<TData, 'number'>}
+          actions={actions}
+          locale={locale}
+        />
+      );
+    case 'boolean':
+      return (
+        <FilterValueBooleanDisplay
+          filter={filter as FilterModel<'boolean'>}
+          column={column as Column<TData, 'boolean'>}
           actions={actions}
           locale={locale}
         />
@@ -358,6 +368,20 @@ export function FilterValueNumberDisplay<TData>({
   return <span className="tabular-nums tracking-tight">{value}</span>;
 }
 
+export function FilterValueBooleanDisplay<TData>({
+  filter,
+  column,
+  actions,
+  locale = 'en',
+}: FilterValueDisplayProps<TData, 'boolean'>) {
+  if (!filter) return null;
+
+  if (filter.values.length === 0) return <EllipsisIcon />;
+
+  const value = filter.values[0];
+  return <span>{value ? 'True' : 'False'}</span>;
+}
+
 /****** Property Filter Value Controller ******/
 
 interface FilterValueControllerProps<TData, TType extends ColumnDataType> {
@@ -425,6 +449,16 @@ function __FilterValueController<TData, TType extends ColumnDataType>({
         <FilterValueNumberController
           filter={filter as FilterModel<'number'>}
           column={column as Column<TData, 'number'>}
+          actions={actions}
+          strategy={strategy}
+          locale={locale}
+        />
+      );
+    case 'boolean':
+      return (
+        <FilterValueBooleanController
+          filter={filter as FilterModel<'boolean'>}
+          column={column as Column<TData, 'boolean'>}
           actions={actions}
           strategy={strategy}
           locale={locale}
@@ -875,6 +909,40 @@ export function FilterValueNumberController<TData>({
               </Tabs.Content>
             </Tabs>
           </div>
+        </CommandGroup>
+      </CommandList>
+    </Command>
+  );
+}
+
+export function FilterValueBooleanController<TData>({
+  filter,
+  column,
+  actions,
+  locale = 'en',
+}: FilterValueControllerProps<TData, 'boolean'>) {
+  const currentValue = filter?.values[0] ?? undefined;
+
+  return (
+    <Command>
+      <CommandList className="max-h-fit">
+        <CommandGroup>
+          <RadioGroup
+            value={
+              currentValue === undefined ? undefined : String(currentValue)
+            }
+          >
+            <CommandItem
+              onSelect={() => actions.setFilterValue(column, [true])}
+            >
+              <RadioGroup.Item value="true" label="True" />
+            </CommandItem>
+            <CommandItem
+              onSelect={() => actions.setFilterValue(column, [false])}
+            >
+              <RadioGroup.Item value="false" label="False" />
+            </CommandItem>
+          </RadioGroup>
         </CommandGroup>
       </CommandList>
     </Command>

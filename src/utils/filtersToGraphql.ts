@@ -11,6 +11,7 @@ import {
   NumberFilterOperator,
   OptionFilterOperator,
   TextFilterOperator,
+  BooleanFilterOperator,
 } from '@/components/blocks/DataTableFilter/core/types';
 
 import {
@@ -132,6 +133,18 @@ export const mapMultiOptionOperator = (
   }
 };
 
+export const mapBooleanOperator = (
+  operator: BooleanFilterOperator,
+): GqlBooleanFilterOperator => {
+  switch (operator) {
+    case 'is':
+      return GqlBooleanFilterOperator.Is;
+    case 'is not':
+      return GqlBooleanFilterOperator.IsNot;
+    default:
+      return GqlBooleanFilterOperator.Is;
+  }
+};
 // Field type mapping
 export const getFieldType = (field: string): ShowFilterType => {
   const textFields = [
@@ -271,21 +284,12 @@ export const mapFilterModelToGraphQL = (
       break;
 
     case ShowFilterType.Boolean:
-      if (
-        filterModel.columnId === 'hidden' ||
-        filterModel.columnId === 'status'
-      ) {
-        // Handle the special case where status maps to hidden boolean
-        const isHidden =
-          filterModel.columnId === 'status'
-            ? filterModel.values[0] === 'false' // 'false' string means hidden
-            : Boolean(filterModel.values[0]);
+      if (filterModel.columnId === 'hidden') {
+        const isHidden = filterModel.values[0] === true;
 
         filter.booleanFilter = {
           field: mapToBooleanField('hidden'),
-          operator: isHidden
-            ? GqlBooleanFilterOperator.Is
-            : GqlBooleanFilterOperator.IsNot,
+          operator: mapBooleanOperator(filterModel.operator),
           value: isHidden,
         };
       }

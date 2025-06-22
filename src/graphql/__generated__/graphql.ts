@@ -1240,7 +1240,6 @@ export type ShowListInput = {
 
 export type ShowListInputV2 = {
   filterGroup?: InputMaybe<ShowFilterGroup>;
-  includeHidden?: InputMaybe<Scalars['Boolean']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   order?: InputMaybe<Array<ShowOrder>>;

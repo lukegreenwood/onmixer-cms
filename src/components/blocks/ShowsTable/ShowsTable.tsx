@@ -119,21 +119,11 @@ const columnsConfig = [
     .icon(NetworksIcon)
     .build(),
   columnConfigHelper
-    .option()
-    .id('status')
-    .accessor((row) => (row.hidden ? 'Hidden' : 'Visible'))
-    .displayName('Status')
+    .boolean()
+    .id('hidden')
+    .accessor((row) => row.hidden)
+    .displayName('Hidden')
     .icon(ShowsIcon)
-    .options([
-      {
-        value: 'true',
-        label: 'Visible',
-      },
-      {
-        value: 'false',
-        label: 'Hidden',
-      },
-    ])
     .build(),
 ] as const;
 
@@ -150,14 +140,6 @@ const makeOptions = (
     value: presenter.id,
     label: presenter.name,
   }));
-};
-
-const makeFaceted = (
-  data:
-    | GetNetworksQuery['networks']
-    | GetPresentersQuery['presenters']['items'],
-) => {
-  return new Map(data.map((item) => [item.id, 0]));
 };
 
 export const ShowsTable = () => {

@@ -4,6 +4,7 @@ import { Button, Popover } from '@soundwaves/components';
 import { useState } from 'react';
 
 import {
+  booleanFilterOperators,
   dateFilterOperators,
   filterTypeOperatorDetails,
   multiOptionFilterOperators,
@@ -175,6 +176,16 @@ export function FilterOperatorController<TData, TType extends ColumnDataType>({
           locale={locale}
         />
       );
+    case 'boolean':
+      return (
+        <FilterOperatorBooleanController
+          filter={filter as FilterModel<'boolean'>}
+          column={column as Column<TData, 'boolean'>}
+          actions={actions}
+          closeController={closeController}
+          locale={locale}
+        />
+      );
     default:
       return null;
   }
@@ -339,5 +350,36 @@ function FilterOperatorNumberController<TData>({
         ))}
       </CommandGroup>
     </div>
+  );
+}
+
+function FilterOperatorBooleanController<TData>({
+  filter,
+  column,
+  actions,
+  closeController,
+  locale = 'en',
+}: FilterOperatorControllerProps<TData, 'boolean'>) {
+  const filterDetails = booleanFilterOperators[filter.operator];
+
+  const relatedFilters = Object.values(booleanFilterOperators).filter(
+    (o) => o.target === filterDetails.target,
+  );
+
+  const changeOperator = (value: string) => {
+    actions?.setFilterOperator(column.id, value as FilterOperators['boolean']);
+    closeController();
+  };
+
+  return (
+    <CommandGroup heading={t('operators', locale)}>
+      {relatedFilters.map((r) => {
+        return (
+          <CommandItem onSelect={changeOperator} value={r.value} key={r.value}>
+            {t(r.key, locale)}
+          </CommandItem>
+        );
+      })}
+    </CommandGroup>
   );
 }
