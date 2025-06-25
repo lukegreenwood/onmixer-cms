@@ -1,4 +1,4 @@
-export { Test } from './Test';
+export { Test, TestDrawer } from './Test';
 export { Logo } from './Logo';
 export { ItemSelector } from './ItemSelector';
 export { PrimarySecondary } from './PrimarySecondary';

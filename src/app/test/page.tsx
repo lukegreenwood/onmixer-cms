@@ -1,5 +1,10 @@
-import { Test } from "@/components";
+import { Test, TestDrawer } from '@/components';
 
 export default async function TestPage() {
-	return <Test />;
+  return (
+    <div>
+      <Test />
+      <TestDrawer />
+    </div>
+  );
 }

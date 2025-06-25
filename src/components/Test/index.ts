@@ -1,1 +1,2 @@
-export { Test } from "./Test";
+export { Test } from './Test';
+export { TestDrawer } from './TestDrawer';

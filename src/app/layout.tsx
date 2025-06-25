@@ -1,8 +1,8 @@
 import { Inter } from 'next/font/google';
 import { Toaster } from 'sonner';
 
-import { Navigation, InfoIcon } from '@/components';
-import { NetworkProvider } from '@/contexts';
+import { Navigation, InfoIcon, Drawer } from '@/components';
+import { NetworkProvider, DrawerProvider } from '@/contexts';
 import { ApolloWrapper } from '@/lib';
 
 import type { Metadata } from 'next';
@@ -29,21 +29,24 @@ export default function RootLayout({
       <body className={inter.className}>
         <ApolloWrapper>
           <NetworkProvider>
-            <Toaster
-              position="top-right"
-              expand
-              className="toaster"
-              icons={{
-                success: <InfoIcon />,
-                error: <InfoIcon />,
-                warning: <InfoIcon />,
-                info: <InfoIcon />,
-              }}
-            />
-            <div className="layout">
-              <Navigation />
-              <main>{children}</main>
-            </div>
+            <DrawerProvider>
+              <Toaster
+                position="top-right"
+                expand
+                className="toaster"
+                icons={{
+                  success: <InfoIcon />,
+                  error: <InfoIcon />,
+                  warning: <InfoIcon />,
+                  info: <InfoIcon />,
+                }}
+              />
+              <div className="layout">
+                <Navigation />
+                <main>{children}</main>
+                <Drawer />
+              </div>
+            </DrawerProvider>
           </NetworkProvider>
         </ApolloWrapper>
       </body>

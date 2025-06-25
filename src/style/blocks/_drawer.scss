@@ -1,0 +1,57 @@
+@use '../theme/palette';
+@use '../theme/shadows';
+@use '../utils/mixins';
+
+// Individual drawer container - positioned as part of grid layout
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: palette.$white-50;
+  box-shadow: shadows.$shadows-xs;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: calc(1001 + var(--drawer-index, 0));
+
+  @include mixins.mq(md) {
+    position: relative;
+    width: 400px;
+    border-inline-start: 1px solid palette.$gray-100;
+    z-index: calc(10 + var(--drawer-index, 0));
+    box-shadow: none;
+  }
+
+  &:not(.drawer--0) {
+    @include mixins.mq(md) {
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+  }
+
+  .drawer__body {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .drawer__close-wrapper {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+  }
+}
+
+body:has(.drawer) {
+  .layout {
+    grid-template-columns: 240px 1fr;
+
+    @include mixins.mq(md) {
+      grid-template-columns: 240px 1fr 400px;
+      transition: grid-template-columns 0.3s ease-in-out;
+    }
+  }
+}
