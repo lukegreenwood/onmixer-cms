@@ -49,7 +49,9 @@
 @use 'blocks/pageHeader';
 @use 'blocks/pageContent';
 @use 'blocks/dataTable';
+@use 'blocks/drawer';
 @use 'blocks/previewImage';
+@use 'blocks/pagination';
 
 // CMS
 @use 'cms-components/itemPreview';

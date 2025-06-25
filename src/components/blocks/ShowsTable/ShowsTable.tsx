@@ -4,12 +4,15 @@ import { useSuspenseQuery } from '@apollo/client';
 import { Alert, Badge, Tag } from '@soundwaves/components';
 import { createColumnHelper } from '@tanstack/react-table';
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useMemo, useState } from 'react';
 
 import { NetworksIcon, PresentersIcon, ShowsIcon } from '@/components/icons';
 import {
   GetNetworksQuery,
   GetPresentersQuery,
+  OrderDirection,
+  PresenterOrderField,
   SearchShowsQuery,
 } from '@/graphql/__generated__/graphql';
 import { GET_NETWORKS, GET_PRESENTERS, SEARCH_SHOWS } from '@/graphql/queries';
@@ -20,6 +23,7 @@ import { DataTable } from '../DataTable';
 import { DataTableFilter, useDataTableFilters } from '../DataTableFilter';
 import { createColumnConfigHelper } from '../DataTableFilter/core/filters';
 import { FiltersState } from '../DataTableFilter/core/types';
+import { Pagination } from '../Pagination';
 
 const columnHelper =
   createColumnHelper<SearchShowsQuery['showsV2']['items'][number]>();
@@ -42,6 +46,21 @@ const tableColumns = [
         </div>
       );
     },
+  }),
+  columnHelper.accessor('shortId', {
+    header: 'Short ID',
+    cell: (props) => (
+      <Badge
+        stroke
+        color="gray"
+        size="sm"
+        onClick={() => {
+          navigator.clipboard.writeText(props.getValue());
+        }}
+      >
+        {props.getValue()}
+      </Badge>
+    ),
   }),
   columnHelper.accessor('shortName', {
     header: 'Short Name',
@@ -91,10 +110,17 @@ const columnConfigHelper =
   createColumnConfigHelper<SearchShowsQuery['showsV2']['items'][number]>();
 const columnsConfig = [
   columnConfigHelper
-    .text()
+    .number()
     .id('id')
     .accessor((row) => row.id)
     .displayName('ID')
+    .icon(ShowsIcon)
+    .build(),
+  columnConfigHelper
+    .text()
+    .id('shortId')
+    .accessor((row) => row.shortId)
+    .displayName('Short ID')
     .icon(ShowsIcon)
     .build(),
   columnConfigHelper
@@ -142,14 +168,28 @@ const makeOptions = (
   }));
 };
 
+const SHOWS_PER_PAGE = 30;
+
 export const ShowsTable = () => {
   const { currentNetwork } = useNetwork();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const page = Number(searchParams.get('page') ?? '1');
+
+  const offset = (page - 1) * SHOWS_PER_PAGE;
+
   const [filtersState, setFiltersState] = useState<FiltersState>([
     {
       columnId: 'networks',
       operator: 'include',
       type: 'multiOption',
       values: [currentNetwork?.id ?? ''],
+    },
+    {
+      columnId: 'hidden',
+      operator: 'is',
+      type: 'boolean',
+      values: [false],
     },
   ]);
 
@@ -160,16 +200,40 @@ export const ShowsTable = () => {
   );
 
   const { data, error } = useSuspenseQuery(SEARCH_SHOWS, {
-    variables: { filters: graphqlFilters },
+    variables: {
+      filters: { ...graphqlFilters, limit: SHOWS_PER_PAGE, offset },
+    },
   });
   const { data: networks } = useSuspenseQuery(GET_NETWORKS);
-  const { data: presenters } = useSuspenseQuery(GET_PRESENTERS);
+  const { data: presenters } = useSuspenseQuery(GET_PRESENTERS, {
+    variables: {
+      filters: {
+        limit: 100,
+        order: [
+          {
+            field: PresenterOrderField.Id,
+            direction: OrderDirection.Ascending,
+          },
+        ],
+      },
+    },
+  });
+
+  const handleFiltersChange = (
+    newFilters: FiltersState | ((prevState: FiltersState) => FiltersState),
+  ) => {
+    setFiltersState(newFilters);
+    // Reset to page 1 when filters change, but only if we're not already on page 1
+    if (page !== 1) {
+      router.push('?page=1');
+    }
+  };
 
   const { filters, columns, actions, strategy } = useDataTableFilters({
     strategy: 'server',
     data: data.showsV2.items,
     filters: filtersState,
-    onFiltersChange: setFiltersState,
+    onFiltersChange: handleFiltersChange,
     columnsConfig,
     options: {
       presenters: makeOptions(presenters.presenters.items),
@@ -190,6 +254,10 @@ export const ShowsTable = () => {
     getCoreRowModel: getCoreRowModel(),
   });
 
+  const handlePageChange = (page: number) => {
+    router.push(`?page=${page}`);
+  };
+
   if (error) {
     return (
       <div className="page-content">
@@ -209,6 +277,13 @@ export const ShowsTable = () => {
         strategy={strategy}
       />
       <DataTable table={table} />
+      <Pagination
+        total={data.showsV2.total}
+        amount={SHOWS_PER_PAGE}
+        currentPage={page}
+        onPageChange={handlePageChange}
+        entity="shows"
+      />
     </div>
   );
 };

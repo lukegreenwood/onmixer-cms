@@ -155,7 +155,7 @@ export const getFieldType = (field: string): ShowFilterType => {
     'fullDesc',
     'extraData',
   ];
-  const numberFields = ['id', 'totalEpisodes'];
+  const numberFields = ['id'];
   const dateFields = ['createdAt', 'updatedAt'];
   const booleanFields = ['hidden'];
   const multiOptionFields = ['presenters', 'networks'];
@@ -194,8 +194,6 @@ const mapToNumberField = (field: string): ShowNumberFilterField => {
   switch (field) {
     case 'id':
       return ShowNumberFilterField.Id;
-    case 'totalEpisodes':
-      return ShowNumberFilterField.TotalEpisodes;
     default:
       return ShowNumberFilterField.Id;
   }
@@ -330,7 +328,6 @@ export const convertFiltersStateToGraphQL = (
 
   return {
     filterGroup: filters.length > 0 ? filterGroup : undefined,
-    includeHidden: options?.includeHidden,
     limit: options?.limit,
     offset: options?.offset,
     order: undefined,

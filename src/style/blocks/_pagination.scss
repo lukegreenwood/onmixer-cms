@@ -1,0 +1,28 @@
+@use '../theme/palette';
+@use '../theme/text';
+@use '../utils/mixins';
+@use '../theme/shadows';
+@use '../theme/sizing';
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: mixins.spacing(4);
+  padding: mixins.spacing(2) mixins.spacing(4);
+  box-shadow: shadows.$shadows-sm;
+  border-radius: sizing.$radius-md;
+  background-color: palette.$white-50;
+  margin-block-start: mixins.spacing(2);
+
+  .pagination__nav-icon {
+    color: palette.$gray-600;
+  }
+
+  .pagination__info {
+    @include text.text-sm-leading-5-font-medium;
+    color: palette.$gray-700;
+    white-space: nowrap;
+    user-select: none;
+  }
+}

@@ -856,6 +856,28 @@ export type PresenterShowsArgs = {
   order?: InputMaybe<Array<ShowOrder>>;
 };
 
+export type PresenterBooleanFilter = {
+  field: PresenterBooleanFilterField;
+  operator: BooleanFilterOperator;
+  value: Scalars['Boolean']['input'];
+};
+
+export enum PresenterBooleanFilterField {
+  Hidden = 'hidden'
+}
+
+export type PresenterDateFilter = {
+  field: PresenterDateFilterField;
+  operator: DateFilterOperator;
+  value?: InputMaybe<Scalars['DateTime']['input']>;
+  values?: InputMaybe<Array<Scalars['DateTime']['input']>>;
+};
+
+export enum PresenterDateFilterField {
+  CreatedAt = 'createdAt',
+  UpdatedAt = 'updatedAt'
+}
+
 export type PresenterFilter = {
   field: PresenterFilterField;
   operator?: InputMaybe<OperatorType>;
@@ -869,6 +891,31 @@ export enum PresenterFilterField {
   Networks = 'networks',
   ShortBio = 'shortBio',
   ShortId = 'shortId'
+}
+
+export type PresenterFilterGroup = {
+  filters?: InputMaybe<Array<PresenterFilterInput>>;
+  groups?: InputMaybe<Array<PresenterFilterGroup>>;
+  operator: OperatorType;
+};
+
+export type PresenterFilterInput = {
+  booleanFilter?: InputMaybe<PresenterBooleanFilter>;
+  dateFilter?: InputMaybe<PresenterDateFilter>;
+  multiOptionFilter?: InputMaybe<PresenterMultiOptionFilter>;
+  numberFilter?: InputMaybe<PresenterNumberFilter>;
+  optionFilter?: InputMaybe<PresenterOptionFilter>;
+  textFilter?: InputMaybe<PresenterTextFilter>;
+  type: PresenterFilterType;
+};
+
+export enum PresenterFilterType {
+  Boolean = 'BOOLEAN',
+  Date = 'DATE',
+  MultiOption = 'MULTI_OPTION',
+  Number = 'NUMBER',
+  Option = 'OPTION',
+  Text = 'TEXT'
 }
 
 export type PresenterList = ItemList & {
@@ -885,10 +932,51 @@ export type PresenterListInput = {
   order?: InputMaybe<Array<PresenterOrder>>;
 };
 
+export type PresenterListInputV2 = {
+  filterGroup?: InputMaybe<PresenterFilterGroup>;
+  includeHidden?: InputMaybe<Scalars['Boolean']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order?: InputMaybe<Array<PresenterOrder>>;
+};
+
+export type PresenterMultiOptionFilter = {
+  field: PresenterMultiOptionFilterField;
+  operator: MultiOptionFilterOperator;
+  values: Array<Scalars['ID']['input']>;
+};
+
+export enum PresenterMultiOptionFilterField {
+  Networks = 'networks',
+  Shows = 'shows'
+}
+
 export type PresenterMutationOutput = {
   __typename?: 'PresenterMutationOutput';
   presenter: Presenter;
 };
+
+export type PresenterNumberFilter = {
+  field: PresenterNumberFilterField;
+  operator: NumberFilterOperator;
+  value?: InputMaybe<Scalars['Int']['input']>;
+  values?: InputMaybe<Array<Scalars['Int']['input']>>;
+};
+
+export enum PresenterNumberFilterField {
+  Id = 'id'
+}
+
+export type PresenterOptionFilter = {
+  field: PresenterOptionFilterField;
+  operator: OptionFilterOperator;
+  value?: InputMaybe<Scalars['String']['input']>;
+  values?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+export enum PresenterOptionFilterField {
+  Hidden = 'hidden'
+}
 
 export type PresenterOrder = {
   direction: OrderDirection;
@@ -898,6 +986,19 @@ export type PresenterOrder = {
 export enum PresenterOrderField {
   Id = 'id',
   Name = 'name'
+}
+
+export type PresenterTextFilter = {
+  field: PresenterTextFilterField;
+  operator: TextFilterOperator;
+  value: Scalars['String']['input'];
+};
+
+export enum PresenterTextFilterField {
+  Bio = 'bio',
+  Name = 'name',
+  ShortBio = 'shortBio',
+  ShortId = 'shortId'
 }
 
 export type Query = {
@@ -917,11 +1018,13 @@ export type Query = {
   onairProgramme?: Maybe<ScheduleItem>;
   presenter?: Maybe<Presenter>;
   presenters: PresenterList;
+  presentersV2: PresenterList;
   schedule: ScheduleList;
   /** Get the scheduled programme for a network at a specific date and time */
   scheduledProgramme?: Maybe<ScheduleItem>;
   series: Series;
   seriesList: SeriesList;
+  seriesListV2: SeriesList;
   show?: Maybe<Show>;
   shows: ShowList;
   showsV2: ShowList;
@@ -984,6 +1087,11 @@ export type QueryPresentersArgs = {
 };
 
 
+export type QueryPresentersV2Args = {
+  filters?: InputMaybe<PresenterListInputV2>;
+};
+
+
 export type QueryScheduleArgs = {
   filters?: InputMaybe<ScheduleListInput>;
 };
@@ -1002,6 +1110,11 @@ export type QuerySeriesArgs = {
 
 export type QuerySeriesListArgs = {
   filters?: InputMaybe<SeriesListInput>;
+};
+
+
+export type QuerySeriesListV2Args = {
+  filters?: InputMaybe<SeriesListInputV2>;
 };
 
 
@@ -1070,6 +1183,28 @@ export type SeriesEpisodesArgs = {
   order?: InputMaybe<Array<EpisodeOrder>>;
 };
 
+export type SeriesBooleanFilter = {
+  field: SeriesBooleanFilterField;
+  operator: BooleanFilterOperator;
+  value: Scalars['Boolean']['input'];
+};
+
+export enum SeriesBooleanFilterField {
+  Archived = 'archived'
+}
+
+export type SeriesDateFilter = {
+  field: SeriesDateFilterField;
+  operator: DateFilterOperator;
+  value?: InputMaybe<Scalars['DateTime']['input']>;
+  values?: InputMaybe<Array<Scalars['DateTime']['input']>>;
+};
+
+export enum SeriesDateFilterField {
+  CreatedAt = 'createdAt',
+  UpdatedAt = 'updatedAt'
+}
+
 export type SeriesFilter = {
   field: SeriesFilterField;
   operator?: InputMaybe<OperatorType>;
@@ -1087,6 +1222,31 @@ export enum SeriesFilterField {
   ShowId = 'showId'
 }
 
+export type SeriesFilterGroup = {
+  filters?: InputMaybe<Array<SeriesFilterInput>>;
+  groups?: InputMaybe<Array<SeriesFilterGroup>>;
+  operator: OperatorType;
+};
+
+export type SeriesFilterInput = {
+  booleanFilter?: InputMaybe<SeriesBooleanFilter>;
+  dateFilter?: InputMaybe<SeriesDateFilter>;
+  multiOptionFilter?: InputMaybe<SeriesMultiOptionFilter>;
+  numberFilter?: InputMaybe<SeriesNumberFilter>;
+  optionFilter?: InputMaybe<SeriesOptionFilter>;
+  textFilter?: InputMaybe<SeriesTextFilter>;
+  type: SeriesFilterType;
+};
+
+export enum SeriesFilterType {
+  Boolean = 'BOOLEAN',
+  Date = 'DATE',
+  MultiOption = 'MULTI_OPTION',
+  Number = 'NUMBER',
+  Option = 'OPTION',
+  Text = 'TEXT'
+}
+
 export type SeriesList = ItemList & {
   __typename?: 'SeriesList';
   items: Array<Series>;
@@ -1101,10 +1261,55 @@ export type SeriesListInput = {
   order?: InputMaybe<Array<SeriesOrder>>;
 };
 
+export type SeriesListInputV2 = {
+  filterGroup?: InputMaybe<SeriesFilterGroup>;
+  includeArchived?: InputMaybe<Scalars['Boolean']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order?: InputMaybe<Array<SeriesOrder>>;
+};
+
+export type SeriesMultiOptionFilter = {
+  field: SeriesMultiOptionFilterField;
+  operator: MultiOptionFilterOperator;
+  values: Array<Scalars['ID']['input']>;
+};
+
+export enum SeriesMultiOptionFilterField {
+  Networks = 'networks',
+  Shows = 'shows'
+}
+
 export type SeriesMutationOutput = {
   __typename?: 'SeriesMutationOutput';
   series: Series;
 };
+
+export type SeriesNumberFilter = {
+  field: SeriesNumberFilterField;
+  operator: NumberFilterOperator;
+  value?: InputMaybe<Scalars['Int']['input']>;
+  values?: InputMaybe<Array<Scalars['Int']['input']>>;
+};
+
+export enum SeriesNumberFilterField {
+  Id = 'id',
+  NetworkId = 'networkId',
+  ShowId = 'showId'
+}
+
+export type SeriesOptionFilter = {
+  field: SeriesOptionFilterField;
+  operator: OptionFilterOperator;
+  value?: InputMaybe<Scalars['String']['input']>;
+  values?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+export enum SeriesOptionFilterField {
+  Archived = 'archived',
+  Network = 'network',
+  Show = 'show'
+}
 
 export type SeriesOrder = {
   direction: OrderDirection;
@@ -1116,6 +1321,20 @@ export enum SeriesOrderField {
   Id = 'id',
   ShortName = 'shortName',
   ShowId = 'showId'
+}
+
+export type SeriesTextFilter = {
+  field: SeriesTextFilterField;
+  operator: TextFilterOperator;
+  value: Scalars['String']['input'];
+};
+
+export enum SeriesTextFilterField {
+  FullDesc = 'fullDesc',
+  FullName = 'fullName',
+  ShortDesc = 'shortDesc',
+  ShortId = 'shortId',
+  ShortName = 'shortName'
 }
 
 export type Show = {
@@ -1269,8 +1488,7 @@ export type ShowNumberFilter = {
 };
 
 export enum ShowNumberFilterField {
-  Id = 'id',
-  TotalEpisodes = 'totalEpisodes'
+  Id = 'id'
 }
 
 export type ShowOptionFilter = {
@@ -1518,7 +1736,7 @@ export type SearchShowsQueryVariables = Exact<{
 }>;
 
 
-export type SearchShowsQuery = { __typename?: 'Query', showsV2: { __typename?: 'ShowList', items: Array<{ __typename?: 'Show', id: string, shortName: string, fullName: string, hidden: boolean, featuredImage: { __typename?: 'Media', urls: { __typename?: 'MediaUrls', square: string } }, presenters: Array<{ __typename?: 'Presenter', id: string, name: string }>, networks: Array<{ __typename?: 'Network', id: string, name: string, logoSvgIcon: string }> }> } };
+export type SearchShowsQuery = { __typename?: 'Query', showsV2: { __typename?: 'ShowList', total: number, items: Array<{ __typename?: 'Show', id: string, shortId: string, shortName: string, fullName: string, hidden: boolean, featuredImage: { __typename?: 'Media', urls: { __typename?: 'MediaUrls', square: string } }, presenters: Array<{ __typename?: 'Presenter', id: string, name: string }>, networks: Array<{ __typename?: 'Network', id: string, name: string, logoSvgIcon: string }> }> } };
 
 
 export const ApplyAssignedDefaultScheduleDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"ApplyAssignedDefaultSchedule"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"networkId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"date"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"DateTime"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"assignedTo"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"DayOfWeek"}}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"applyAssignedDefaultSchedule"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"networkId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"networkId"}}},{"kind":"ObjectField","name":{"kind":"Name","value":"date"},"value":{"kind":"Variable","name":{"kind":"Name","value":"date"}}},{"kind":"ObjectField","name":{"kind":"Name","value":"assignedTo"},"value":{"kind":"Variable","name":{"kind":"Name","value":"assignedTo"}}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}},{"kind":"Field","name":{"kind":"Name","value":"message"}}]}}]}}]} as unknown as DocumentNode<ApplyAssignedDefaultScheduleMutation, ApplyAssignedDefaultScheduleMutationVariables>;
@@ -1535,4 +1753,4 @@ export const GetNetworkDocument = {"kind":"Document","definitions":[{"kind":"Ope
 export const GetPresentersDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetPresenters"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filters"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"PresenterListInput"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"presenters"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filters"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"total"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"picture"}}]}}]}}]}}]} as unknown as DocumentNode<GetPresentersQuery, GetPresentersQueryVariables>;
 export const GetPresenterDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetPresenter"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"presenter"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"bio"}},{"kind":"Field","name":{"kind":"Name","value":"hero"}},{"kind":"Field","name":{"kind":"Name","value":"hidden"}},{"kind":"Field","name":{"kind":"Name","value":"shortBio"}},{"kind":"Field","name":{"kind":"Name","value":"picture"}},{"kind":"Field","name":{"kind":"Name","value":"shows"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"total"}}]}},{"kind":"Field","name":{"kind":"Name","value":"episodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"total"}}]}},{"kind":"Field","name":{"kind":"Name","value":"networks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]} as unknown as DocumentNode<GetPresenterQuery, GetPresenterQueryVariables>;
 export const ScheduleDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Schedule"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"from"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"DateTime"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"network"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"to"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"DateTime"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"schedule"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"from"},"value":{"kind":"Variable","name":{"kind":"Name","value":"from"}}},{"kind":"ObjectField","name":{"kind":"Name","value":"networkId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"network"}}},{"kind":"ObjectField","name":{"kind":"Name","value":"to"},"value":{"kind":"Variable","name":{"kind":"Name","value":"to"}}},{"kind":"ObjectField","name":{"kind":"Name","value":"amount"},"value":{"kind":"IntValue","value":"200"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"total"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"start"}},{"kind":"Field","name":{"kind":"Name","value":"end"}},{"kind":"Field","name":{"kind":"Name","value":"networks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvgIcon"}}]}},{"kind":"Field","name":{"kind":"Name","value":"episode"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"show"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"shortName"}}]}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"broadcasts"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"featuredImage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"urls"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"square"}},{"kind":"Field","name":{"kind":"Name","value":"customSquare"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"size"},"value":{"kind":"IntValue","value":"150"}}]}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"networks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvgIcon"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<ScheduleQuery, ScheduleQueryVariables>;
-export const SearchShowsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SearchShows"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filters"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"ShowListInputV2"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"showsV2"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filters"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"shortName"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}},{"kind":"Field","name":{"kind":"Name","value":"featuredImage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"urls"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"square"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"presenters"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"networks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvgIcon"}}]}},{"kind":"Field","name":{"kind":"Name","value":"hidden"}}]}}]}}]}}]} as unknown as DocumentNode<SearchShowsQuery, SearchShowsQueryVariables>;
+export const SearchShowsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SearchShows"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filters"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"ShowListInputV2"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"showsV2"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filters"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"total"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"shortId"}},{"kind":"Field","name":{"kind":"Name","value":"shortName"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}},{"kind":"Field","name":{"kind":"Name","value":"featuredImage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"urls"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"square"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"presenters"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"networks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvgIcon"}}]}},{"kind":"Field","name":{"kind":"Name","value":"hidden"}}]}}]}}]}}]} as unknown as DocumentNode<SearchShowsQuery, SearchShowsQueryVariables>;
