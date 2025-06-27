@@ -13,7 +13,7 @@ import { intersection } from './array';
 
 import type { FilterModel } from '../core/types';
 
-export function optionFilterFn<TData>(
+export function optionFilterFn<_TData>(
   inputData: string,
   filterValue: FilterModel<'option'>,
 ) {
@@ -67,7 +67,7 @@ export function multiOptionFilterFn(
   }
 }
 
-export function dateFilterFn<TData>(
+export function dateFilterFn<_TData>(
   inputData: Date,
   filterValue: FilterModel<'date'>,
 ) {
@@ -117,7 +117,7 @@ export function dateFilterFn<TData>(
   }
 }
 
-export function textFilterFn<TData>(
+export function textFilterFn<_TData>(
   inputData: string,
   filterValue: FilterModel<'text'>,
 ) {
@@ -138,7 +138,7 @@ export function textFilterFn<TData>(
   }
 }
 
-export function numberFilterFn<TData>(
+export function numberFilterFn<_TData>(
   inputData: number,
   filterValue: FilterModel<'number'>,
 ) {

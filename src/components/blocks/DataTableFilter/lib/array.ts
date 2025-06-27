@@ -38,7 +38,7 @@ function deepHash(
       // For objects, sort keys to ensure the representation is stable.
       const keys = Object.keys(value).sort();
       const props = keys
-        .map((k) => `${k}:${deepHash(value[k], cache)}`)
+        .map((k) => `${k}:${deepHash(value[k as keyof typeof value], cache)}`)
         .join(',');
       hash = `object:{${props}}`;
     }
@@ -79,7 +79,10 @@ function deepEqual(a: unknown, b: unknown): boolean {
     if (aKeys.length !== bKeys.length) return false;
     for (let i = 0; i < aKeys.length; i++) {
       if (aKeys[i] !== bKeys[i]) return false;
-      if (!deepEqual(a[aKeys[i]], b[bKeys[i]])) return false;
+      if (
+        !deepEqual(a[aKeys[i] as keyof typeof a], b[bKeys[i] as keyof typeof b])
+      )
+        return false;
     }
     return true;
   }
