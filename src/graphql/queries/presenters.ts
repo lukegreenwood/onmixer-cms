@@ -1,8 +1,8 @@
 import { gql } from '../__generated__';
 
 export const GET_PRESENTERS = gql(`
-	query GetPresenters($filters: PresenterListInput) {
-		presenters(filters: $filters) {
+	query GetPresenters($filters: PresenterListInputV2) {
+		presentersV2(filters: $filters) {
 			total
             items {
                 id

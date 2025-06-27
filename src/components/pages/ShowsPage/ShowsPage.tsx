@@ -17,7 +17,7 @@ export const ShowsPage = () => {
         subheading="The stuff that goes on air"
         actions={
           <Button asChild>
-            <Link href={getNetworkRoutePath('shows/new')}>Create show</Link>
+            <Link href={getNetworkRoutePath('newShow')}>Create show</Link>
           </Button>
         }
       />

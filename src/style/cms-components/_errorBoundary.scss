@@ -1,0 +1,42 @@
+@use '../theme/palette';
+@use '../theme/sizing';
+@use '../utils/mixins';
+
+.error-boundary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  padding: mixins.spacing(4);
+
+  .error-details {
+    margin-top: mixins.spacing(3);
+    max-width: 100%;
+    overflow-x: auto;
+
+    summary {
+      cursor: pointer;
+      color: palette.$gray-600;
+      font-size: 0.875rem;
+      margin-bottom: mixins.spacing(2);
+    }
+
+    pre {
+      background-color: palette.$gray-50;
+      border: 1px solid palette.$gray-200;
+      border-radius: sizing.$radius-md;
+      padding: mixins.spacing(3);
+      font-size: 0.75rem;
+      line-height: 1.4;
+      max-width: 100%;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+  }
+
+  .error-boundary__retry {
+    margin-top: mixins.spacing(3);
+  }
+}

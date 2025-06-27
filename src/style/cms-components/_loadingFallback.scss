@@ -1,0 +1,23 @@
+@use '../theme/palette';
+@use '../theme/sizing';
+@use '../theme/text';
+@use '../utils/mixins';
+
+.loading-fallback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: mixins.spacing(4);
+  gap: mixins.spacing(2);
+  min-height: 100vh;
+  width: 100%;
+
+  // Center within drawer area
+
+  .loading-fallback__message {
+    @include text.text-base-leading-6-font-normal;
+    color: palette.$gray-600;
+    text-align: center;
+  }
+}

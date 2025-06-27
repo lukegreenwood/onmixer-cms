@@ -16,7 +16,7 @@ import {
   SearchShowsQuery,
 } from '@/graphql/__generated__/graphql';
 import { GET_NETWORKS, GET_PRESENTERS, SEARCH_SHOWS } from '@/graphql/queries';
-import { useNetwork } from '@/hooks';
+import { useNavigation, useNetwork } from '@/hooks';
 import { convertFiltersStateToGraphQL } from '@/utils/filtersToGraphql';
 
 import { DataTable } from '../DataTable';
@@ -54,7 +54,8 @@ const tableColumns = [
         stroke
         color="gray"
         size="sm"
-        onClick={() => {
+        onClick={(event) => {
+          event.stopPropagation();
           navigator.clipboard.writeText(props.getValue());
         }}
       >
@@ -156,7 +157,7 @@ const columnsConfig = [
 const makeOptions = (
   data:
     | GetNetworksQuery['networks']
-    | GetPresentersQuery['presenters']['items'],
+    | GetPresentersQuery['presentersV2']['items'],
 ) => {
   if (data[0].__typename === 'Network') {
     return data.map((network) => ({ value: network.id, label: network.name }));
@@ -172,6 +173,7 @@ const SHOWS_PER_PAGE = 30;
 
 export const ShowsTable = () => {
   const { currentNetwork } = useNetwork();
+  const { getNetworkRoutePath } = useNavigation();
   const router = useRouter();
   const searchParams = useSearchParams();
   const page = Number(searchParams.get('page') ?? '1');
@@ -236,7 +238,7 @@ export const ShowsTable = () => {
     onFiltersChange: handleFiltersChange,
     columnsConfig,
     options: {
-      presenters: makeOptions(presenters.presenters.items),
+      presenters: makeOptions(presenters.presentersV2.items),
       networks: makeOptions(networks.networks),
     },
     // faceted: {
@@ -258,6 +260,12 @@ export const ShowsTable = () => {
     router.push(`?page=${page}`);
   };
 
+  const handleRowClick = (
+    row: SearchShowsQuery['showsV2']['items'][number],
+  ) => {
+    router.push(getNetworkRoutePath('showEdit', [row.id]));
+  };
+
   if (error) {
     return (
       <div className="page-content">
@@ -276,7 +284,7 @@ export const ShowsTable = () => {
         actions={actions}
         strategy={strategy}
       />
-      <DataTable table={table} />
+      <DataTable table={table} onRowClick={handleRowClick} />
       <Pagination
         total={data.showsV2.total}
         amount={SHOWS_PER_PAGE}

@@ -1,0 +1,103 @@
+@use '../theme/palette';
+@use '../theme/text';
+@use '../theme/shadows';
+@use '../utils/mixins';
+
+.media-editor {
+  .media-editor__label {
+    @include text.text-sm-leading-6-font-medium;
+    color: palette.$gray-900;
+    display: block;
+    margin-bottom: mixins.spacing(2);
+  }
+
+  .media-editor__content {
+    display: flex;
+    flex-direction: column;
+    gap: mixins.spacing(4);
+  }
+
+  .media-editor__upload-area {
+    border: 2px dashed palette.$gray-300;
+    border-radius: 8px;
+    padding: mixins.spacing(8);
+    text-align: center;
+    background-color: palette.$gray-50;
+    transition: all 0.2s ease;
+
+    &:hover {
+      border-color: palette.$purple-400;
+      background-color: palette.$purple-50;
+    }
+  }
+
+  .media-editor__upload-icon {
+    color: palette.$gray-400;
+    margin-bottom: mixins.spacing(3);
+    display: flex;
+    justify-content: center;
+  }
+
+  .media-editor__upload-text {
+    @include text.text-sm-leading-6-font-medium;
+    color: palette.$gray-900;
+    margin: 0 0 mixins.spacing(1) 0;
+  }
+
+  .media-editor__upload-hint {
+    @include text.text-xs-leading-4-font-normal;
+    color: palette.$gray-500;
+    margin: 0 0 mixins.spacing(4) 0;
+  }
+
+  .media-editor__existing {
+    display: flex;
+    flex-direction: column;
+    gap: mixins.spacing(2);
+  }
+
+  .media-editor__existing-item {
+    display: flex;
+    align-items: center;
+    gap: mixins.spacing(3);
+    padding: mixins.spacing(3);
+    border: 1px solid palette.$gray-200;
+    border-radius: 8px;
+    background-color: palette.$white-50;
+  }
+
+  .media-editor__existing-preview {
+    width: 48px;
+    height: 48px;
+    border-radius: 6px;
+    background-color: palette.$gray-100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .media-editor__existing-placeholder {
+    color: palette.$gray-400;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .media-editor__existing-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: mixins.spacing(1);
+  }
+
+  .media-editor__existing-name {
+    @include text.text-sm-leading-6-font-medium;
+    color: palette.$gray-900;
+  }
+
+  .media-editor__existing-size {
+    @include text.text-xs-leading-4-font-normal;
+    color: palette.$gray-500;
+  }
+}

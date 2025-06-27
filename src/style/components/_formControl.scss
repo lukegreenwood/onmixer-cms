@@ -179,3 +179,9 @@
     }
   }
 }
+
+.form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: mixins.spacing(2);
+}

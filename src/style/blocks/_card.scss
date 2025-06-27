@@ -1,0 +1,18 @@
+@use '../theme/palette';
+@use '../theme/shadows';
+@use '../utils/mixins';
+
+.card {
+  background-color: palette.$white-50;
+  border-radius: 8px;
+  box-shadow: shadows.$shadows-sm;
+  padding: mixins.spacing(6);
+
+  &.card--compact {
+    padding: mixins.spacing(4);
+  }
+
+  &.card--flush {
+    padding: 0;
+  }
+}

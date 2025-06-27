@@ -29,9 +29,7 @@ const DrawerContent: React.FC<{ title?: string }> = ({
 
 export const TestDrawer: React.FC = () => {
   const handleOpenDrawer = () => {
-    openDrawer(<DrawerContent title="Hello from Drawer!" />, {
-      id: 'test-drawer',
-    });
+    openDrawer(<DrawerContent title="Hello from Drawer!" />);
   };
 
   const handleOpenComplexDrawer = () => {

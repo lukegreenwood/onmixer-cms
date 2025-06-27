@@ -22,6 +22,7 @@
       align-items: center;
       text-decoration: none;
       margin-top: mixins.spacing(1);
+      align-self: center;
 
       &:hover {
         color: palette.$gray-700;
@@ -30,12 +31,15 @@
 
     .page-header__titles {
       .page-header__heading {
-        @include text.text-2xl-leading-8-font-semibold;
-        color: palette.$gray-900;
-        margin: 0;
         display: flex;
         align-items: center;
         gap: mixins.spacing(3);
+
+        h1 {
+          @include text.text-2xl-leading-8-font-semibold;
+          color: palette.$gray-900;
+          margin: 0;
+        }
       }
 
       .page-header__subheading {
@@ -53,6 +57,7 @@
   }
 
   .page-header__actions {
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     gap: mixins.spacing(2);

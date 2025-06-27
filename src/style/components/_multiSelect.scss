@@ -146,4 +146,10 @@
     @include text.text-sm-leading-6-font-normal;
     text-align: center;
   }
+
+  .multi-select__container {
+    [data-radix-popper-content-wrapper] {
+      z-index: 10 !important;
+    }
+  }
 }

@@ -10,7 +10,10 @@ import {
   TextareaProps,
   type MultiSelectOption,
 } from '@soundwaves/components';
+import clsx from 'clsx';
 import { type FieldValues, type Path } from 'react-hook-form';
+
+import { type MediaEditorProps } from '@/components/MediaEditor';
 
 import {
   TextField,
@@ -21,6 +24,9 @@ import {
   DateField,
   RadioGroupField,
   TextareaField,
+  PresenterSelectorField,
+  NetworkSelectorField,
+  MediaEditorField,
 } from './fields';
 
 import type { ReactElement } from 'react';
@@ -88,6 +94,26 @@ interface RadioGroupFieldConfig<T extends FieldValues>
   options: Array<{ label: string; value: string }>;
 }
 
+interface PresenterSelectorFieldConfig<T extends FieldValues>
+  extends BaseField<T> {
+  component: 'presenterSelector';
+  placeholder?: string;
+  className?: string;
+}
+
+interface NetworkSelectorFieldConfig<T extends FieldValues>
+  extends BaseField<T> {
+  component: 'networkSelector';
+  placeholder?: string;
+  className?: string;
+}
+
+interface MediaEditorFieldConfig<T extends FieldValues>
+  extends BaseField<T>,
+    Omit<MediaEditorProps, 'label'> {
+  component: 'mediaEditor';
+}
+
 export type DynamicFormField<T extends FieldValues> =
   | TextFieldConfig<T>
   | TextareaFieldConfig<T>
@@ -96,7 +122,10 @@ export type DynamicFormField<T extends FieldValues> =
   | CheckboxGroupFieldConfig<T>
   | SwitchFieldConfig<T>
   | DateFieldConfig<T>
-  | RadioGroupFieldConfig<T>;
+  | RadioGroupFieldConfig<T>
+  | PresenterSelectorFieldConfig<T>
+  | NetworkSelectorFieldConfig<T>
+  | MediaEditorFieldConfig<T>;
 
 interface DynamicFormProps<T extends FieldValues> {
   fields: DynamicFormField<T>[];
@@ -149,6 +178,34 @@ export const DynamicForm = <T extends FieldValues>({
           <RadioGroupField {...rest} key={name} name={name} label={label} />
         );
       }
+      case 'presenterSelector': {
+        const { ...rest } = field;
+        return (
+          <PresenterSelectorField
+            {...rest}
+            key={name}
+            name={name}
+            label={label}
+          />
+        );
+      }
+      case 'networkSelector': {
+        const { ...rest } = field;
+        return (
+          <NetworkSelectorField
+            {...rest}
+            key={name}
+            name={name}
+            label={label}
+          />
+        );
+      }
+      case 'mediaEditor': {
+        const { ...rest } = field;
+        return (
+          <MediaEditorField {...rest} key={name} name={name} label={label} />
+        );
+      }
       default:
         return (
           <Alert color="error" variant="inline">
@@ -158,5 +215,9 @@ export const DynamicForm = <T extends FieldValues>({
     }
   };
 
-  return <div className={className}>{fields.map(renderField)}</div>;
+  return (
+    <div className={clsx('form-fields', className)}>
+      {fields.map(renderField)}
+    </div>
+  );
 };

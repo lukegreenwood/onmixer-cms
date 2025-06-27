@@ -44,6 +44,8 @@
 @use 'components/tooltip';
 
 // Blocks
+@use 'blocks/card';
+@use 'blocks/entityEditForm';
 @use 'blocks/layout';
 @use 'blocks/navigation';
 @use 'blocks/pageHeader';
@@ -66,6 +68,9 @@
 @use 'cms-components/filterSelector';
 @use 'cms-components/command';
 @use 'cms-components/quickSearchFilters';
+@use 'cms-components/errorBoundary';
+@use 'cms-components/loadingFallback';
+@use 'cms-components/mediaEditor';
 
 // Basics
 @use 'basics/list';

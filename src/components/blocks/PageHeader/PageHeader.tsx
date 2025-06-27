@@ -27,12 +27,12 @@ export function PageHeader({
           </Link>
         )}
         <div className="page-header__titles">
-          <h1 className="page-header__heading">
-            {heading}
+          <div className="page-header__heading">
+            <h1>{heading}</h1>
             {headingExtras && (
               <div className="page-header__heading-extras">{headingExtras}</div>
             )}
-          </h1>
+          </div>
           {subheading && (
             <h2 className="page-header__subheading">{subheading}</h2>
           )}

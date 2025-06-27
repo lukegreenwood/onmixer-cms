@@ -7,23 +7,39 @@
   width: 100%;
   background-color: palette.$white-50;
   border-inline-end: 1px solid palette.$gray-100;
-  padding: mixins.spacing(4);
-  padding-block-start: 0;
-  max-height: 100vh;
-  overflow-y: auto;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+
+  .navigation__header {
+    flex-shrink: 0;
+    padding: mixins.spacing(4);
+    padding-block-end: mixins.spacing(3);
+    background-color: palette.$white-50;
+  }
 
   .navigation__logo {
     color: palette.$purple-500;
-    padding-block-end: mixins.spacing(3);
-    padding-block-start: mixins.spacing(4);
-    position: sticky;
-    top: 0;
-    background-color: palette.$white-50;
 
     svg {
       height: 40px;
       width: auto;
     }
+  }
+
+  .navigation__content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 mixins.spacing(4);
+  }
+
+  .navigation__footer {
+    flex-shrink: 0;
+    padding: mixins.spacing(4);
+    border-block-start: 1px solid palette.$gray-100;
+    background-color: palette.$white-50;
   }
 
   .navigation__menu-label {

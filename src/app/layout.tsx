@@ -1,7 +1,14 @@
 import { Inter } from 'next/font/google';
+import { Suspense } from 'react';
 import { Toaster } from 'sonner';
 
-import { Navigation, InfoIcon, Drawer } from '@/components';
+import {
+  Navigation,
+  InfoIcon,
+  Drawer,
+  ErrorBoundary,
+  LoadingFallback,
+} from '@/components';
 import { NetworkProvider, DrawerProvider } from '@/contexts';
 import { ApolloWrapper } from '@/lib';
 
@@ -30,22 +37,46 @@ export default function RootLayout({
         <ApolloWrapper>
           <NetworkProvider>
             <DrawerProvider>
-              <Toaster
-                position="top-right"
-                expand
-                className="toaster"
-                icons={{
-                  success: <InfoIcon />,
-                  error: <InfoIcon />,
-                  warning: <InfoIcon />,
-                  info: <InfoIcon />,
-                }}
-              />
-              <div className="layout">
-                <Navigation />
-                <main>{children}</main>
-                <Drawer />
-              </div>
+              <ErrorBoundary>
+                <Toaster
+                  position="top-right"
+                  expand
+                  className="toaster"
+                  icons={{
+                    success: <InfoIcon />,
+                    error: <InfoIcon />,
+                    warning: <InfoIcon />,
+                    info: <InfoIcon />,
+                  }}
+                />
+                <div className="layout">
+                  <ErrorBoundary>
+                    <Suspense
+                      fallback={
+                        <LoadingFallback message="Loading navigation..." />
+                      }
+                    >
+                      <Navigation />
+                    </Suspense>
+                  </ErrorBoundary>
+                  <ErrorBoundary>
+                    <Suspense
+                      fallback={
+                        <LoadingFallback message="Loading content..." />
+                      }
+                    >
+                      <main>{children}</main>
+                    </Suspense>
+                  </ErrorBoundary>
+                  <ErrorBoundary>
+                    <Suspense
+                      fallback={<LoadingFallback message="Loading drawer..." />}
+                    >
+                      <Drawer />
+                    </Suspense>
+                  </ErrorBoundary>
+                </div>
+              </ErrorBoundary>
             </DrawerProvider>
           </NetworkProvider>
         </ApolloWrapper>

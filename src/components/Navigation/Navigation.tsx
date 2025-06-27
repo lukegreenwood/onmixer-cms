@@ -97,30 +97,38 @@ export function Navigation() {
 
   return (
     <nav className="navigation">
-      <div className="navigation__logo">
-        <Logo />
+      <div className="navigation__header">
+        <div className="navigation__logo">
+          <Logo />
+        </div>
       </div>
 
-      {Object.entries(groupedNavigation).map(([section, items], index) => {
-        if (items.length === 0) return null;
+      <div className="navigation__content">
+        {Object.entries(groupedNavigation).map(([section, items], index) => {
+          if (items.length === 0) return null;
 
-        return (
-          <div key={section}>
-            {section !== 'none' && (
-              <div className="navigation__menu-label">{section}</div>
-            )}
-            <ul
-              className={`navigation__menu ${
-                index < Object.keys(groupedNavigation).length - 1
-                  ? 'navigation__menu--divided'
-                  : ''
-              }`}
-            >
-              {renderNavigationItems(items, section)}
-            </ul>
-          </div>
-        );
-      })}
+          return (
+            <div key={section}>
+              {section !== 'none' && (
+                <div className="navigation__menu-label">{section}</div>
+              )}
+              <ul
+                className={`navigation__menu ${
+                  index < Object.keys(groupedNavigation).length - 1
+                    ? 'navigation__menu--divided'
+                    : ''
+                }`}
+              >
+                {renderNavigationItems(items, section)}
+              </ul>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="navigation__footer">
+        {/* Add your account section here */}
+      </div>
     </nav>
   );
 }

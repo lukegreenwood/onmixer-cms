@@ -28,3 +28,38 @@ export const SEARCH_SHOWS = gql(`
     }
   }
 `);
+
+export const GET_SHOW = gql(`
+  query GetShow($id: ID!) {
+    show(id: $id) {
+      createdAt
+      extraData
+      featuredImage {
+        id
+        key
+        urls {
+          medium
+          square
+        }
+      }
+      fullDesc
+      fullName
+      hidden
+      id
+      networks {
+        id
+        name
+        logoSvgIcon
+      }
+      presenters {
+        id
+        name
+      }
+      shortDesc
+      shortId
+      shortName
+      updatedAt
+      url
+    }
+  }
+`);
