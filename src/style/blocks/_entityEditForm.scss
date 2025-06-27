@@ -6,7 +6,7 @@
   .entity-edit-form__content {
     display: flex;
     flex-direction: column;
-    gap: mixins.spacing(6);
+    gap: mixins.spacing(4);
 
     @include mixins.mq('lg') {
       flex-direction: row;
@@ -14,19 +14,21 @@
     }
   }
 
-  .entity-edit-form__left {
+  .entity-edit-form__start {
     flex: 1;
-    min-width: 0; // Prevent flex item from overflowing
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: mixins.spacing(4);
 
     @include mixins.mq('lg') {
       flex: 2;
-      margin-right: mixins.spacing(6);
     }
   }
 
-  .entity-edit-form__right {
+  .entity-edit-form__end {
     flex: 1;
-    min-width: 0; // Prevent flex item from overflowing
+    min-width: 0;
 
     @include mixins.mq('lg') {
       flex: 1;

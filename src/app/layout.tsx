@@ -60,13 +60,13 @@ export default function RootLayout({
                     </Suspense>
                   </ErrorBoundary>
                   <ErrorBoundary>
-                    <Suspense
+                    {/* <Suspense
                       fallback={
                         <LoadingFallback message="Loading content..." />
                       }
-                    >
-                      <main>{children}</main>
-                    </Suspense>
+                    > */}
+                    <main>{children}</main>
+                    {/* </Suspense> */}
                   </ErrorBoundary>
                   <ErrorBoundary>
                     <Suspense

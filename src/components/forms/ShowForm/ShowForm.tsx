@@ -80,43 +80,47 @@ export const ShowForm = ({
   };
 
   // Define the form fields for the left section
-  const leftSectionFields = [
-    {
-      component: 'text' as const,
-      name: 'name' as const,
-      label: 'Name',
-      placeholder: 'Enter show name',
-      required: true,
-    },
-    {
-      component: 'textarea' as const,
-      name: 'description' as const,
-      label: 'Description',
-      placeholder: 'Enter show description',
-      required: true,
-    },
-    {
-      component: 'text' as const,
-      name: 'shortName' as const,
-      label: 'Short Name',
-      placeholder: 'Enter short name',
-    },
-    {
-      component: 'textarea' as const,
-      name: 'shortDescription' as const,
-      label: 'Short Description',
-      placeholder: 'Enter short description',
-    },
-    {
-      component: 'mediaEditor' as const,
-      name: 'mediaId' as const,
-      label: 'Featured Image',
-      multiple: false,
-    },
+  const startSectionFields = [
+    [
+      {
+        component: 'text' as const,
+        name: 'name' as const,
+        label: 'Name',
+        placeholder: 'Enter show name',
+        required: true,
+      },
+      {
+        component: 'textarea' as const,
+        name: 'description' as const,
+        label: 'Description',
+        placeholder: 'Enter show description',
+        required: true,
+      },
+      {
+        component: 'text' as const,
+        name: 'shortName' as const,
+        label: 'Short Name',
+        placeholder: 'Enter short name',
+      },
+      {
+        component: 'textarea' as const,
+        name: 'shortDescription' as const,
+        label: 'Short Description',
+        placeholder: 'Enter short description',
+      },
+    ],
+    [
+      {
+        component: 'mediaEditor' as const,
+        name: 'mediaId' as const,
+        label: 'Featured Image',
+        multiple: false,
+      },
+    ],
   ];
 
   // Define the form fields for the right section
-  const rightSectionFields = [
+  const endSectionFields = [
     {
       component: 'text' as const,
       name: 'showId' as const,
@@ -152,8 +156,10 @@ export const ShowForm = ({
     <FormProvider {...methods}>
       <form onSubmit={methods.handleSubmit(handleSubmit)} className={className}>
         <EntityEditForm
-          leftSection={<DynamicForm fields={leftSectionFields} />}
-          rightSection={<DynamicForm fields={rightSectionFields} />}
+          startSection={startSectionFields.map((fields, index) => (
+            <DynamicForm key={index} fields={fields} />
+          ))}
+          endSection={<DynamicForm fields={endSectionFields} />}
         />
       </form>
     </FormProvider>

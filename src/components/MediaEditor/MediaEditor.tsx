@@ -44,7 +44,7 @@ export const MediaEditor = ({
         </div>
 
         {/* Placeholder for existing media */}
-        <div className="media-editor__existing">
+        {/* <div className="media-editor__existing">
           <div className="media-editor__existing-item">
             <div className="media-editor__existing-preview">
               <div className="media-editor__existing-placeholder">
@@ -72,7 +72,7 @@ export const MediaEditor = ({
               Remove
             </Button>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

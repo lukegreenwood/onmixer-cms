@@ -11,6 +11,7 @@ import {
   Slider,
   Tabs,
 } from '@soundwaves/components';
+import { useDebouncer } from '@tanstack/react-pacer';
 import clsx from 'clsx';
 import { isEqual } from 'date-fns';
 import { format } from 'date-fns';
@@ -27,7 +28,6 @@ import {
 import { EllipsisIcon } from '@/components/icons';
 
 import { numberFilterOperators } from '../core/operators';
-import { useDebounceCallback } from '../hooks/useDebounceCallback';
 import { take } from '../lib/array';
 import { createNumberRange } from '../lib/helpers';
 import { type Locale, t } from '../lib/i18n';
@@ -777,30 +777,28 @@ export function FilterValueNumberController<TData>({
     // filter && values.length === 2
     filter && numberFilterOperators[filter.operator].target === 'multiple';
 
-  const setFilterOperatorDebounced = useDebounceCallback(
-    actions.setFilterOperator,
-    500,
-  );
-  const setFilterValueDebounced = useDebounceCallback(
-    actions.setFilterValue,
-    500,
-  );
+  const setFilterOperatorDebounced = useDebouncer(actions.setFilterOperator, {
+    wait: 500,
+  });
+  const setFilterValueDebounced = useDebouncer(actions.setFilterValue, {
+    wait: 500,
+  });
 
   const changeNumber = (value: number[]) => {
     setValues(value);
-    setFilterValueDebounced(column as any, value);
+    setFilterValueDebounced.maybeExecute(column as any, value);
   };
 
   const changeMinNumber = (value: number) => {
     const newValues = createNumberRange([value, values[1]]);
     setValues(newValues);
-    setFilterValueDebounced(column as any, newValues);
+    setFilterValueDebounced.maybeExecute(column as any, newValues);
   };
 
   const changeMaxNumber = (value: number) => {
     const newValues = createNumberRange([values[0], value]);
     setValues(newValues);
-    setFilterValueDebounced(column as any, newValues);
+    setFilterValueDebounced.maybeExecute(column as any, newValues);
   };
 
   const changeType = useCallback(
