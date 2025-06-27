@@ -26,6 +26,8 @@ import {
   TextareaField,
   PresenterSelectorField,
   NetworkSelectorField,
+  SeriesSelectorField,
+  ShowSelectorField,
   MediaEditorField,
 } from './fields';
 
@@ -108,6 +110,19 @@ interface NetworkSelectorFieldConfig<T extends FieldValues>
   className?: string;
 }
 
+interface ShowSelectorFieldConfig<T extends FieldValues> extends BaseField<T> {
+  component: 'showSelector';
+  placeholder?: string;
+  className?: string;
+}
+
+interface SeriesSelectorFieldConfig<T extends FieldValues>
+  extends BaseField<T> {
+  component: 'seriesSelector';
+  placeholder?: string;
+  className?: string;
+}
+
 interface MediaEditorFieldConfig<T extends FieldValues>
   extends BaseField<T>,
     Omit<MediaEditorProps, 'label'> {
@@ -125,6 +140,8 @@ export type DynamicFormField<T extends FieldValues> =
   | RadioGroupFieldConfig<T>
   | PresenterSelectorFieldConfig<T>
   | NetworkSelectorFieldConfig<T>
+  | ShowSelectorFieldConfig<T>
+  | SeriesSelectorFieldConfig<T>
   | MediaEditorFieldConfig<T>;
 
 interface DynamicFormProps<T extends FieldValues> {
@@ -198,6 +215,18 @@ export const DynamicForm = <T extends FieldValues>({
             name={name}
             label={label}
           />
+        );
+      }
+      case 'showSelector': {
+        const { ...rest } = field;
+        return (
+          <ShowSelectorField {...rest} key={name} name={name} label={label} />
+        );
+      }
+      case 'seriesSelector': {
+        const { ...rest } = field;
+        return (
+          <SeriesSelectorField {...rest} key={name} name={name} label={label} />
         );
       }
       case 'mediaEditor': {

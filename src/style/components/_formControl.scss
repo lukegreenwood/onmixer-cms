@@ -53,6 +53,10 @@
     &.form-control__input-wrapper--focused {
       outline: 2px solid palette.$purple-600;
       outline-offset: -1px;
+
+      .form-control__input-add-on.form-control__input-add-on--chevron svg {
+        transform: rotate(180deg);
+      }
     }
 
     .form-control__input-add-on {
@@ -68,6 +72,16 @@
 
       &.form-control__input-add-on--with-after {
         padding-inline-end: mixins.spacing(1);
+      }
+
+      &.form-control__input-add-on--chevron {
+        aspect-ratio: 1;
+        padding: 0;
+        padding-inline-end: mixins.spacing(1) !important;
+        justify-content: center;
+        svg {
+          transition: transform 100ms ease;
+        }
       }
 
       &:not(.form-control__input-add-on--with-after) .button {

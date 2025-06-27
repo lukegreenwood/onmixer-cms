@@ -55,6 +55,12 @@ export const GET_SHOW = gql(`
         id
         name
       }
+      series {
+        items {
+          id
+          fullName
+        }
+      }
       shortDesc
       shortId
       shortName

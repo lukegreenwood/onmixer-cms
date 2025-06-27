@@ -1,28 +1,28 @@
 import { useQuery } from '@apollo/client';
-import { MultiSelect, ProgressCircle } from '@soundwaves/components';
+import { Autocomplete, ProgressCircle } from '@soundwaves/components';
 import { useDebouncer } from '@tanstack/react-pacer';
 import { useMemo } from 'react';
 import { useController, type FieldValues, type Path } from 'react-hook-form';
 
 import {
   OperatorType,
-  PresenterFilterType,
-  PresenterTextFilterField,
+  ShowFilterType,
+  ShowTextFilterField,
   TextFilterOperator,
 } from '@/graphql/__generated__/graphql';
-import { GET_PRESENTERS } from '@/graphql/queries/presenters';
+import { SEARCH_SHOWS } from '@/graphql/queries';
 
-type PresenterOption = {
+type ShowOption = {
   label: string;
   value: string;
 };
 
-type PresenterObject = {
+type ShowObject = {
   id: string;
   name: string;
 };
 
-interface PresenterSelectorFieldProps<T extends FieldValues> {
+interface ShowSelectorFieldProps<T extends FieldValues> {
   name: Path<T>;
   label: string;
   placeholder?: string;
@@ -30,13 +30,13 @@ interface PresenterSelectorFieldProps<T extends FieldValues> {
   helperText?: string;
 }
 
-export const PresenterSelectorField = <T extends FieldValues>({
+export const ShowSelectorField = <T extends FieldValues>({
   name,
   label,
-  placeholder = 'Select presenters...',
+  placeholder = 'Search for shows...',
   className = '',
   helperText,
-}: PresenterSelectorFieldProps<T>) => {
+}: ShowSelectorFieldProps<T>) => {
   const {
     field: { onChange, value, ...rest },
     fieldState: { error },
@@ -44,16 +44,17 @@ export const PresenterSelectorField = <T extends FieldValues>({
     name,
   });
 
-  // Convert presenter objects to MultiSelect format
-  const selectedOptions: PresenterOption[] = useMemo(() => {
-    if (!value || !Array.isArray(value)) return [];
-    return value.map((presenter: PresenterObject) => ({
-      label: presenter.name,
-      value: presenter.id,
-    }));
+  // Convert show object to Autocomplete format
+  const selectedOption: ShowOption | null = useMemo(() => {
+    if (!value || typeof value !== 'object') return null;
+    const showValue = value as ShowObject;
+    return {
+      label: showValue.name,
+      value: showValue.id,
+    };
   }, [value]);
 
-  const { data, refetch, loading } = useQuery(GET_PRESENTERS, {
+  const { data, refetch, loading } = useQuery(SEARCH_SHOWS, {
     variables: {
       filters: {
         limit: 10,
@@ -61,9 +62,9 @@ export const PresenterSelectorField = <T extends FieldValues>({
           operator: OperatorType.And,
           filters: [
             {
-              type: PresenterFilterType.Text,
+              type: ShowFilterType.Text,
               textFilter: {
-                field: PresenterTextFilterField.Name,
+                field: ShowTextFilterField.FullName,
                 value: '',
                 operator: TextFilterOperator.Contains,
               },
@@ -74,22 +75,25 @@ export const PresenterSelectorField = <T extends FieldValues>({
     },
   });
 
-  const searchOptions: PresenterOption[] = useMemo(
+  const searchOptions: ShowOption[] = useMemo(
     () =>
-      data?.presentersV2.items.map((presenter) => ({
-        label: presenter.name,
-        value: presenter.id,
+      data?.showsV2.items.map((show) => ({
+        label: show.fullName,
+        value: show.id,
       })) ?? [],
-    [data?.presentersV2.items],
+    [data?.showsV2.items],
   );
 
+  // Combine selected option with search options, avoiding duplicates
   const options = useMemo(() => {
-    const selectedIds = new Set(selectedOptions.map((opt) => opt.value));
+    if (!selectedOption) return searchOptions;
+
+    const selectedId = selectedOption.value;
     const uniqueSearchOptions = searchOptions.filter(
-      (opt) => !selectedIds.has(opt.value),
+      (opt) => opt.value !== selectedId,
     );
-    return [...selectedOptions, ...uniqueSearchOptions];
-  }, [selectedOptions, searchOptions]);
+    return [selectedOption, ...uniqueSearchOptions];
+  }, [selectedOption, searchOptions]);
 
   const handleSearchChange = (search: string) => {
     refetch({
@@ -99,9 +103,9 @@ export const PresenterSelectorField = <T extends FieldValues>({
           operator: OperatorType.And,
           filters: [
             {
-              type: PresenterFilterType.Text,
+              type: ShowFilterType.Text,
               textFilter: {
-                field: PresenterTextFilterField.Name,
+                field: ShowTextFilterField.FullName,
                 value: search,
                 operator: TextFilterOperator.Contains,
               },
@@ -114,30 +118,35 @@ export const PresenterSelectorField = <T extends FieldValues>({
 
   const debouncedHandleSearch = useDebouncer(handleSearchChange, { wait: 500 });
 
-  const handleSelectionChange = (selectedIds: string[]) => {
-    const selectedPresenters = selectedIds.map((id) => {
-      const option = options.find((opt) => opt.value === id);
-      return {
-        id,
-        name: option?.label || '',
-      };
-    });
-    onChange(selectedPresenters);
+  const handleSelectionChange = (selectedId: string | null) => {
+    if (!selectedId) {
+      onChange(null);
+      return;
+    }
+
+    const option = options.find((opt) => opt.value === selectedId);
+    if (option) {
+      onChange({
+        id: selectedId,
+        name: option.label,
+      });
+    }
   };
 
   return (
-    <MultiSelect
+    <Autocomplete
       {...rest}
       label={label}
       placeholder={placeholder}
       className={className}
-      value={selectedOptions.map((opt) => opt.value)}
+      value={selectedOption?.value || undefined}
       onChange={handleSelectionChange}
       options={options}
-      onSearchChange={debouncedHandleSearch.maybeExecute}
+      onSearch={debouncedHandleSearch.maybeExecute}
       destructive={Boolean(error)}
       helperText={error?.message ?? helperText}
       after={loading ? <ProgressCircle size="xs" /> : undefined}
+      clearable
     />
   );
 };

@@ -31,6 +31,7 @@ import {
   ShowDateFilterField,
   ShowBooleanFilterField,
   ShowMultiOptionFilterField,
+  ShowOptionFilterField,
 } from '../graphql/__generated__/graphql';
 
 // Mapping functions
@@ -192,10 +193,8 @@ const mapToTextField = (field: string): ShowTextFilterField => {
 
 const mapToNumberField = (field: string): ShowNumberFilterField => {
   switch (field) {
-    case 'id':
-      return ShowNumberFilterField.Id;
     default:
-      return ShowNumberFilterField.Id;
+      return ShowNumberFilterField.NoFieldsAvailable;
   }
 };
 
@@ -230,6 +229,14 @@ const mapToMultiOptionField = (field: string): ShowMultiOptionFilterField => {
   }
 };
 
+const mapToOptionField = (field: string): ShowOptionFilterField => {
+  switch (field) {
+    case 'id':
+      return ShowOptionFilterField.Id;
+    default:
+      return ShowOptionFilterField.Id;
+  }
+};
 // Main mapping function for individual filters
 export const mapFilterModelToGraphQL = (
   filterModel: FilterModel,
@@ -249,6 +256,18 @@ export const mapFilterModelToGraphQL = (
   switch (type) {
     case ShowFilterType.Text:
       if (filterModel.type === 'text') {
+        if (filterModel.columnId === 'id') {
+          filter.optionFilter = {
+            field: mapToOptionField('id'),
+            operator: mapOptionOperator(filterModel.operator),
+            value: filterModel.values[0] as string,
+            values:
+              filterModel.values[0]?.split(',').length > 0
+                ? filterModel.values[0]?.split(',')
+                : (filterModel.values as string[]),
+          };
+          break;
+        }
         filter.textFilter = {
           field: mapToTextField(filterModel.columnId),
           operator: mapTextOperator(filterModel.operator),
@@ -292,7 +311,6 @@ export const mapFilterModelToGraphQL = (
         };
       }
       break;
-
     case ShowFilterType.MultiOption:
       if (filterModel.type === 'multiOption') {
         filter.multiOptionFilter = {

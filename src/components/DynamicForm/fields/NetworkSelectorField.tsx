@@ -56,25 +56,24 @@ export const NetworkSelectorField = <T extends FieldValues>({
       renderTag={(option) => {
         const network = data?.networks.find((n) => n.id === option.item.value);
         return (
-          <div key={option.item.value}>
-            <Tag
-              size="sm"
-              before={
-                network?.logoSvgIcon ? (
-                  <div
-                    className="network-icon network-icon--sm"
-                    dangerouslySetInnerHTML={{
-                      __html: network.logoSvgIcon,
-                    }}
-                  />
-                ) : undefined
-              }
-              closable
-              onClose={option.onRemove}
-            >
-              {network?.name || option.item.label}
-            </Tag>
-          </div>
+          <Tag
+            key={option.item.value}
+            size="sm"
+            before={
+              network?.logoSvgIcon ? (
+                <div
+                  className="network-icon network-icon--sm"
+                  dangerouslySetInnerHTML={{
+                    __html: network.logoSvgIcon,
+                  }}
+                />
+              ) : undefined
+            }
+            closable
+            onClose={option.onRemove}
+          >
+            {network?.name || option.item.label}
+          </Tag>
         );
       }}
     />

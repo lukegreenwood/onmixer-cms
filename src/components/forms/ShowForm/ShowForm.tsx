@@ -14,8 +14,6 @@ const showFormSchema = z.object({
   description: z.string().min(1, 'Description is required'),
   shortName: z.string().optional(),
   shortDescription: z.string().optional(),
-  showId: z.string().optional(),
-  seriesId: z.string().optional(),
   presenters: z
     .array(
       z.object({
@@ -121,18 +119,6 @@ export const ShowForm = ({
 
   // Define the form fields for the right section
   const endSectionFields = [
-    {
-      component: 'text' as const,
-      name: 'showId' as const,
-      label: 'Show',
-      placeholder: 'Select show',
-    },
-    {
-      component: 'text' as const,
-      name: 'seriesId' as const,
-      label: 'Series (optional)',
-      placeholder: 'Select series',
-    },
     {
       component: 'presenterSelector' as const,
       name: 'presenters' as const,

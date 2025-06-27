@@ -6,6 +6,8 @@ export { MultiSelectField } from './MultiSelectField';
 export { NetworkSelectorField } from './NetworkSelectorField';
 export { PresenterSelectorField } from './PresenterSelectorField';
 export { RadioGroupField } from './RadioGroupField';
+export { SeriesSelectorField } from './SeriesSelectorField';
+export { ShowSelectorField } from './ShowSelectorField';
 export { SwitchField } from './SwitchField';
 export { TextareaField } from './TextareaField';
 export { TextField } from './TextField';
