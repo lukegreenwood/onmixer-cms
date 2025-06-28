@@ -15,6 +15,7 @@ import {
 import { MediaType, DeleteMediaInput } from '@/graphql/__generated__/graphql';
 import { DELETE_MEDIA } from '@/graphql/mutations';
 import { GET_MEDIA } from '@/graphql/queries';
+import { formatMediaType } from '@/utils';
 
 import { AddMediaIcon } from '../icons';
 
@@ -167,20 +168,32 @@ export const MediaEditor = forwardRef<HTMLDivElement, MediaEditorProps>(
                 alt={currentMedia.key}
                 className="media-editor__existing-image"
               />
-              <div
-                className="media-editor__existing-delete"
-                onClick={handleDelete}
-              >
-                <Button
-                  variant="tertiary"
-                  size="sm"
-                  className="media-editor__delete-button"
-                  destructive
-                  isIconOnly
-                  type="button"
+              <div className="media-editor__existing-overlay">
+                <div className="media-editor__existing-info">
+                  <div className="media-editor__existing-key">
+                    {currentMedia.key}
+                  </div>
+                  <div className="media-editor__existing-meta">
+                    {currentMedia.mimeType} •{' '}
+                    {currentMedia.fileSize?.label || 'Unknown size'} •{' '}
+                    {formatMediaType(currentMedia.type)}
+                  </div>
+                </div>
+                <div
+                  className="media-editor__existing-delete"
+                  onClick={handleDelete}
                 >
-                  <CloseIcon size={16} />
-                </Button>
+                  <Button
+                    variant="tertiary"
+                    size="sm"
+                    className="media-editor__delete-button"
+                    destructive
+                    isIconOnly
+                    type="button"
+                  >
+                    <CloseIcon size={16} />
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
@@ -260,7 +273,7 @@ export const MediaEditor = forwardRef<HTMLDivElement, MediaEditorProps>(
 
     return (
       <div ref={ref} className={clsx('media-editor', className)}>
-        <label className="media-editor__label">{label}</label>
+        <div className="media-editor__label">{label}</div>
         <div className="media-editor__content">{renderContent()}</div>
 
         <MediaSelectorModal

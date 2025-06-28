@@ -11,6 +11,7 @@ export const RadioGroupField = <T extends FieldValues>({
   name,
   label,
   options,
+  ...rest
 }: RadioGroupFieldProps<T>) => {
   const {
     field: { onChange, value },
@@ -21,6 +22,7 @@ export const RadioGroupField = <T extends FieldValues>({
 
   return (
     <RadioGroup
+      {...rest}
       label={label}
       value={value}
       onChange={onChange}

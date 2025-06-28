@@ -13,6 +13,7 @@ export const TextareaField = <T extends FieldValues>({
   label,
   placeholder,
   maxLength,
+  ...rest
 }: TextareaFieldProps<T>) => {
   const {
     field: { onChange, value },
@@ -25,6 +26,7 @@ export const TextareaField = <T extends FieldValues>({
 
   return (
     <Textarea
+      {...rest}
       label={label}
       value={stringValue}
       onChange={onChange}

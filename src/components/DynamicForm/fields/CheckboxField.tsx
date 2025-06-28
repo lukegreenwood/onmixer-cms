@@ -10,6 +10,7 @@ interface CheckboxFieldProps<T extends FieldValues>
 export const CheckboxField = <T extends FieldValues>({
   name,
   label,
+  ...rest
 }: CheckboxFieldProps<T>) => {
   const {
     field: { onChange, value },
@@ -20,6 +21,7 @@ export const CheckboxField = <T extends FieldValues>({
 
   return (
     <Checkbox
+      {...rest}
       label={label}
       checked={Boolean(value)}
       onChange={onChange}

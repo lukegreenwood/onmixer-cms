@@ -14,6 +14,7 @@ interface DateFieldProps<T extends FieldValues>
 export const DateField = <T extends FieldValues>({
   name,
   label,
+  ...rest
 }: DateFieldProps<T>) => {
   const {
     field: { onChange, value },
@@ -24,6 +25,7 @@ export const DateField = <T extends FieldValues>({
 
   return (
     <SoundwavesDateField
+      {...rest}
       locale="en-GB"
       createCalendar={createCalendar}
       label={label}

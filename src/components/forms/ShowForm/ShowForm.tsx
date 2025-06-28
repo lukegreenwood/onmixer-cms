@@ -133,6 +133,8 @@ export const ShowForm = ({ showData, onSubmit }: ShowFormProps) => {
       component: 'switch' as const,
       name: 'visibleOnSite' as const,
       label: 'Visible on site',
+      helperText:
+        'Shows not visible can still have episodes and be scheduled they just wont be indexed on the networks website',
     },
   ];
 

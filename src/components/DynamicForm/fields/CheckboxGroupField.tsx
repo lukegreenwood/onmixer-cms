@@ -17,6 +17,7 @@ export const CheckboxGroupField = <T extends FieldValues>({
   name,
   label,
   options,
+  ...rest
 }: CheckboxGroupFieldProps<T>) => {
   const {
     field: { onChange, value },
@@ -29,6 +30,7 @@ export const CheckboxGroupField = <T extends FieldValues>({
 
   return (
     <CheckboxGroup
+      {...rest}
       label={label}
       onChange={onChange}
       helperText={error?.message}

@@ -9,6 +9,7 @@ type SwitchFieldProps<T extends FieldValues> = SwitchProps & {
 export const SwitchField = <T extends FieldValues>({
   name,
   label,
+  ...rest
 }: SwitchFieldProps<T>) => {
   const {
     field: { onChange, value },
@@ -19,10 +20,11 @@ export const SwitchField = <T extends FieldValues>({
 
   return (
     <Switch
+      {...rest}
       label={label}
       checked={Boolean(value)}
       onChange={onChange}
-      helperText={error?.message}
+      helperText={error?.message ?? rest.helperText}
     />
   );
 };

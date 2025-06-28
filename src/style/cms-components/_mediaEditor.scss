@@ -4,21 +4,27 @@
 @use '../utils/mixins';
 
 .media-editor {
-  &__label {
+  .media-editor__label {
     @include text.text-sm-leading-6-font-medium;
     color: palette.$gray-900;
     display: block;
     margin-bottom: mixins.spacing(2);
+
+    .media-editor__label-meta {
+      @include text.text-xs-leading-4-font-normal;
+      color: palette.$gray-500;
+      margin-inline-start: auto;
+    }
   }
 
-  &__content {
+  .media-editor__content {
     display: flex;
     flex-direction: column;
     gap: mixins.spacing(4);
   }
 
   // Upload area states and styles
-  &__upload-area {
+  .media-editor__upload-area {
     border: 1px dashed palette.$gray-200;
     border-radius: 8px;
     padding: mixins.spacing(8);
@@ -52,47 +58,47 @@
   }
 
   // Upload area content
-  &__upload-icon {
+  .media-editor__upload-icon {
     color: palette.$gray-400;
     margin-bottom: mixins.spacing(3);
     display: flex;
     justify-content: center;
   }
 
-  &__upload-text {
+  .media-editor__upload-text {
     @include text.text-sm-leading-6-font-medium;
     color: palette.$gray-900;
     margin: 0 0 mixins.spacing(1) 0;
   }
 
-  &__upload-hint {
+  .media-editor__upload-hint {
     @include text.text-xs-leading-4-font-normal;
     color: palette.$gray-500;
     margin: 0 0 mixins.spacing(4) 0;
   }
 
-  &__upload-actions {
+  .media-editor__upload-actions {
     display: flex;
     gap: mixins.spacing(2);
     justify-content: center;
   }
 
   // Upload progress
-  &__upload-progress {
+  .media-editor__upload-progress {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: mixins.spacing(3);
   }
 
-  &__upload-progress-text {
+  .media-editor__upload-progress-text {
     @include text.text-sm-leading-6-font-medium;
     color: palette.$purple-700;
     margin: 0;
   }
 
   // Loading state
-  &__loading {
+  .media-editor__loading {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -103,19 +109,19 @@
   }
 
   // Existing media display
-  &__existing {
+  .media-editor__existing {
     display: flex;
     flex-direction: column;
     gap: mixins.spacing(4);
   }
 
-  &__existing-grid {
+  .media-editor__existing-grid {
     display: grid;
     grid-template-columns: 2fr 1fr;
     gap: mixins.spacing(4);
   }
 
-  &__existing-item {
+  .media-editor__existing-item {
     border: 1px solid palette.$gray-200;
     border-radius: 8px;
     background-color: palette.$white-50;
@@ -131,53 +137,63 @@
     }
   }
 
-  &__existing-preview {
+  .media-editor__existing-preview {
     width: 100%;
     height: 100%;
     position: relative;
     overflow: hidden;
   }
 
-  &__existing-image {
+  .media-editor__existing-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
   }
 
-  &__existing-delete {
+  .media-editor__existing-overlay {
     position: absolute;
-    bottom: mixins.spacing(2);
-    right: mixins.spacing(2);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(palette.$gray-900, 0.5);
     opacity: 0;
     transition: opacity 0.2s ease;
-    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: mixins.spacing(3);
   }
 
-  &__existing-item--medium:hover &__existing-delete {
+  .media-editor__existing-item--medium:hover .media-editor__existing-overlay {
     opacity: 1;
   }
 
-  &__delete-button {
-    background-color: rgba(0, 0, 0, 0.7);
-    color: palette.$white-900;
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
+  .media-editor__existing-info {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    font-weight: bold;
-    line-height: 1;
+    flex-direction: column;
+    gap: mixins.spacing(1);
+  }
 
-    &:hover {
-      background-color: rgba(0, 0, 0, 0.9);
-    }
+  .media-editor__existing-key {
+    @include text.text-sm-leading-6-font-medium;
+    color: palette.$white-900;
+    word-break: break-word;
+  }
+
+  .media-editor__existing-meta {
+    @include text.text-xs-leading-4-font-normal;
+    color: palette.$gray-200;
+  }
+
+  .media-editor__existing-delete {
+    align-self: flex-end;
+    cursor: pointer;
   }
 
   // Modal styles
-  &__modal {
+  .media-editor__modal {
     .media-editor__modal-content {
       display: flex;
       flex-direction: column;
