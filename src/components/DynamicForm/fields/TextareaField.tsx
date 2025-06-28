@@ -33,6 +33,7 @@ export const TextareaField = <T extends FieldValues>({
       helperText={error?.message}
       placeholder={placeholder}
       maxLength={maxLength}
+      style={{ resize: 'vertical', ...rest.style }}
     />
   );
 };
