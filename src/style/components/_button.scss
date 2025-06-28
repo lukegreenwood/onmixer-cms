@@ -258,7 +258,7 @@
 
   &.button--sm {
     padding: mixins.spacing(1) mixins.spacing(2);
-    gap: 0px;
+    gap: mixins.spacing(1);
 
     &.button--outline {
       padding: calc(mixins.spacing(1) - 1px) calc(mixins.spacing(2) - 1px);

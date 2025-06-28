@@ -32,4 +32,5 @@ export { SeriesIcon } from './Series';
 export { ShowsIcon } from './Shows';
 export { TrackIcon } from './Track';
 export { UnscheduleIcon } from './Unschedule';
+export { WarningIcon } from './Warning';
 export { EllipsisIcon } from './Ellipsis';

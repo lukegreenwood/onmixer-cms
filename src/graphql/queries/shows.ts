@@ -64,6 +64,7 @@ export const GET_SHOW = gql(`
       shortDesc
       shortId
       shortName
+      totalEpisodes
       updatedAt
       url
     }

@@ -44,7 +44,10 @@
 @use 'components/tooltip';
 
 // Blocks
+@use 'blocks/actionBar';
 @use 'blocks/card';
+@use 'blocks/deleteConfirmationPopover';
+@use 'blocks/deleteShowConfirmationModal';
 @use 'blocks/entityEditForm';
 @use 'blocks/layout';
 @use 'blocks/navigation';

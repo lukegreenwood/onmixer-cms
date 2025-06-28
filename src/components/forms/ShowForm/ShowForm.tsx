@@ -5,6 +5,7 @@ import { Button } from '@soundwaves/components';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { ActionBar } from '@/components/blocks/ActionBar';
 import { EntityEditForm } from '@/components/blocks/EntityEditForm';
 import { DynamicForm } from '@/components/DynamicForm/DynamicForm';
 import { GetShowQuery, MediaType } from '@/graphql/__generated__/graphql';
@@ -138,17 +139,32 @@ export const ShowForm = ({ showData, onSubmit }: ShowFormProps) => {
     },
   ];
 
+  const isDirty = methods.formState.isDirty;
+
   return (
     <FormProvider {...methods}>
-      {/* <form onSubmit={methods.handleSubmit(handleSubmit)} className={className}> */}
-      <EntityEditForm
-        startSection={startSectionFields.map((fields, index) => (
-          <DynamicForm key={index} fields={fields} />
-        ))}
-        endSection={<DynamicForm fields={endSectionFields} />}
-      />
-      <Button onClick={() => methods.handleSubmit(handleSubmit)()}>Save</Button>
-      {/* </form> */}
+      <div className="show-form">
+        <EntityEditForm
+          startSection={startSectionFields.map((fields, index) => (
+            <DynamicForm key={index} fields={fields} />
+          ))}
+          endSection={<DynamicForm fields={endSectionFields} />}
+        />
+
+        <ActionBar unsavedChanges={isDirty}>
+          {isDirty && (
+            <Button variant="tertiary" onClick={() => methods.reset()}>
+              Discard
+            </Button>
+          )}
+          <Button
+            variant="primary"
+            onClick={() => methods.handleSubmit(handleSubmit)()}
+          >
+            Save
+          </Button>
+        </ActionBar>
+      </div>
     </FormProvider>
   );
 };

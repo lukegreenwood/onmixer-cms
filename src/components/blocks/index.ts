@@ -1,6 +1,9 @@
+export { ActionBar } from './ActionBar';
 export { Card } from './Card';
 export { DataTable } from './DataTable';
-export { DataTableFilter, useDataTableFilters } from './DataTableFilter';
+export { DataTableFilter } from './DataTableFilter';
+export { DeleteConfirmationPopover } from './DeleteConfirmationPopover';
+export { DeleteShowConfirmationModal } from './DeleteShowConfirmationModal';
 export { Drawer } from './Drawer';
 export { EntityEditForm } from './EntityEditForm';
 export { PageHeader } from './PageHeader';

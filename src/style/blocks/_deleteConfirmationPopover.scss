@@ -1,0 +1,58 @@
+@use '../theme/palette';
+@use '../theme/sizing';
+@use '../theme/text';
+@use '../utils/mixins';
+
+.delete-confirmation-popover {
+  width: 350px;
+  padding: 0;
+
+  .delete-confirmation-popover__content {
+    display: flex;
+    flex-direction: column;
+    gap: mixins.spacing(4);
+    padding: mixins.spacing(4);
+  }
+
+  .delete-confirmation-popover__header {
+    display: flex;
+    align-items: center;
+    gap: mixins.spacing(2);
+
+    svg {
+      width: 20px;
+      height: 20px;
+      color: palette.$red-500;
+    }
+
+    h3 {
+      @include text.text-lg-leading-8-font-semibold;
+      color: palette.$gray-900;
+      margin: 0;
+    }
+  }
+
+  .delete-confirmation-popover__description {
+    @include text.text-sm-leading-6-font-normal;
+    color: palette.$gray-700;
+    margin: 0;
+  }
+
+  .delete-confirmation-popover__entity-name {
+    padding: mixins.spacing(3);
+    background-color: palette.$gray-50;
+    border-radius: sizing.$radius-sm;
+    border: 1px solid palette.$gray-200;
+
+    strong {
+      @include text.text-sm-leading-6-font-semibold;
+      color: palette.$gray-900;
+    }
+  }
+
+  .delete-confirmation-popover__actions {
+    display: flex;
+    gap: mixins.spacing(2);
+    justify-content: flex-end;
+  }
+}
