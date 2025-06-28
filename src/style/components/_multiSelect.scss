@@ -152,4 +152,10 @@
       z-index: 10 !important;
     }
   }
+
+  &.multi-select--selected-items-outside {
+    .multi-select__selected-items {
+      min-height: auto;
+    }
+  }
 }

@@ -27,7 +27,7 @@ export const MediaEditorField = <T extends FieldValues>({
   // The field.value would be file objects or media IDs, and field.onChange would update them
 
   return (
-    <div>
+    <div className="form-control">
       <MediaEditor
         label={label}
         multiple={multiple}
