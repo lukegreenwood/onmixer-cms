@@ -1,5 +1,5 @@
 import { useQuery } from '@apollo/client';
-import { MultiSelect, ProgressCircle } from '@soundwaves/components';
+import { Loading, MultiSelect } from '@soundwaves/components';
 import { useDebouncer } from '@tanstack/react-pacer';
 import { useMemo } from 'react';
 import { useController, type FieldValues, type Path } from 'react-hook-form';
@@ -137,7 +137,7 @@ export const PresenterSelectorField = <T extends FieldValues>({
       onSearchChange={debouncedHandleSearch.maybeExecute}
       destructive={Boolean(error)}
       helperText={error?.message ?? helperText}
-      after={loading ? <ProgressCircle size="xs" /> : undefined}
+      after={loading ? <Loading size="xs" /> : undefined}
     />
   );
 };

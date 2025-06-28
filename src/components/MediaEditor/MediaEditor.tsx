@@ -1,7 +1,12 @@
 'use client';
 
 import { useMutation, useQuery } from '@apollo/client';
-import { Button, CloseIcon, ProgressCircle } from '@soundwaves/components';
+import {
+  Button,
+  CloseIcon,
+  Loading,
+  ProgressCircle,
+} from '@soundwaves/components';
 import axios from 'axios';
 import clsx from 'clsx';
 import { useState, useCallback, forwardRef } from 'react';
@@ -215,7 +220,7 @@ export const MediaEditor = forwardRef<HTMLDivElement, MediaEditorProps>(
     // Render loading state
     const LoadingMarkup = (
       <div className="media-editor__loading">
-        <ProgressCircle size="sm" />
+        <Loading size="sm" />
         <span>Loading media...</span>
       </div>
     );
