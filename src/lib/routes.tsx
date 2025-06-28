@@ -48,6 +48,7 @@ const navigationRoutes = {
   showEdit: '/shows/%i/edit',
   episodes: '/episodes',
   episodesEdit: '/episodes/%i/edit',
+  createEpisode: '/episodes/create',
   series: '/series',
   presenters: '/presenters',
   feed: '/feed',

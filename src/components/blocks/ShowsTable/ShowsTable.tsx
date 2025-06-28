@@ -247,9 +247,6 @@ export const ShowsTable = () => {
     // },
   });
 
-  console.log(filters);
-  console.log(data);
-
   const table = useReactTable({
     data: data.showsV2.items,
     columns: tableColumns,

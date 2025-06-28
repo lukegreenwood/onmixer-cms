@@ -34,6 +34,7 @@
     @include text.text-sm-leading-6-font-medium;
     color: palette.$gray-500;
     padding: mixins.spacing(2);
+    white-space: nowrap;
   }
 
   .data-table__cell {
@@ -56,5 +57,13 @@
     .data-table__row:hover {
       background-color: transparent;
     }
+  }
+
+  &.data-table--contained {
+    background: none;
+    box-shadow: none;
+    padding: 0;
+    border-end-start-radius: 0;
+    border-end-end-radius: 0;
   }
 }

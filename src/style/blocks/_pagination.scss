@@ -25,4 +25,12 @@
     white-space: nowrap;
     user-select: none;
   }
+
+  &.pagination--contained {
+    box-shadow: none;
+    border-start-start-radius: 0;
+    border-start-end-radius: 0;
+    padding: mixins.spacing(1) mixins.spacing(2);
+    margin-block-start: 0;
+  }
 }

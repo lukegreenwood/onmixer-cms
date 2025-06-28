@@ -55,7 +55,8 @@ export function Pagination({
       </Button>
 
       <div className="pagination__info">
-        {startItem}-{endItem} of {total.toLocaleString()} {entity}
+        {startItem.toLocaleString()} - {endItem.toLocaleString()} of{' '}
+        {total.toLocaleString()} {entity}
       </div>
 
       <Button

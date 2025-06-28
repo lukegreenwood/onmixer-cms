@@ -15,6 +15,54 @@ export const SEARCH_EPISODES = gql(`
   }
 `);
 
+export const SEARCH_EPISODES_V2 = gql(`
+  query SearchEpisodesV2($filters: EpisodeListInputV2) {
+    episodesV2(filters: $filters) {
+      total
+      items {
+        id
+        shortId
+        name
+        description
+        createdAt
+        updatedAt
+        duration {
+          formatted
+          raw
+        }
+        featuredImage {
+          urls {
+            square
+          }
+        }
+        show {
+          id
+          shortName
+          shortId
+        }
+        presenters {
+          id
+          name
+        }
+        networks {
+          id
+          name
+          logoSvgIcon
+        }
+        series {
+          id
+          shortName
+        }
+        broadcasts {
+          id
+          start
+          end
+        }
+      }
+    }
+  }
+`);
+
 export const GET_EPISODE_DETAILS = gql(`
   query GetEpisodeDetails($id: ID!) {
     episode(id: $id) {

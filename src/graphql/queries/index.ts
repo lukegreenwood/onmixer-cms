@@ -6,3 +6,8 @@ export { SEARCH_SHOWS } from './shows';
 export { GET_PRESENTER, GET_PRESENTERS } from './presenters';
 export { SEARCH_SERIES, GET_SERIES } from './series';
 export { GET_MEDIA, SEARCH_MEDIA } from './media';
+export {
+  SEARCH_EPISODES,
+  SEARCH_EPISODES_V2,
+  GET_EPISODE_DETAILS,
+} from './episodes';

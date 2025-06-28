@@ -1,19 +1,21 @@
 import { flexRender, Table } from '@tanstack/react-table';
 import clsx from 'clsx';
 export type DataTableProps<TData> = {
+  className?: string;
   table: Table<TData>;
   onRowClick?: (row: TData) => void;
   noHover?: boolean;
 };
 
 export function DataTable<TData>({
+  className,
   table,
   onRowClick,
   noHover = false,
 }: DataTableProps<TData>) {
   return (
     <table
-      className={clsx('data-table', {
+      className={clsx('data-table', className, {
         'data-table--no-hover': noHover,
       })}
     >

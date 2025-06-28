@@ -6,6 +6,7 @@ export { DeleteConfirmationPopover } from './DeleteConfirmationPopover';
 export { DeleteShowConfirmationModal } from './DeleteShowConfirmationModal';
 export { Drawer } from './Drawer';
 export { EntityEditForm } from './EntityEditForm';
+export { EpisodesTable } from './EpisodesTable';
 export { PageHeader } from './PageHeader';
 export { Pagination } from './Pagination';
 export { ShowsTable } from './ShowsTable/ShowsTable';
