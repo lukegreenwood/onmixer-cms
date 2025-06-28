@@ -1,4 +1,5 @@
 export { AddIcon } from './Add';
+export { AddMediaIcon } from './AddMediaIcon';
 export { ArrowBackIcon } from './ArrowBack';
 export { ArticleIcon } from './Article';
 export { AuditIcon } from './Audit';
@@ -10,6 +11,7 @@ export { ChevronRightIcon } from './ChevronRight';
 export { ChevronUpIcon } from './ChevronUp';
 export { CopyIcon } from './Copy';
 export { DashboardIcon } from './Dashbaord';
+export { DeleteIcon } from './DeleteIcon';
 export { EpisodesIcon } from './Episodes';
 export { FeedIcon } from './Feed';
 export { FilterAddIcon } from './FilterAdd';

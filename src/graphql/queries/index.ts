@@ -5,3 +5,4 @@ export { SEARCH_DEFAULT_SCHEDULE } from './defaultSchedule';
 export { SEARCH_SHOWS } from './shows';
 export { GET_PRESENTER, GET_PRESENTERS } from './presenters';
 export { SEARCH_SERIES, GET_SERIES } from './series';
+export { GET_MEDIA, SEARCH_MEDIA } from './media';

@@ -13,8 +13,10 @@ export const MediaEditorField = <T extends FieldValues>({
   label,
   multiple = false,
   className = '',
+  type,
 }: MediaEditorFieldProps<T>) => {
   const {
+    field,
     fieldState: { error },
   } = useController({
     name,
@@ -26,7 +28,13 @@ export const MediaEditorField = <T extends FieldValues>({
 
   return (
     <div>
-      <MediaEditor label={label} multiple={multiple} className={className} />
+      <MediaEditor
+        label={label}
+        multiple={multiple}
+        className={className}
+        type={type}
+        {...field}
+      />
       {error && (
         <div className="text-red-500 text-sm mt-1">{error.message}</div>
       )}

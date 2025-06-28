@@ -1,19 +1,20 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Button } from '@soundwaves/components';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { EntityEditForm } from '@/components/blocks/EntityEditForm';
 import { DynamicForm } from '@/components/DynamicForm/DynamicForm';
-import { GetShowQuery } from '@/graphql/__generated__/graphql';
+import { GetShowQuery, MediaType } from '@/graphql/__generated__/graphql';
 
 // Define the schema for show form
 const showFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().min(1, 'Description is required'),
-  shortName: z.string().optional(),
-  shortDescription: z.string().optional(),
+  shortName: z.string().min(1, 'Short name is required'),
+  shortDescription: z.string().min(1, 'Short description is required'),
   presenters: z
     .array(
       z.object({
@@ -21,10 +22,10 @@ const showFormSchema = z.object({
         name: z.string(),
       }),
     )
-    .optional(),
-  networkIds: z.array(z.string()).optional(),
-  visibleOnSite: z.boolean().optional(),
-  mediaId: z.string().optional(),
+    .min(1, 'At least one presenter is required'),
+  networkIds: z.array(z.string()).min(1, 'At least one network is required'),
+  visibleOnSite: z.boolean(),
+  mediaId: z.string().min(1, 'Media is required'),
 });
 
 export type ShowFormData = z.infer<typeof showFormSchema>;
@@ -35,11 +36,7 @@ export interface ShowFormProps {
   className?: string;
 }
 
-export const ShowForm = ({
-  showData,
-  onSubmit,
-  className = '',
-}: ShowFormProps) => {
+export const ShowForm = ({ showData, onSubmit }: ShowFormProps) => {
   // Transform the GraphQL data to match the form structure
   const initialFormData: Partial<ShowFormData> = showData
     ? {
@@ -113,6 +110,7 @@ export const ShowForm = ({
         name: 'mediaId' as const,
         label: 'Featured Image',
         multiple: false,
+        type: MediaType.FeaturedImage,
       },
     ],
   ];
@@ -140,14 +138,15 @@ export const ShowForm = ({
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(handleSubmit)} className={className}>
-        <EntityEditForm
-          startSection={startSectionFields.map((fields, index) => (
-            <DynamicForm key={index} fields={fields} />
-          ))}
-          endSection={<DynamicForm fields={endSectionFields} />}
-        />
-      </form>
+      {/* <form onSubmit={methods.handleSubmit(handleSubmit)} className={className}> */}
+      <EntityEditForm
+        startSection={startSectionFields.map((fields, index) => (
+          <DynamicForm key={index} fields={fields} />
+        ))}
+        endSection={<DynamicForm fields={endSectionFields} />}
+      />
+      <Button onClick={() => methods.handleSubmit(handleSubmit)()}>Save</Button>
+      {/* </form> */}
     </FormProvider>
   );
 };
