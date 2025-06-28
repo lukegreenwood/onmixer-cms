@@ -44,7 +44,7 @@ const navigationRoutes = {
   media: '/media',
   schedule: '/schedule',
   shows: '/shows',
-  newShow: '/shows/new',
+  createShow: '/shows/create',
   showEdit: '/shows/%i/edit',
   episodes: '/episodes',
   episodesEdit: '/episodes/%i/edit',

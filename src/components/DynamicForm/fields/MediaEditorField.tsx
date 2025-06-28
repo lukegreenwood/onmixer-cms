@@ -36,7 +36,9 @@ export const MediaEditorField = <T extends FieldValues>({
         {...field}
       />
       {error && (
-        <div className="text-red-500 text-sm mt-1">{error.message}</div>
+        <div className="form-label-helper-text form-label-helper-text--error">
+          {error.message}
+        </div>
       )}
     </div>
   );

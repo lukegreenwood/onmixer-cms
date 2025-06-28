@@ -38,8 +38,8 @@ export interface ShowFormProps {
 }
 
 export const ShowForm = ({ showData, onSubmit }: ShowFormProps) => {
-  // Transform the GraphQL data to match the form structure
-  const initialFormData: Partial<ShowFormData> = showData
+  // Transform the GraphQL data to match the form structure when available
+  const formData: ShowFormData | undefined = showData
     ? {
         name: showData.fullName || '',
         description: showData.fullDesc || '',
@@ -52,23 +52,24 @@ export const ShowForm = ({ showData, onSubmit }: ShowFormProps) => {
             name: p.name,
           })) || [],
         networkIds: showData.networks?.map((n) => n.id) || [],
-        mediaId: showData.featuredImage?.id || undefined,
+        mediaId: showData.featuredImage?.id || '',
       }
-    : {};
+    : undefined;
+
+  const defaultFormData: ShowFormData = {
+    name: '',
+    description: '',
+    shortName: '',
+    shortDescription: '',
+    visibleOnSite: true,
+    presenters: [],
+    networkIds: [],
+    mediaId: '',
+  };
 
   const methods = useForm<ShowFormData>({
     resolver: zodResolver(showFormSchema),
-    defaultValues: {
-      name: '',
-      description: '',
-      shortName: '',
-      shortDescription: '',
-      visibleOnSite: true,
-      presenters: [],
-      networkIds: [],
-      mediaId: undefined,
-      ...initialFormData,
-    },
+    ...(showData ? { values: formData } : { defaultValues: defaultFormData }),
   });
 
   const handleSubmit = (data: ShowFormData) => {

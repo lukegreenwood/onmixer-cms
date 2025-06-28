@@ -31,6 +31,7 @@ export const TextareaField = <T extends FieldValues>({
       value={stringValue}
       onChange={onChange}
       helperText={error?.message}
+      destructive={!!error}
       placeholder={placeholder}
       maxLength={maxLength}
       style={{ resize: 'vertical', ...rest.style }}
