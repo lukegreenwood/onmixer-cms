@@ -12,6 +12,7 @@ export {
   type MediaSelectorModalProps,
   type MediaItem,
 } from './MediaSelectorModal';
+export { Copyable } from './Copyable/Copyable';
 
 export * from './blocks';
 export * from './forms';

@@ -1,0 +1,25 @@
+@use '../theme/palette';
+@use '../utils/mixins';
+
+.copyable {
+  display: inline-flex;
+  align-items: center;
+  gap: mixins.spacing(1);
+
+  .copyable__icon {
+    opacity: 0;
+    color: palette.$gray-500;
+    transition: opacity 200ms ease-in-out;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  &:hover {
+    .copyable__icon {
+      opacity: 1;
+    }
+  }
+}

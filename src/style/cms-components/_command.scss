@@ -112,4 +112,8 @@
   .group:where([data-selected='true']) .command__item-chevron {
     opacity: 1;
   }
+
+  .hidden {
+    display: none;
+  }
 }
