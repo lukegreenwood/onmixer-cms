@@ -54,6 +54,7 @@ export const PresenterSelectorField = <T extends FieldValues>({
   }, [value]);
 
   const { data, refetch, loading } = useQuery(GET_PRESENTERS, {
+    notifyOnNetworkStatusChange: true,
     variables: {
       filters: {
         limit: 10,

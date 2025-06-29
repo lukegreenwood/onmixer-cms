@@ -25,17 +25,17 @@ type ShowObject = {
 interface ShowSelectorFieldProps<T extends FieldValues> {
   name: Path<T>;
   label: string;
-  placeholder?: string;
+  _placeholder?: string;
   className?: string;
   helperText?: string;
+  _required?: boolean;
 }
 
 export const ShowSelectorField = <T extends FieldValues>({
   name,
   label,
-  placeholder = 'Search for shows...',
-  className = '',
   helperText,
+  ...restProps
 }: ShowSelectorFieldProps<T>) => {
   const {
     field: { onChange, value, ...rest },
@@ -46,7 +46,7 @@ export const ShowSelectorField = <T extends FieldValues>({
 
   // Convert show object to Autocomplete format
   const selectedOption: ShowOption | null = useMemo(() => {
-    if (!value || typeof value !== 'object') return null;
+    if (!value || !value.id) return null;
     const showValue = value as ShowObject;
     return {
       label: showValue.name,
@@ -55,9 +55,10 @@ export const ShowSelectorField = <T extends FieldValues>({
   }, [value]);
 
   const { data, refetch, loading } = useQuery(SEARCH_SHOWS, {
+    notifyOnNetworkStatusChange: true,
     variables: {
       filters: {
-        limit: 10,
+        limit: 20,
         filterGroup: {
           operator: OperatorType.And,
           filters: [
@@ -78,7 +79,7 @@ export const ShowSelectorField = <T extends FieldValues>({
   const searchOptions: ShowOption[] = useMemo(
     () =>
       data?.showsV2.items.map((show) => ({
-        label: show.fullName,
+        label: `${show.fullName} (${show.shortName})`,
         value: show.id,
       })) ?? [],
     [data?.showsV2.items],
@@ -98,7 +99,7 @@ export const ShowSelectorField = <T extends FieldValues>({
   const handleSearchChange = (search: string) => {
     refetch({
       filters: {
-        limit: 10,
+        limit: 20,
         filterGroup: {
           operator: OperatorType.And,
           filters: [
@@ -120,7 +121,7 @@ export const ShowSelectorField = <T extends FieldValues>({
 
   const handleSelectionChange = (selectedId: string | null) => {
     if (!selectedId) {
-      onChange(null);
+      onChange({ id: '', name: '' });
       return;
     }
 
@@ -136,9 +137,8 @@ export const ShowSelectorField = <T extends FieldValues>({
   return (
     <Autocomplete
       {...rest}
+      {...restProps}
       label={label}
-      placeholder={placeholder}
-      className={className}
       value={selectedOption?.value || undefined}
       onChange={handleSelectionChange}
       options={options}

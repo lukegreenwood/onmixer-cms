@@ -1,7 +1,10 @@
+export { CREATE_EPISODE } from './createEpisode';
 export { CREATE_SCHEDULE_ITEM } from './createScheduleItem';
 export { CREATE_SHOW } from './createShow';
+export { DELETE_EPISODE } from './deleteEpisode';
 export { DELETE_MEDIA } from './deleteMedia';
 export { DELETE_SHOW } from './deleteShow';
+export { UPDATE_EPISODE } from './updateEpisode';
 export { UPDATE_SCHEDULE_ITEM } from './updateScheduleItem';
 export { UPDATE_SHOW } from './updateShow';
 export { DELETE_SCHEDULE_ITEM } from './deleteScheduleItem';

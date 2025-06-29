@@ -9,5 +9,6 @@ export { GET_MEDIA, SEARCH_MEDIA } from './media';
 export {
   SEARCH_EPISODES,
   SEARCH_EPISODES_V2,
+  GET_EPISODE,
   GET_EPISODE_DETAILS,
 } from './episodes';

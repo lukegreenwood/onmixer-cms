@@ -25,7 +25,6 @@ type SeriesObject = {
 interface SeriesSelectorFieldProps<T extends FieldValues> {
   name: Path<T>;
   label: string;
-  placeholder?: string;
   className?: string;
   helperText?: string;
 }
@@ -33,9 +32,9 @@ interface SeriesSelectorFieldProps<T extends FieldValues> {
 export const SeriesSelectorField = <T extends FieldValues>({
   name,
   label,
-  placeholder = 'Search for series...',
   className = '',
   helperText,
+  ...restProps
 }: SeriesSelectorFieldProps<T>) => {
   const {
     field: { onChange, value, ...rest },
@@ -46,7 +45,7 @@ export const SeriesSelectorField = <T extends FieldValues>({
 
   // Convert series object to Autocomplete format
   const selectedOption: SeriesOption | null = useMemo(() => {
-    if (!value || typeof value !== 'object') return null;
+    if (!value || !value.id) return null;
     const seriesValue = value as SeriesObject;
     return {
       label: seriesValue.name,
@@ -55,6 +54,7 @@ export const SeriesSelectorField = <T extends FieldValues>({
   }, [value]);
 
   const { data, refetch, loading } = useQuery(SEARCH_SERIES, {
+    notifyOnNetworkStatusChange: true,
     variables: {
       filters: {
         limit: 10,
@@ -78,7 +78,7 @@ export const SeriesSelectorField = <T extends FieldValues>({
   const searchOptions: SeriesOption[] = useMemo(
     () =>
       data?.seriesListV2.items.map((series) => ({
-        label: series.fullName,
+        label: `${series.fullName} (${series.shortName})`,
         value: series.id,
       })) ?? [],
     [data?.seriesListV2.items],
@@ -120,7 +120,7 @@ export const SeriesSelectorField = <T extends FieldValues>({
 
   const handleSelectionChange = (selectedId: string | null) => {
     if (!selectedId) {
-      onChange(null);
+      onChange(undefined);
       return;
     }
 
@@ -136,8 +136,8 @@ export const SeriesSelectorField = <T extends FieldValues>({
   return (
     <Autocomplete
       {...rest}
+      {...restProps}
       label={label}
-      placeholder={placeholder}
       className={className}
       value={selectedOption?.value || undefined}
       onChange={handleSelectionChange}

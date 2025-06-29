@@ -63,6 +63,50 @@ export const SEARCH_EPISODES_V2 = gql(`
   }
 `);
 
+export const GET_EPISODE = gql(`
+  query GetEpisode($id: ID!) {
+    episode(id: $id) {
+      id
+      name
+      description
+      duration {
+        formatted
+        raw
+      }
+      extraData
+      shortId
+      createdAt
+      updatedAt
+      url
+      featuredImage {
+        id
+        key
+        urls {
+          medium
+          square
+        }
+      }
+      show {
+        id
+        shortName
+      }
+      series {
+        id
+        shortName
+      }
+      presenters {
+        id
+        name
+      }
+      networks {
+        id
+        name
+        logoSvgIcon
+      }
+    }
+  }
+`);
+
 export const GET_EPISODE_DETAILS = gql(`
   query GetEpisodeDetails($id: ID!) {
     episode(id: $id) {

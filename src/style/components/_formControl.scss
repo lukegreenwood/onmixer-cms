@@ -77,8 +77,8 @@
       &.form-control__input-add-on--chevron {
         aspect-ratio: 1;
         padding: 0;
-        padding-inline-end: mixins.spacing(1) !important;
         justify-content: center;
+
         svg {
           transition: transform 100ms ease;
         }

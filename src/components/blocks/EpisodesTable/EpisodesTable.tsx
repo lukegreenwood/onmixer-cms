@@ -26,7 +26,7 @@ import {
   GET_PRESENTERS,
   SEARCH_EPISODES_V2,
 } from '@/graphql/queries';
-import { useNetwork } from '@/hooks';
+import { useNavigation, useNetwork } from '@/hooks';
 import {
   NetworksIcon,
   PresentersIcon,
@@ -249,6 +249,7 @@ export const EpisodesTable = () => {
   const searchParams = useSearchParams();
   const page = Number(searchParams.get('page') ?? '1');
   const { currentNetwork } = useNetwork();
+  const { getNetworkRoutePath } = useNavigation();
 
   const offset = (page - 1) * EPISODES_PER_PAGE;
 
@@ -390,7 +391,7 @@ export const EpisodesTable = () => {
   const handleRowClick = (
     row: SearchEpisodesV2Query['episodesV2']['items'][number],
   ) => {
-    console.log('Episode clicked:', row.id);
+    router.push(getNetworkRoutePath('episodesEdit', [row.id]));
   };
 
   if (error) {

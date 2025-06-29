@@ -1,4 +1,2 @@
 export { EpisodeForm } from './EpisodeForm';
 export type { EpisodeFormData, EpisodeFormProps } from './EpisodeForm';
-export { ShowForm } from './ShowForm';
-export type { ShowFormData, ShowFormProps } from './ShowForm';

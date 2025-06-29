@@ -1,7 +1,9 @@
-export { SchedulePage } from './SchedulePage';
+export { EpisodeCreatePage } from './EpisodeCreatePage';
+export { EpisodeEditPage } from './EpisodeEditPage';
+export { EpisodesPage } from './EpisodesPage';
 export { NetworksPage } from './NetworksPage/NetworksPage';
+export { SchedulePage } from './SchedulePage';
 export { SeriesPage } from './SeriesPage';
-export { ShowsPage } from './ShowsPage';
 export { ShowCreatePage } from './ShowCreatePage';
 export { ShowEditPage } from './ShowEditPage/ShowEditPage';
-export { EpisodesPage } from './EpisodesPage';
+export { ShowsPage } from './ShowsPage';
