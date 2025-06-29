@@ -8,6 +8,7 @@ export const SEARCH_SERIES = gql(`
         id
         shortName
         fullName
+        archived
         show {
           id
           shortName
@@ -15,6 +16,7 @@ export const SEARCH_SERIES = gql(`
         network {
           id
           name
+          logoSvgIcon
         }
       }
     }

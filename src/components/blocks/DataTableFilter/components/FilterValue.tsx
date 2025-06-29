@@ -539,10 +539,63 @@ export function FilterValueOptionController<TData>({
   const [options, setOptions] = useState(initialOptions);
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Stable merge function to prevent unnecessary re-renders
+  const mergeOptions = useCallback(
+    (newOptions: typeof initialOptions) => {
+      setOptions((prev) => {
+        // Create a map of existing options for efficient lookup
+        const existingMap = new Map(
+          prev.map((option) => [option.value, option]),
+        );
+
+        // Merge new options with existing ones, preserving selection state
+        const merged = newOptions.map((newOption) => {
+          const existing = existingMap.get(newOption.value);
+          return {
+            ...newOption,
+            selected: filter?.values.includes(newOption.value) ?? false,
+            initialSelected:
+              existing?.initialSelected ??
+              filter?.values.includes(newOption.value) ??
+              false,
+            count: newOption.count ?? existing?.count ?? 0,
+          };
+        });
+
+        // Add any existing selected options that aren't in the new results
+        const newValueSet = new Set(newOptions.map((o) => o.value));
+        const preservedOptions = prev.filter(
+          (option) => option.selected && !newValueSet.has(option.value),
+        );
+
+        return uniqBy([...preservedOptions, ...merged], 'value');
+      });
+    },
+    [filter?.values],
+  );
+
+  // Handle new options from search
+  useEffect(() => {
+    const newOptions = column.getOptions().map((o) => ({
+      ...o,
+      selected: filter?.values.includes(o.value),
+      initialSelected: filter?.values.includes(o.value),
+      count: 0,
+    }));
+
+    // Only update if options actually changed
+    if (newOptions.length > 0) {
+      mergeOptions(newOptions);
+    }
+  }, [column.getOptions(), mergeOptions]);
+
   // Update selected state when filter values change
   useEffect(() => {
     setOptions((prev) =>
-      prev.map((o) => ({ ...o, selected: filter?.values.includes(o.value) })),
+      prev.map((o) => ({
+        ...o,
+        selected: filter?.values.includes(o.value),
+      })),
     );
   }, [filter?.values]);
 
@@ -600,6 +653,14 @@ export function FilterValueOptionController<TData>({
         )}
       </CommandEmpty>
       <CommandList className="max-h-fit">
+        {isLoading && searchTerm && (
+          <CommandGroup>
+            <div className="flex items-center justify-center gap-2 p-4">
+              <Loading size="xs" />
+              <span className="text-sm text-muted">Searching...</span>
+            </div>
+          </CommandGroup>
+        )}
         <CommandGroup
           className={clsx(selectedOptions.length === 0 && 'hidden')}
         >
@@ -651,27 +712,63 @@ export function FilterValueMultiOptionController<TData>({
   const [options, setOptions] = useState(initialOptions);
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Stable merge function to prevent unnecessary re-renders
+  const mergeOptions = useCallback(
+    (newOptions: typeof initialOptions) => {
+      setOptions((prev) => {
+        // Create a map of existing options for efficient lookup
+        const existingMap = new Map(
+          prev.map((option) => [option.value, option]),
+        );
+
+        // Merge new options with existing ones, preserving selection state
+        const merged = newOptions.map((newOption) => {
+          const existing = existingMap.get(newOption.value);
+          return {
+            ...newOption,
+            selected: filter?.values.includes(newOption.value) ?? false,
+            initialSelected:
+              existing?.initialSelected ??
+              filter?.values.includes(newOption.value) ??
+              false,
+            count: newOption.count ?? existing?.count ?? 0,
+          };
+        });
+
+        // Add any existing selected options that aren't in the new results
+        const newValueSet = new Set(newOptions.map((o) => o.value));
+        const preservedOptions = prev.filter(
+          (option) => option.selected && !newValueSet.has(option.value),
+        );
+
+        return uniqBy([...preservedOptions, ...merged], 'value');
+      });
+    },
+    [filter?.values],
+  );
+
+  // Handle new options from search
   useEffect(() => {
-    setOptions((prev) =>
-      uniqBy(
-        [
-          ...prev.filter((o) => o.selected), // Keep selected options
-          ...column.getOptions().map((o) => ({
-            ...o,
-            selected: filter?.values.includes(o.value),
-            initialSelected: filter?.values.includes(o.value),
-            count: 0,
-          })),
-        ],
-        (item) => item.value,
-      ),
-    );
-  }, [column.getOptions()]);
+    const newOptions = column.getOptions().map((o) => ({
+      ...o,
+      selected: filter?.values.includes(o.value),
+      initialSelected: filter?.values.includes(o.value),
+      count: 0,
+    }));
+
+    // Only update if options actually changed
+    if (newOptions.length > 0) {
+      mergeOptions(newOptions);
+    }
+  }, [column.getOptions(), mergeOptions]);
 
   // Update selected state when filter values change
   useEffect(() => {
     setOptions((prev) =>
-      prev.map((o) => ({ ...o, selected: filter?.values.includes(o.value) })),
+      prev.map((o) => ({
+        ...o,
+        selected: filter?.values.includes(o.value),
+      })),
     );
   }, [filter?.values]);
 
@@ -733,6 +830,14 @@ export function FilterValueMultiOptionController<TData>({
         )}
       </CommandEmpty>
       <CommandList>
+        {isLoading && searchTerm && (
+          <CommandGroup>
+            <div className="flex flex--column flex--align-center p-4">
+              <Loading size="xs" />
+              <p className="text-sm text-muted">Searching...</p>
+            </div>
+          </CommandGroup>
+        )}
         <CommandGroup
           className={clsx(selectedOptions.length === 0 && 'hidden')}
         >

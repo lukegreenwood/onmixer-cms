@@ -6,7 +6,7 @@ import { useDebouncer } from '@tanstack/react-pacer';
 import { createColumnHelper } from '@tanstack/react-table';
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { Copyable, DataTable } from '@/components';
 import {
@@ -26,6 +26,7 @@ import {
   GET_PRESENTERS,
   SEARCH_EPISODES_V2,
 } from '@/graphql/queries';
+import { useNetwork } from '@/hooks';
 import {
   NetworksIcon,
   PresentersIcon,
@@ -34,6 +35,7 @@ import {
   EpisodesIcon,
   BroadcastsIcon,
 } from '@/icons';
+import { convertFiltersStateToEpisodeGraphQL } from '@/utils/filtersToGraphql';
 
 import {
   createColumnConfigHelper,
@@ -246,17 +248,33 @@ export const EpisodesTable = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const page = Number(searchParams.get('page') ?? '1');
+  const { currentNetwork } = useNetwork();
 
   const offset = (page - 1) * EPISODES_PER_PAGE;
 
-  const [filtersState, setFiltersState] = useState<FiltersState>([]);
+  const [filtersState, setFiltersState] = useState<FiltersState>([
+    {
+      columnId: 'networks',
+      operator: 'include',
+      type: 'multiOption',
+      values: [currentNetwork?.id ?? ''],
+    },
+  ]);
   const [rowSelection, setRowSelection] = useState({});
+
+  const graphqlFilters = useMemo(
+    () =>
+      convertFiltersStateToEpisodeGraphQL(filtersState, {
+        limit: EPISODES_PER_PAGE,
+        offset,
+      }),
+    [filtersState, offset],
+  );
 
   const { data, error } = useSuspenseQuery(SEARCH_EPISODES_V2, {
     variables: {
       filters: {
-        limit: EPISODES_PER_PAGE,
-        offset,
+        ...graphqlFilters,
         order: [
           {
             field: EpisodeOrderField.Id,
@@ -321,7 +339,7 @@ export const EpisodesTable = () => {
   });
 
   const { filters, columns, actions, strategy } = useDataTableFilters({
-    strategy: 'client',
+    strategy: 'server',
     data: data.episodesV2.items,
     filters: filtersState,
     onFiltersChange: handleFiltersChange,

@@ -14,4 +14,5 @@ export { EntityEditForm } from './EntityEditForm';
 export { EpisodesTable } from './EpisodesTable';
 export { PageHeader } from './PageHeader';
 export { Pagination } from './Pagination';
+export { SeriesTable } from './SeriesTable/SeriesTable';
 export { ShowsTable } from './ShowsTable/ShowsTable';

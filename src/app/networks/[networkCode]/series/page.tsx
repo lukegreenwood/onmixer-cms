@@ -1,3 +1,5 @@
-export default function SeriesPage() {
-  return <div>Series</div>;
+import { SeriesPage } from '@/components/pages';
+
+export default function SeriesPageRoot() {
+  return <SeriesPage />;
 }
