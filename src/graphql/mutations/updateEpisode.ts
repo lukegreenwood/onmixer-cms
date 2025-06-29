@@ -21,14 +21,14 @@ export const UPDATE_EPISODE = gql(`
             key
             type
             mimeType
-        fileSize {
-            label
-            raw
-        }
-        urls {
-            medium
-            square
-        }
+            fileSize {
+                label
+                raw
+            }
+            urls {
+                medium
+                square
+            }
         }
         show {
             id

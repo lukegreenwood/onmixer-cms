@@ -12,12 +12,18 @@ export const UPDATE_SHOW = gql(`
         hidden
         extraData
         featuredImage {
-          id
-          key
-          urls {
-            medium
-            square
-          }
+            id
+            key
+            type
+            mimeType
+            fileSize {
+                label
+                raw
+            }
+            urls {
+                medium
+                square
+            }
         }
         networks {
           id
