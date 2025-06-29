@@ -14,10 +14,7 @@ export const GET_MEDIA = gql(`
       urls {
         medium
         square
-        original
       }
-      createdAt
-      updatedAt
     }
   }
 `);
@@ -38,9 +35,7 @@ export const SEARCH_MEDIA = gql(`
         urls {
           medium
           square
-          original
         }
-        createdAt
       }
     }
   }

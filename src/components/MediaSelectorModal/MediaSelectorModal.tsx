@@ -13,30 +13,14 @@ import {
   OptionFilterOperator,
   MediaTextFilterField,
   TextFilterOperator,
+  SearchMediaQuery,
 } from '@/graphql/__generated__/graphql';
 import { SEARCH_MEDIA } from '@/graphql/queries';
-
-export interface MediaItem {
-  id: string;
-  key: string;
-  type: MediaType;
-  mimeType: string;
-  fileSize?: {
-    label: string;
-    raw: number;
-  } | null;
-  urls: {
-    medium: string;
-    square: string;
-    original: string;
-  };
-  createdAt: string;
-}
 
 export interface MediaSelectorModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSelect: (media: MediaItem) => void;
+  onSelect: (media: SearchMediaQuery['mediaList']['items'][number]) => void;
   type: MediaType;
   title?: string;
   searchPlaceholder?: string;
@@ -94,7 +78,7 @@ export const MediaSelectorModal = ({
   });
 
   const handleMediaSelect = useCallback(
-    (media: MediaItem) => {
+    (media: SearchMediaQuery['mediaList']['items'][number]) => {
       onSelect(media);
       onOpenChange(false);
     },

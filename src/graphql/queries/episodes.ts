@@ -81,6 +81,12 @@ export const GET_EPISODE = gql(`
       featuredImage {
         id
         key
+        type
+        mimeType
+        fileSize {
+          label
+          raw
+        }
         urls {
           medium
           square

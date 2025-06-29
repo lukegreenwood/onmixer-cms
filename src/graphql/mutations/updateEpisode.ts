@@ -8,8 +8,8 @@ export const UPDATE_EPISODE = gql(`
         name
         description
         duration {
-          formatted
-          raw
+            formatted
+            raw
         }
         extraData
         shortId
@@ -17,30 +17,35 @@ export const UPDATE_EPISODE = gql(`
         updatedAt
         url
         featuredImage {
-          id
-          key
-          urls {
+            id
+            key
+            type
+            mimeType
+        fileSize {
+            label
+            raw
+        }
+        urls {
             medium
             square
-          }
+        }
         }
         show {
-          id
-          shortName
-          fullName
+            id
+            shortName
         }
         series {
-          id
-          fullName
+            id
+            shortName
         }
         presenters {
-          id
-          name
+            id
+            name
         }
         networks {
-          id
-          name
-          logoSvgIcon
+            id
+            name
+            logoSvgIcon
         }
       }
     }
