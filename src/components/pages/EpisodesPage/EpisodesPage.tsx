@@ -24,7 +24,7 @@ export const EpisodesPage = () => {
                   More options
                 </Button>
               </DropdownMenu.Trigger>
-              <DropdownMenu.Content align="end">
+              <DropdownMenu.Content align="end" style={{ zIndex: 5 }}>
                 <DropdownMenu.Item>Export episodes</DropdownMenu.Item>
                 <DropdownMenu.Item>Import episodes</DropdownMenu.Item>
                 <DropdownMenu.Item>Bulk actions</DropdownMenu.Item>

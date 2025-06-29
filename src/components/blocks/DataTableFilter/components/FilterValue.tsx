@@ -16,6 +16,7 @@ import { useDebouncer } from '@tanstack/react-pacer';
 import clsx from 'clsx';
 import { isEqual } from 'date-fns';
 import { format } from 'date-fns';
+import uniqBy from 'lodash/uniqBy';
 import {
   cloneElement,
   isValidElement,
@@ -29,7 +30,7 @@ import {
 import { EllipsisIcon } from '@/components/icons';
 
 import { numberFilterOperators } from '../core/operators';
-import { take } from '../lib/array';
+import { take, uniq } from '../lib/array';
 import { createNumberRange } from '../lib/helpers';
 import { type Locale, t } from '../lib/i18n';
 import {
@@ -73,7 +74,13 @@ function FilterValueInternal<TData, TType extends ColumnDataType>({
   locale,
 }: FilterValueProps<TData, TType>) {
   return (
-    <Popover>
+    <Popover
+      onOpenChange={(open) => {
+        if (!open) {
+          column.onOptionSearch?.('');
+        }
+      }}
+    >
       <Popover.Anchor className="height-full" />
       <Popover.Trigger asChild>
         <Button
@@ -645,13 +652,19 @@ export function FilterValueMultiOptionController<TData>({
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    setOptions(
-      column.getOptions().map((o) => ({
-        ...o,
-        selected: filter?.values.includes(o.value),
-        initialSelected: filter?.values.includes(o.value),
-        count: 0,
-      })),
+    setOptions((prev) =>
+      uniqBy(
+        [
+          ...prev.filter((o) => o.selected), // Keep selected options
+          ...column.getOptions().map((o) => ({
+            ...o,
+            selected: filter?.values.includes(o.value),
+            initialSelected: filter?.values.includes(o.value),
+            count: 0,
+          })),
+        ],
+        (item) => item.value,
+      ),
     );
   }, [column.getOptions()]);
 
@@ -711,9 +724,9 @@ export function FilterValueMultiOptionController<TData>({
       />
       <CommandEmpty>
         {isLoading ? (
-          <div className="flex items-center gap-2">
+          <div className="flex flex--column flex--align-center">
             <Loading size="xs" />
-            Loading...
+            <p>Loading...</p>
           </div>
         ) : (
           t('noresults', locale)
