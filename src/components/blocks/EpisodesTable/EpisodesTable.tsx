@@ -273,7 +273,6 @@ export const EpisodesTable = () => {
     refetch: refetchPresenters,
     loading: presentersLoading,
   } = useQuery(GET_PRESENTERS, {
-    notifyOnNetworkStatusChange: true,
     variables: {
       filters: {
         limit: 20,
