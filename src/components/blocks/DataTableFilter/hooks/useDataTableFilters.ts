@@ -47,6 +47,10 @@ export interface DataTableFiltersOptions<
     | Record<OptionColumnIds<TColumns>, Map<string, number> | undefined>
     | Record<NumberColumnIds<TColumns>, [number, number] | undefined>
   >;
+  onOptionSearch?: Partial<
+    Record<OptionColumnIds<TColumns>, (searchTerm: string) => void>
+  >;
+  optionsLoading?: Partial<Record<OptionColumnIds<TColumns>, boolean>>;
 }
 
 export function useDataTableFilters<
@@ -62,6 +66,8 @@ export function useDataTableFilters<
   onFiltersChange,
   options,
   faceted,
+  onOptionSearch,
+  optionsLoading,
 }: DataTableFiltersOptions<TData, TColumns, TStrategy>) {
   const [internalFilters, setInternalFilters] = useState<FiltersState>(
     defaultFilters ?? [],
@@ -120,11 +126,42 @@ export function useDataTableFilters<
         };
       }
 
+      // Set onOptionSearch, if exists
+      if (
+        onOptionSearch &&
+        (config.type === 'option' || config.type === 'multiOption')
+      ) {
+        const searchHandler =
+          onOptionSearch[config.id as OptionColumnIds<TColumns>];
+        if (searchHandler) {
+          final = { ...final, onOptionSearch: searchHandler };
+        }
+      }
+
+      // Set optionsLoading, if exists
+      if (
+        optionsLoading &&
+        (config.type === 'option' || config.type === 'multiOption')
+      ) {
+        const loading = optionsLoading[config.id as OptionColumnIds<TColumns>];
+        if (loading !== undefined) {
+          final = { ...final, optionsLoading: loading };
+        }
+      }
+
       return final;
     });
 
     return createColumns(data, enhancedConfigs, strategy);
-  }, [data, columnsConfig, options, faceted, strategy]);
+  }, [
+    data,
+    columnsConfig,
+    options,
+    faceted,
+    strategy,
+    onOptionSearch,
+    optionsLoading,
+  ]);
 
   const actions: DataTableFilterActions = useMemo(
     () => ({
@@ -351,5 +388,10 @@ export function useDataTableFilters<
     [setFilters],
   );
 
-  return { columns, filters, actions, strategy }; // columns is Column<TData>[]
+  return {
+    columns,
+    filters,
+    actions,
+    strategy,
+  }; // columns is Column<TData>[]
 }

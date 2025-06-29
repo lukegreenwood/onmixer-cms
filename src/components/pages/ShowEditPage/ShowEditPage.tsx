@@ -64,8 +64,6 @@ export const ShowEditPage = ({ id }: ShowEditPageProps) => {
     refetchQueries: [{ query: GET_SHOW, variables: { id } }],
   });
 
-  console.log('show edit page data', data);
-
   if (!data?.show) {
     return (
       <div className="page-content">

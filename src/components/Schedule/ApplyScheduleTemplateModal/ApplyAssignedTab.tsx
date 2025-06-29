@@ -173,7 +173,7 @@ export const ApplyAssignedTab = ({
 
   const handleInvalid = (errors: FieldErrors<z.infer<typeof schema>>) => {
     toast('There were issues applying the schedule template', 'error');
-    console.log(errors);
+    console.error(errors);
   };
 
   const handleCancel = () => {

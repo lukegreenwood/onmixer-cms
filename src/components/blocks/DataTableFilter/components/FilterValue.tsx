@@ -6,6 +6,7 @@ import {
   Button,
   Calendar,
   Checkbox,
+  Loading,
   Popover,
   RadioGroup,
   Slider,
@@ -529,6 +530,7 @@ export function FilterValueOptionController<TData>({
   }, []);
 
   const [options, setOptions] = useState(initialOptions);
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Update selected state when filter values change
   useEffect(() => {
@@ -545,6 +547,19 @@ export function FilterValueOptionController<TData>({
     [actions, column],
   );
 
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      setSearchTerm(value);
+      if (
+        column.onOptionSearch &&
+        typeof column.onOptionSearch === 'function'
+      ) {
+        column.onOptionSearch(value);
+      }
+    },
+    [column],
+  );
+
   // Derive groups based on `initialSelected` only
   const { selectedOptions, unselectedOptions } = useMemo(() => {
     const sel: typeof options = [];
@@ -556,10 +571,27 @@ export function FilterValueOptionController<TData>({
     return { selectedOptions: sel, unselectedOptions: unsel };
   }, [options]);
 
+  const isLoading =
+    typeof column.optionsLoading === 'boolean' ? column.optionsLoading : false;
+
   return (
     <Command loop>
-      <CommandInput autoFocus placeholder={t('search', locale)} />
-      <CommandEmpty>{t('noresults', locale)}</CommandEmpty>
+      <CommandInput
+        autoFocus
+        placeholder={t('search', locale)}
+        value={searchTerm}
+        onValueChange={handleSearchChange}
+      />
+      <CommandEmpty>
+        {isLoading ? (
+          <div className="flex items-center gap-2">
+            <Loading size="xs" />
+            Loading...
+          </div>
+        ) : (
+          t('noresults', locale)
+        )}
+      </CommandEmpty>
       <CommandList className="max-h-fit">
         <CommandGroup
           className={clsx(selectedOptions.length === 0 && 'hidden')}
@@ -610,6 +642,18 @@ export function FilterValueMultiOptionController<TData>({
   }, []);
 
   const [options, setOptions] = useState(initialOptions);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    setOptions(
+      column.getOptions().map((o) => ({
+        ...o,
+        selected: filter?.values.includes(o.value),
+        initialSelected: filter?.values.includes(o.value),
+        count: 0,
+      })),
+    );
+  }, [column.getOptions()]);
 
   // Update selected state when filter values change
   useEffect(() => {
@@ -626,6 +670,19 @@ export function FilterValueMultiOptionController<TData>({
     [actions, column],
   );
 
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      setSearchTerm(value);
+      if (
+        column.onOptionSearch &&
+        typeof column.onOptionSearch === 'function'
+      ) {
+        column.onOptionSearch(value);
+      }
+    },
+    [column],
+  );
+
   // Derive groups based on `initialSelected` only
   const { selectedOptions, unselectedOptions } = useMemo(() => {
     const sel: typeof options = [];
@@ -637,10 +694,31 @@ export function FilterValueMultiOptionController<TData>({
     return { selectedOptions: sel, unselectedOptions: unsel };
   }, [options]);
 
+  const isLoading =
+    typeof column.optionsLoading === 'boolean' ? column.optionsLoading : false;
+
+  const shouldFilter = useMemo(() => {
+    return !column.onOptionSearch;
+  }, [column.onOptionSearch]);
+
   return (
-    <Command loop>
-      <CommandInput autoFocus placeholder={t('search', locale)} />
-      <CommandEmpty>{t('noresults', locale)}</CommandEmpty>
+    <Command loop shouldFilter={shouldFilter}>
+      <CommandInput
+        autoFocus
+        placeholder={t('search', locale)}
+        value={searchTerm}
+        onValueChange={handleSearchChange}
+      />
+      <CommandEmpty>
+        {isLoading ? (
+          <div className="flex items-center gap-2">
+            <Loading size="xs" />
+            Loading...
+          </div>
+        ) : (
+          t('noresults', locale)
+        )}
+      </CommandEmpty>
       <CommandList>
         <CommandGroup
           className={clsx(selectedOptions.length === 0 && 'hidden')}

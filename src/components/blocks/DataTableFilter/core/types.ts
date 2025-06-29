@@ -123,6 +123,10 @@ export type ColumnConfig<
     ? TTransformOptionFn<TVal>
     : never;
   orderFn?: TType extends OptionBasedColumnDataType ? TOrderFn<TVal> : never;
+  onOptionSearch?: TType extends OptionBasedColumnDataType
+    ? (searchTerm: string) => void
+    : never;
+  optionsLoading?: TType extends OptionBasedColumnDataType ? boolean : never;
 };
 
 export type OptionColumnId<T> = T extends ColumnConfig<

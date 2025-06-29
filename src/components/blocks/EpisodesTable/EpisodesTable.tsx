@@ -1,26 +1,14 @@
 'use client';
 
-import { useSuspenseQuery } from '@apollo/client';
-import {
-  Alert,
-  Badge,
-  Checkbox,
-  CheckIcon,
-  Tooltip,
-} from '@soundwaves/components';
+import { useQuery, useSuspenseQuery } from '@apollo/client';
+import { Alert, Badge, Checkbox, Tooltip } from '@soundwaves/components';
+import { useDebouncer } from '@tanstack/react-pacer';
 import { createColumnHelper } from '@tanstack/react-table';
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 
-import {
-  NetworksIcon,
-  PresentersIcon,
-  ShowsIcon,
-  SeriesIcon,
-  EpisodesIcon,
-  BroadcastsIcon,
-} from '@/components/icons';
+import { Copyable, DataTable } from '@/components';
 import {
   GetNetworksQuery,
   GetPresentersQuery,
@@ -28,38 +16,32 @@ import {
   PresenterOrderField,
   SearchEpisodesV2Query,
   EpisodeOrderField,
+  OperatorType,
+  PresenterFilterType,
+  PresenterTextFilterField,
+  TextFilterOperator,
 } from '@/graphql/__generated__/graphql';
 import {
   GET_NETWORKS,
   GET_PRESENTERS,
   SEARCH_EPISODES_V2,
 } from '@/graphql/queries';
+import {
+  NetworksIcon,
+  PresentersIcon,
+  ShowsIcon,
+  SeriesIcon,
+  EpisodesIcon,
+  BroadcastsIcon,
+} from '@/icons';
 
-import { DataTable } from '../DataTable';
-import { DataTableFilter, useDataTableFilters } from '../DataTableFilter';
-import { createColumnConfigHelper } from '../DataTableFilter/core/filters';
-import { FiltersState } from '../DataTableFilter/core/types';
+import {
+  createColumnConfigHelper,
+  DataTableFilter,
+  FiltersState,
+  useDataTableFilters,
+} from '../DataTableFilter';
 import { Pagination } from '../Pagination';
-
-const CopyBadge = ({ value }: { value: string }) => {
-  const [isCopied, setIsCopied] = useState(false);
-  return (
-    <Badge
-      stroke
-      color="gray"
-      size="sm"
-      onClick={(event) => {
-        event.stopPropagation();
-        navigator.clipboard.writeText(value);
-        setIsCopied(true);
-        setTimeout(() => setIsCopied(false), 1000);
-      }}
-      after={isCopied ? <CheckIcon width={14} height={14} /> : undefined}
-    >
-      {value}
-    </Badge>
-  );
-};
 
 const columnHelper =
   createColumnHelper<SearchEpisodesV2Query['episodesV2']['items'][number]>();
@@ -110,7 +92,13 @@ const tableColumns = [
   }),
   columnHelper.accessor('shortId', {
     header: 'Short ID',
-    cell: (props) => <CopyBadge value={props.getValue()} />,
+    cell: (props) => (
+      <Copyable value={props.getValue()}>
+        <Badge color="gray" size="sm">
+          {props.getValue()}
+        </Badge>
+      </Copyable>
+    ),
   }),
   columnHelper.accessor('show', {
     header: 'Show',
@@ -164,7 +152,11 @@ const tableColumns = [
     header: 'Created',
     cell: (props) => (
       <Tooltip content={new Date(props.getValue()).toISOString()}>
-        {new Date(props.getValue()).toLocaleDateString()}
+        {new Date(props.getValue()).toLocaleDateString('en-GB', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+        })}
       </Tooltip>
     ),
   }),
@@ -218,9 +210,9 @@ const columnsConfig = [
     .icon(NetworksIcon)
     .build(),
   columnConfigHelper
-    .multiOption()
+    .option()
     .id('series')
-    .accessor((row) => (row.series ? [row.series.id] : []))
+    .accessor((row) => (row.series ? row.series.id : null))
     .displayName('Series')
     .icon(SeriesIcon)
     .build(),
@@ -276,10 +268,15 @@ export const EpisodesTable = () => {
   });
 
   const { data: networks } = useSuspenseQuery(GET_NETWORKS);
-  const { data: presenters } = useSuspenseQuery(GET_PRESENTERS, {
+  const {
+    data: presenters,
+    refetch: refetchPresenters,
+    loading: presentersLoading,
+  } = useQuery(GET_PRESENTERS, {
+    notifyOnNetworkStatusChange: true,
     variables: {
       filters: {
-        limit: 100,
+        limit: 20,
         order: [
           {
             field: PresenterOrderField.Id,
@@ -299,6 +296,31 @@ export const EpisodesTable = () => {
     }
   };
 
+  const handlePresenterSearch = (searchTerm: string) => {
+    refetchPresenters({
+      filters: {
+        limit: 20,
+        filterGroup: {
+          operator: OperatorType.And,
+          filters: [
+            {
+              type: PresenterFilterType.Text,
+              textFilter: {
+                value: searchTerm,
+                field: PresenterTextFilterField.Name,
+                operator: TextFilterOperator.Contains,
+              },
+            },
+          ],
+        },
+      },
+    });
+  };
+
+  const debouncedHandlePresenterSearch = useDebouncer(handlePresenterSearch, {
+    wait: 500,
+  });
+
   const { filters, columns, actions, strategy } = useDataTableFilters({
     strategy: 'client',
     data: data.episodesV2.items,
@@ -306,8 +328,30 @@ export const EpisodesTable = () => {
     onFiltersChange: handleFiltersChange,
     columnsConfig,
     options: {
-      presenters: makeOptions(presenters.presentersV2.items),
+      presenters: makeOptions(presenters?.presentersV2.items ?? []),
       networks: makeOptions(networks.networks),
+      shows: [], //makeOptions(data.shows.items),
+      series: [], //makeOptions(data.series.items),
+    },
+    onOptionSearch: {
+      presenters: (searchTerm: string) => {
+        debouncedHandlePresenterSearch.maybeExecute(searchTerm);
+      },
+      shows: (searchTerm: string) => {
+        console.log('Searching shows:', searchTerm);
+        // Here you would implement external API search
+        // e.g., refetch shows data with search term
+      },
+      series: (searchTerm: string) => {
+        console.log('Searching series:', searchTerm);
+        // Here you would implement external API search
+        // e.g., refetch series data with search term
+      },
+    },
+    optionsLoading: {
+      presenters: presentersLoading,
+      shows: false, // Set to true when loading
+      series: false, // Set to true when loading
     },
   });
 

@@ -81,7 +81,11 @@ function FilterSelectorInternal<TData>({
   }, [property]);
 
   useEffect(() => {
-    if (!open) setTimeout(() => setValue(''), 150);
+    if (!open)
+      setTimeout(() => {
+        setValue('');
+        column?.onOptionSearch?.('');
+      }, 150);
   }, [open]);
 
   const content = useMemo(
