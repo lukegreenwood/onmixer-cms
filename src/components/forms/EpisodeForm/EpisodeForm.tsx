@@ -10,45 +10,68 @@ import { EntityEditForm } from '@/components/blocks/EntityEditForm';
 import { DynamicForm } from '@/components/DynamicForm/DynamicForm';
 import { GetEpisodeQuery, MediaType } from '@/graphql/__generated__/graphql';
 
-// Define the schema for episode form
-const episodeFormSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  description: z.string().min(1, 'Description is required'),
-  duration: z.string().optional(),
-  extraData: z.string().optional(),
-  show: z
-    .object({
-      id: z.string(),
-      name: z.string(),
-    })
-    .refine((val) => val.id !== '', 'Show is required'),
-  series: z
-    .object({
-      id: z.string(),
-      name: z.string(),
-    })
-    .optional(),
-  presenters: z
-    .array(
-      z.object({
+// Define the base schema for episode form
+const createEpisodeFormSchema = (isEditing: boolean = false) =>
+  z.object({
+    name: z.string().min(1, 'Name is required'),
+    description: isEditing
+      ? z.string().min(1, 'Description is required')
+      : z.string().optional(),
+    duration: z.string().optional(),
+    extraData: z.string().optional(),
+    show: z
+      .object({
         id: z.string(),
         name: z.string(),
-      }),
-    )
-    .min(1, 'At least one presenter is required'),
-  networkIds: z.array(z.string()).min(1, 'At least one network is required'),
-  mediaId: z.string().min(1, 'Featured image is required'),
-});
+      })
+      .refine((val) => val.id !== '', 'Show is required'),
+    series: z
+      .object({
+        id: z.string(),
+        name: z.string(),
+      })
+      .optional(),
+    presenters: isEditing
+      ? z
+          .array(
+            z.object({
+              id: z.string(),
+              name: z.string(),
+            }),
+          )
+          .min(1, 'At least one presenter is required')
+      : z
+          .array(
+            z.object({
+              id: z.string(),
+              name: z.string(),
+            }),
+          )
+          .optional(),
+    networkIds: isEditing
+      ? z.array(z.string()).min(1, 'At least one network is required')
+      : z.array(z.string()).optional(),
+    mediaId: isEditing
+      ? z.string().min(1, 'Featured image is required')
+      : z.string().optional(),
+  });
 
-export type EpisodeFormData = z.infer<typeof episodeFormSchema>;
+export type EpisodeFormData = z.infer<
+  ReturnType<typeof createEpisodeFormSchema>
+>;
 
 export interface EpisodeFormProps {
   episodeData?: GetEpisodeQuery['episode'];
   onSubmit?: (data: EpisodeFormData) => void;
   className?: string;
+  isEditing?: boolean;
 }
 
-export const EpisodeForm = ({ episodeData, onSubmit }: EpisodeFormProps) => {
+export const EpisodeForm = ({
+  episodeData,
+  onSubmit,
+  isEditing = true,
+}: EpisodeFormProps) => {
   // Transform the GraphQL data to match the form structure when available
   const formData: EpisodeFormData | undefined = episodeData
     ? {
@@ -89,6 +112,8 @@ export const EpisodeForm = ({ episodeData, onSubmit }: EpisodeFormProps) => {
     networkIds: [],
     mediaId: '',
   };
+
+  const episodeFormSchema = createEpisodeFormSchema(isEditing);
 
   const methods = useForm<EpisodeFormData>({
     resolver: zodResolver(episodeFormSchema),

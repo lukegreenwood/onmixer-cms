@@ -108,6 +108,7 @@ interface NetworkSelectorFieldConfig<T extends FieldValues>
   component: 'networkSelector';
   placeholder?: string;
   className?: string;
+  multiple?: boolean; // If true, renders MultiSelect; if false/undefined, renders Autocomplete
 }
 
 interface ShowSelectorFieldConfig<T extends FieldValues> extends BaseField<T> {
@@ -207,13 +208,14 @@ export const DynamicForm = <T extends FieldValues>({
         );
       }
       case 'networkSelector': {
-        const { ...rest } = field;
+        const { multiple, ...rest } = field;
         return (
           <NetworkSelectorField
             {...rest}
             key={name}
             name={name}
             label={label}
+            multiple={multiple}
           />
         );
       }

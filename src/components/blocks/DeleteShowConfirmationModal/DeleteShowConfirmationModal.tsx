@@ -37,33 +37,32 @@ export const DeleteShowConfirmationModal = ({
           <WarningIcon />
           <Dialog.Title>Final Confirmation</Dialog.Title>
         </div>
-        <Dialog.Description>
-          <div className="delete-show-confirmation-modal__content">
-            <p>
-              You are about to permanently delete the show{' '}
-              <strong>&ldquo;{showName}&rdquo;</strong>.
-            </p>
-            <div className="delete-show-confirmation-modal__warning">
-              <WarningIcon />
-              <div>
-                <p>
-                  <strong>
-                    This action will also delete {totalEpisodes} associated
-                    episodes.
-                  </strong>
-                </p>
-                <p>
-                  All episode data, including audio files, metadata, and
-                  scheduling information will be permanently removed.
-                </p>
-              </div>
+
+        <div className="delete-show-confirmation-modal__content">
+          <p>
+            You are about to permanently delete the show{' '}
+            <strong>&ldquo;{showName}&rdquo;</strong>.
+          </p>
+          <div className="delete-show-confirmation-modal__warning">
+            <WarningIcon />
+            <div>
+              <p>
+                <strong>
+                  This action will also delete {totalEpisodes} associated
+                  episodes.
+                </strong>
+              </p>
+              <p>
+                All episode data, including scheduling information will be
+                permanently removed.
+              </p>
             </div>
-            <p>
-              This action cannot be undone. Are you absolutely sure you want to
-              continue?
-            </p>
           </div>
-        </Dialog.Description>
+          <p>
+            This action cannot be undone. Are you absolutely sure you want to
+            continue?
+          </p>
+        </div>
         <div className="delete-show-confirmation-modal__actions">
           <Button
             variant="tertiary"

@@ -21,7 +21,7 @@ import {
   TextFilterOperator,
 } from '@/graphql/__generated__/graphql';
 import { GET_NETWORKS, SEARCH_SERIES, SEARCH_SHOWS } from '@/graphql/queries';
-import { useNetwork } from '@/hooks';
+import { useNavigation, useNetwork } from '@/hooks';
 import { convertFiltersStateToSeriesGraphQL } from '@/utils/filtersToGraphql';
 
 import { DataTable } from '../DataTable';
@@ -148,6 +148,7 @@ const SERIES_PER_PAGE = 30;
 
 export const SeriesTable = () => {
   const { currentNetwork } = useNetwork();
+  const { getNetworkRoutePath } = useNavigation();
   const router = useRouter();
   const searchParams = useSearchParams();
   const page = Number(searchParams.get('page') ?? '1');
@@ -274,8 +275,7 @@ export const SeriesTable = () => {
   const handleRowClick = (
     row: SearchSeriesQuery['seriesListV2']['items'][number],
   ) => {
-    // Navigate to series detail or edit page when implemented
-    console.log('Series clicked:', row.id);
+    router.push(getNetworkRoutePath('seriesEdit', [row.id]));
   };
 
   if (error) {

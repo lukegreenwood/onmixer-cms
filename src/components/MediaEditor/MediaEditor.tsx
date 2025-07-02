@@ -13,11 +13,12 @@ import { useState, useCallback, forwardRef } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { toast } from 'sonner';
 
+import { MediaSelectorModal } from '@/components/MediaSelectorModal';
 import {
-  MediaSelectorModal,
-  type MediaItem,
-} from '@/components/MediaSelectorModal';
-import { MediaType, DeleteMediaInput } from '@/graphql/__generated__/graphql';
+  MediaType,
+  DeleteMediaInput,
+  SearchMediaQuery,
+} from '@/graphql/__generated__/graphql';
 import { DELETE_MEDIA } from '@/graphql/mutations';
 import { GET_MEDIA } from '@/graphql/queries';
 import { formatMediaType } from '@/utils';
@@ -117,7 +118,7 @@ export const MediaEditor = forwardRef<HTMLDivElement, MediaEditorProps>(
     }, [value, deleteMedia]);
 
     const handleMediaSelect = useCallback(
-      (media: MediaItem) => {
+      (media: SearchMediaQuery['mediaList']['items'][number]) => {
         onChange?.(media.id);
       },
       [onChange],

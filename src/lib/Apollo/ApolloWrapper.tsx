@@ -9,8 +9,6 @@ import {
 } from '@apollo/client-integration-nextjs';
 import { setVerbosity } from 'ts-invariant';
 
-import { toast } from '../toast';
-
 setVerbosity('debug');
 
 const errorLink = onError(({ graphQLErrors, networkError }) => {
@@ -19,7 +17,6 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
       console.error(
         `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
       );
-      toast(message, 'error');
     });
   if (networkError) console.error(`[Network error]: ${networkError}`);
 });

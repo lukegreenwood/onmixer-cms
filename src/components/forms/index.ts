@@ -1,4 +1,8 @@
 export { EpisodeForm } from './EpisodeForm';
 export type { EpisodeFormData, EpisodeFormProps } from './EpisodeForm';
+export { PresenterForm } from './PresenterForm';
+export type { PresenterFormData } from './PresenterForm';
+export { SeriesForm } from './SeriesForm';
+export type { SeriesFormData } from './SeriesForm';
 export { ShowForm } from './ShowForm';
 export type { ShowFormData, ShowFormProps } from './ShowForm';

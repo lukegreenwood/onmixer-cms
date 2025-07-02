@@ -8,6 +8,12 @@ export const GET_PRESENTERS = gql(`
                 id
                 name
                 picture
+                hidden
+                networks {
+                    id
+                    name
+                    logoSvgIcon
+                }
             }
 		}
 	}

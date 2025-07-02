@@ -13,20 +13,7 @@ export const EpisodeCreatePage = () => {
   const { getNetworkRoutePath } = useNavigation();
   const router = useRouter();
 
-  const [createEpisode, { loading: isCreating }] = useMutation(CREATE_EPISODE, {
-    onCompleted: (data) => {
-      if (data.createEpisode.episode) {
-        toast('Episode created successfully', 'success');
-        router.push(
-          getNetworkRoutePath('episodesEdit', [data.createEpisode.episode.id]),
-        );
-      }
-    },
-    onError: (error) => {
-      toast(`Error creating episode: ${error.message}`, 'error');
-    },
-    refetchQueries: [SEARCH_EPISODES_V2],
-  });
+  const [createEpisode, { loading: isCreating }] = useMutation(CREATE_EPISODE);
 
   const handleFormSubmit = (formData: EpisodeFormData) => {
     if (isCreating) return;
@@ -48,6 +35,20 @@ export const EpisodeCreatePage = () => {
       variables: {
         input: createInput,
       },
+      onCompleted: (data) => {
+        if (data.createEpisode.episode) {
+          toast('Episode created successfully', 'success');
+          router.push(
+            getNetworkRoutePath('episodesEdit', [
+              data.createEpisode.episode.id,
+            ]),
+          );
+        }
+      },
+      onError: (error) => {
+        toast(`Error creating episode: ${error.message}`, 'error');
+      },
+      refetchQueries: [SEARCH_EPISODES_V2],
     });
   };
 
@@ -58,7 +59,7 @@ export const EpisodeCreatePage = () => {
         backTo={getNetworkRoutePath('episodes')}
       />
       <div className="page-content">
-        <EpisodeForm onSubmit={handleFormSubmit} />
+        <EpisodeForm onSubmit={handleFormSubmit} isEditing={false} />
       </div>
     </>
   );

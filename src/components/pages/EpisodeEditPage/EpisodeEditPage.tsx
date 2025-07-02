@@ -86,7 +86,7 @@ export const EpisodeEditPage = ({ id }: EpisodeEditPageProps) => {
       series: formData.series?.id || undefined,
       featuredImage: formData.mediaId,
       networks: formData.networkIds,
-      presenters: formData.presenters.map((p) => p.id),
+      presenters: formData.presenters?.map((p) => p.id),
     };
 
     updateEpisode({
@@ -126,10 +126,10 @@ export const EpisodeEditPage = ({ id }: EpisodeEditPageProps) => {
         actions={
           <>
             <DeleteConfirmationPopover
-              entityName={data.episode?.name || ''}
               entityType="Episode"
               onConfirm={handleDeleteConfirm}
               disabled={isDeleting || isUpdating}
+              entityNameConfirmation={false}
             >
               <Button
                 variant="tertiary"

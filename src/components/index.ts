@@ -10,7 +10,6 @@ export { MediaEditor, type MediaEditorProps } from './MediaEditor';
 export {
   MediaSelectorModal,
   type MediaSelectorModalProps,
-  type MediaItem,
 } from './MediaSelectorModal';
 export { Copyable } from './Copyable/Copyable';
 

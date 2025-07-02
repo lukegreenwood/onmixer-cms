@@ -1,3 +1,5 @@
-export default function PresentersPage() {
-  return <div>Presenters</div>;
+import { PresentersPage } from '@/components';
+
+export default function PresentersPageRoot() {
+  return <PresentersPage />;
 }

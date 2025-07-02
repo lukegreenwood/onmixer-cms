@@ -8,11 +8,13 @@ export {
   type FiltersState,
 } from './DataTableFilter';
 export { DeleteConfirmationPopover } from './DeleteConfirmationPopover';
+export { DeletePresenterConfirmationModal } from './DeletePresenterConfirmationModal';
 export { DeleteShowConfirmationModal } from './DeleteShowConfirmationModal';
 export { Drawer } from './Drawer';
 export { EntityEditForm } from './EntityEditForm';
 export { EpisodesTable } from './EpisodesTable';
 export { PageHeader } from './PageHeader';
 export { Pagination } from './Pagination';
+export { PresentersTable } from './PresentersTable';
 export { SeriesTable } from './SeriesTable/SeriesTable';
 export { ShowsTable } from './ShowsTable/ShowsTable';

@@ -5,13 +5,23 @@ import { useState } from 'react';
 
 import { WarningIcon } from '@/components/icons';
 
-interface DeleteConfirmationPopoverProps {
+interface DeleteConfirmationPopoverPropsNameConfirmation {
   children: React.ReactNode;
   entityName: string;
   entityType: string;
   onConfirm: () => void;
   disabled?: boolean;
+  entityNameConfirmation?: true;
 }
+
+type DeleteConfirmationPopoverPropsNoNameConfirmation = {
+  children: React.ReactNode;
+  entityName?: never;
+  entityType: string;
+  onConfirm: () => void;
+  disabled?: boolean;
+  entityNameConfirmation: false;
+};
 
 export const DeleteConfirmationPopover = ({
   children,
@@ -19,12 +29,17 @@ export const DeleteConfirmationPopover = ({
   entityType,
   onConfirm,
   disabled = false,
-}: DeleteConfirmationPopoverProps) => {
+  entityNameConfirmation = true,
+}:
+  | DeleteConfirmationPopoverPropsNameConfirmation
+  | DeleteConfirmationPopoverPropsNoNameConfirmation) => {
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
 
-  const isMatch = inputValue.trim() === entityName.trim();
+  const isMatch = entityNameConfirmation
+    ? inputValue.trim() === entityName?.trim()
+    : true;
 
   const handleConfirm = () => {
     if (isMatch) {
@@ -63,23 +78,30 @@ export const DeleteConfirmationPopover = ({
             <h3>Delete {entityType}</h3>
           </div>
           <p className="delete-confirmation-popover__description">
-            This action cannot be undone. To confirm, type the{' '}
-            {entityType.toLowerCase()} name &quot;
-            <strong>{entityName}</strong>&quot; exactly as it appears:
+            This action cannot be undone.{' '}
+            {entityNameConfirmation
+              ? 'To confirm, type the ' +
+                entityType.toLowerCase() +
+                ' name &quot;' +
+                entityName +
+                '&quot; exactly as it appears:'
+              : ''}
           </p>
-          <Input
-            placeholder={`Type ${entityType.toLowerCase()} name here...`}
-            value={inputValue}
-            onChange={(event) =>
-              handleInputChange((event.target as HTMLInputElement).value)
-            }
-            onKeyDown={(event) => {
-              if (event.key === 'Escape') {
-                handleCancel();
+          {entityNameConfirmation && (
+            <Input
+              placeholder={`Type ${entityType.toLowerCase()} name here...`}
+              value={inputValue}
+              onChange={(event) =>
+                handleInputChange((event.target as HTMLInputElement).value)
               }
-            }}
-            autoFocus
-          />
+              onKeyDown={(event) => {
+                if (event.key === 'Escape') {
+                  handleCancel();
+                }
+              }}
+              autoFocus
+            />
+          )}
           <div className="delete-confirmation-popover__actions">
             <Button variant="tertiary" size="sm" onClick={handleCancel}>
               Cancel
@@ -89,7 +111,9 @@ export const DeleteConfirmationPopover = ({
               size="sm"
               destructive
               onClick={handleConfirm}
-              disabled={!isMatch || disabled}
+              disabled={
+                entityNameConfirmation ? !isMatch || disabled : disabled
+              }
             >
               Continue
             </Button>

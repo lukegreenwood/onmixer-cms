@@ -1,2 +1,2 @@
 export { MediaSelectorModal } from './MediaSelectorModal';
-export type { MediaSelectorModalProps, MediaItem } from './MediaSelectorModal';
+export type { MediaSelectorModalProps } from './MediaSelectorModal';
