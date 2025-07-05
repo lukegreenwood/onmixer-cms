@@ -64,6 +64,13 @@ export enum CacheControlScope {
   Public = 'PUBLIC'
 }
 
+export type Category = {
+  __typename?: 'Category';
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  subcategories: Array<Subcategory>;
+};
+
 export type CreateDefaultScheduleInput = {
   name: Scalars['String']['input'];
   networks: Array<Scalars['ID']['input']>;
@@ -468,6 +475,63 @@ export enum FilterType {
   Equal = 'EQUAL',
   List = 'LIST',
   NotEqual = 'NOT_EQUAL'
+}
+
+export type Genre = {
+  __typename?: 'Genre';
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  tracks: Array<Track>;
+};
+
+export type History = {
+  __typename?: 'History';
+  album: Scalars['String']['output'];
+  artist: Scalars['String']['output'];
+  composer: Scalars['String']['output'];
+  copyright: Scalars['String']['output'];
+  datePlayed?: Maybe<Scalars['DateTime']['output']>;
+  discNo: Scalars['Int']['output'];
+  duration: TrackDuration;
+  genre: Genre;
+  id: Scalars['ID']['output'];
+  isrc: Scalars['String']['output'];
+  label: Scalars['String']['output'];
+  listeners?: Maybe<Scalars['Int']['output']>;
+  networks?: Maybe<Scalars['String']['output']>;
+  originalArtist: Scalars['String']['output'];
+  publisher: Scalars['String']['output'];
+  subcategory: Subcategory;
+  title: Scalars['String']['output'];
+  track: Track;
+  trackNo: Scalars['Int']['output'];
+  year: Scalars['String']['output'];
+};
+
+export type HistoryList = ItemList & {
+  __typename?: 'HistoryList';
+  items: Array<History>;
+  total: Scalars['Int']['output'];
+};
+
+export type HistoryListInput = {
+  from?: InputMaybe<Scalars['DateTime']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order?: InputMaybe<Array<HistoryOrder>>;
+  to?: InputMaybe<Scalars['DateTime']['input']>;
+};
+
+export type HistoryOrder = {
+  direction: OrderDirection;
+  field: HistoryOrderField;
+};
+
+export enum HistoryOrderField {
+  Artist = 'artist',
+  DatePlayed = 'datePlayed',
+  Id = 'id',
+  Title = 'title'
 }
 
 export type ItemList = {
@@ -1090,12 +1154,15 @@ export enum PresenterTextFilterField {
 
 export type Query = {
   __typename?: 'Query';
+  categories: Array<Category>;
   debug?: Maybe<Debug>;
   defaultSchedule?: Maybe<DefaultSchedule>;
   defaultSchedules: DefaultScheduleList;
   episode?: Maybe<Episode>;
   episodes: EpisodeList;
   episodesV2: EpisodeList;
+  genres: Array<Genre>;
+  history: HistoryList;
   /** ID or key of the media object */
   media: Media;
   mediaList: MediaList;
@@ -1115,6 +1182,8 @@ export type Query = {
   show?: Maybe<Show>;
   shows: ShowList;
   showsV2: ShowList;
+  track?: Maybe<Track>;
+  tracks: TrackList;
 };
 
 
@@ -1141,6 +1210,11 @@ export type QueryEpisodesArgs = {
 
 export type QueryEpisodesV2Args = {
   filters?: InputMaybe<EpisodeListInputV2>;
+};
+
+
+export type QueryHistoryArgs = {
+  filters?: InputMaybe<HistoryListInput>;
 };
 
 
@@ -1217,6 +1291,27 @@ export type QueryShowsArgs = {
 
 export type QueryShowsV2Args = {
   filters?: InputMaybe<ShowListInputV2>;
+};
+
+
+export type QueryTrackArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryTracksArgs = {
+  filters?: InputMaybe<TrackListInput>;
+};
+
+export type Request = {
+  __typename?: 'Request';
+  id: Scalars['ID']['output'];
+  message?: Maybe<Scalars['String']['output']>;
+  played: Scalars['Boolean']['output'];
+  requested: Scalars['DateTime']['output'];
+  track: Track;
+  userIp: Scalars['String']['output'];
+  username: Scalars['String']['output'];
 };
 
 export type ScheduleItem = {
@@ -1609,6 +1704,14 @@ export enum ShowTextFilterField {
   ShortName = 'shortName'
 }
 
+export type Subcategory = {
+  __typename?: 'Subcategory';
+  category: Category;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  tracks: Array<Track>;
+};
+
 export enum TextFilterOperator {
   Contains = 'CONTAINS',
   DoesNotContain = 'DOES_NOT_CONTAIN',
@@ -1618,6 +1721,92 @@ export enum TextFilterOperator {
   IsEmpty = 'IS_EMPTY',
   IsNotEmpty = 'IS_NOT_EMPTY',
   StartsWith = 'STARTS_WITH'
+}
+
+export type Track = {
+  __typename?: 'Track';
+  album: Scalars['String']['output'];
+  artist: Scalars['String']['output'];
+  associatedArtists: Scalars['String']['output'];
+  bpm: Scalars['Float']['output'];
+  buyLink: Scalars['String']['output'];
+  comments?: Maybe<Scalars['String']['output']>;
+  composer: Scalars['String']['output'];
+  copyright: Scalars['String']['output'];
+  countPlayed: Scalars['Int']['output'];
+  dateAdded?: Maybe<Scalars['DateTime']['output']>;
+  dateModified?: Maybe<Scalars['DateTime']['output']>;
+  datePlayed?: Maybe<Scalars['DateTime']['output']>;
+  discNo: Scalars['Int']['output'];
+  duration: TrackDuration;
+  enabled: Scalars['Boolean']['output'];
+  gender: Scalars['String']['output'];
+  genre?: Maybe<Genre>;
+  history: Array<History>;
+  id: Scalars['ID']['output'];
+  image: Scalars['String']['output'];
+  isrc: Scalars['String']['output'];
+  label: Scalars['String']['output'];
+  lang: Scalars['String']['output'];
+  metadata: Array<TrackMetadata>;
+  mood: Scalars['String']['output'];
+  originalArtist: Scalars['String']['output'];
+  path: Scalars['String']['output'];
+  publisher: Scalars['String']['output'];
+  rating: Scalars['Int']['output'];
+  requests: Array<Request>;
+  subcategory?: Maybe<Subcategory>;
+  title: Scalars['String']['output'];
+  trackNo: Scalars['Int']['output'];
+  url1: Scalars['String']['output'];
+  url2: Scalars['String']['output'];
+  uuid?: Maybe<Scalars['String']['output']>;
+  year: Scalars['String']['output'];
+};
+
+export type TrackDuration = {
+  __typename?: 'TrackDuration';
+  formatted: Scalars['String']['output'];
+  raw: Scalars['Float']['output'];
+};
+
+export type TrackList = ItemList & {
+  __typename?: 'TrackList';
+  items: Array<Track>;
+  total: Scalars['Int']['output'];
+};
+
+export type TrackListInput = {
+  categoryId?: InputMaybe<Scalars['ID']['input']>;
+  enabled?: InputMaybe<Scalars['Boolean']['input']>;
+  genreId?: InputMaybe<Scalars['ID']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order?: InputMaybe<Array<TrackOrder>>;
+  subcategoryId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+export type TrackMetadata = {
+  __typename?: 'TrackMetadata';
+  id: Scalars['ID']['output'];
+  key: Scalars['String']['output'];
+  value?: Maybe<Scalars['String']['output']>;
+};
+
+export type TrackOrder = {
+  direction: OrderDirection;
+  field: TrackOrderField;
+};
+
+export enum TrackOrderField {
+  Album = 'album',
+  Artist = 'artist',
+  CountPlayed = 'countPlayed',
+  DatePlayed = 'datePlayed',
+  Duration = 'duration',
+  Id = 'id',
+  Title = 'title',
+  Year = 'year'
 }
 
 export type UnassignDefaultScheduleFromNetworkInput = {
