@@ -271,4 +271,27 @@
     gap: mixins.spacing(3);
     align-items: center;
   }
+
+  &__filters {
+    margin-bottom: mixins.spacing(6);
+    padding: mixins.spacing(4);
+    background: palette.$gray-50;
+    border-radius: sizing.$radius-md;
+  }
+}
+
+.primary-secondary {
+  display: flex;
+  flex-direction: column;
+  gap: mixins.spacing(1);
+
+  &__primary {
+    @include text.text-sm-leading-5-font-medium;
+    color: palette.$gray-900;
+  }
+
+  &__secondary {
+    @include text.text-xs-leading-4-font-normal;
+    color: palette.$gray-600;
+  }
 }

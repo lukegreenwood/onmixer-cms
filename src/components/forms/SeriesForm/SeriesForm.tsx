@@ -23,8 +23,8 @@ const seriesFormSchema = z.object({
       name: z.string(),
     })
     .refine((val) => val.id !== '', 'Show is required'),
-  networkId: z.string().min(1, 'Network is required'),
-  mediaId: z.string().min(1, 'Featured image is required'),
+  networkId: z.string().optional(),
+  mediaId: z.string().optional(),
 });
 
 export type SeriesFormData = z.infer<typeof seriesFormSchema>;

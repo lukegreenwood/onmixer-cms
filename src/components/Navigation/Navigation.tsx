@@ -52,7 +52,6 @@ export function Navigation() {
   const renderNavigationItems = (
     items: NavigationItem[],
     currentSection: string,
-    parentPath?: string,
     level = 0,
   ) => {
     return items.map((item) => {
@@ -60,7 +59,7 @@ export function Navigation() {
         return <li key={item.section}>{item.component}</li>;
       }
 
-      const itemPath = parentPath ? `${parentPath}${item.path}` : item.path;
+      const itemPath = item.path;
       const hasChildren = Boolean(item.items && item.items.length > 0);
 
       return (
@@ -68,7 +67,7 @@ export function Navigation() {
           <Link
             href={
               currentSection === 'Broadcast'
-                ? getNetworkBasedUrl(item.path, parentPath)
+                ? getNetworkBasedUrl(item.path)
                 : itemPath
             }
             className={`navigation__menu-item ${
@@ -85,7 +84,7 @@ export function Navigation() {
               {renderNavigationItems(
                 item.items,
                 currentSection,
-                item.path,
+
                 level + 1,
               )}
             </ul>

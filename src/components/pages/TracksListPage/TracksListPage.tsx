@@ -6,6 +6,7 @@ import React, { Fragment, useState } from 'react';
 
 import { PageHeader } from '@/blocks/PageHeader/PageHeader';
 import { TracksTable } from '@/blocks/TracksTable/TracksTable';
+import type { Track } from '@/graphql/__generated__/graphql';
 import { SEARCH_TRACKS } from '@/graphql/queries/tracks';
 import { toast } from '@/lib/toast';
 
@@ -26,9 +27,9 @@ export function TracksListPage() {
   const tracks = data?.tracks?.items || [];
   const totalCount = data?.tracks?.total || 0;
 
-  const handleEnrich = (trackId: string) => {
+  const handleEnrich = (track: Track) => {
     toast(
-      `Enrichment for track ${trackId} - navigate to Enrich Tracks page for full functionality`,
+      `Enrichment for track ${track.id} - navigate to Enrich Tracks page for full functionality`,
       'gray',
     );
   };

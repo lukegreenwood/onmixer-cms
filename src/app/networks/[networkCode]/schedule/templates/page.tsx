@@ -1,3 +1,5 @@
-export default function ScheduleTemplatesPage() {
-  return <div>Schedule Templates</div>;
+import { ScheduleTemplatesPage } from '@/pages/ScheduleTemplatesPage/ScheduleTemplatesPage';
+
+export default function ScheduleTemplatesRoute() {
+  return <ScheduleTemplatesPage />;
 }

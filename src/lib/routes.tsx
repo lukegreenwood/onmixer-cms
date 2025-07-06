@@ -60,8 +60,9 @@ const navigationRoutes = {
   mixes: '/mixes',
   podcasts: '/podcasts',
   playlists: '/playlists',
-  templates: '/templates',
-  templateAssignments: '/templates/assignments',
+  templates: '/schedule/templates',
+  templateEdit: '/schedule/templates/%s/edit',
+  templateAssignments: '/schedule/templates/assignments',
   getTracks: '/tracks/get',
   enrichTracks: '/tracks/enrich',
   jobsStatus: '/tracks/jobs',
@@ -93,24 +94,15 @@ export const navigationItems: Array<NavigationItem> = [
     label: 'Tracks',
     items: [
       {
-        path: navigationRoutes.getTracks.replace(
-          navigationRoutes.tracks,
-          '',
-        ) as RoutePath,
+        path: navigationRoutes.getTracks,
         label: 'Get Tracks',
       },
       {
-        path: navigationRoutes.enrichTracks.replace(
-          navigationRoutes.tracks,
-          '',
-        ) as RoutePath,
+        path: navigationRoutes.enrichTracks,
         label: 'Enrich Tracks',
       },
       {
-        path: navigationRoutes.jobsStatus.replace(
-          navigationRoutes.tracks,
-          '',
-        ) as RoutePath,
+        path: navigationRoutes.jobsStatus,
         label: 'Jobs Status',
       },
     ],

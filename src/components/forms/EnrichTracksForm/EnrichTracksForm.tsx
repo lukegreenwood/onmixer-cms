@@ -1,9 +1,10 @@
 'use client';
 
 import { useMutation, useQuery } from '@apollo/client';
-import { Button, Tabs } from '@soundwaves/components';
+import { Button, Tabs, Autocomplete } from '@soundwaves/components';
 import { useSearchParams } from 'next/navigation';
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 
 import { MusicBrainzSearchModal } from '@/blocks/MusicBrainzSearchModal';
 import { TracksTable } from '@/blocks/TracksTable/TracksTable';
@@ -12,6 +13,7 @@ import type {
   Track,
 } from '@/graphql/__generated__/graphql';
 import { CREATE_ENRICHMENT_JOB } from '@/graphql/mutations/enrichmentJobs';
+import { GET_CATEGORIES } from '@/graphql/queries/categories';
 import { SEARCH_TRACKS } from '@/graphql/queries/tracks';
 
 interface EnrichTracksFormProps {
@@ -23,6 +25,21 @@ interface PendingEnrichment {
   track: Track;
   musicbrainzReleaseId: string;
   musicbrainzResult: MusicBrainzSearchResult;
+}
+
+// Custom component to render category and subcategory
+interface PrimarySecondaryProps {
+  primary: string;
+  secondary: string;
+}
+
+function PrimarySecondary({ primary, secondary }: PrimarySecondaryProps) {
+  return (
+    <div className="primary-secondary">
+      <div className="primary-secondary__primary">{primary}</div>
+      <div className="primary-secondary__secondary">{secondary}</div>
+    </div>
+  );
 }
 
 export function EnrichTracksForm({
@@ -37,17 +54,51 @@ export function EnrichTracksForm({
   const [currentTrackForSearch, setCurrentTrackForSearch] = useState<Track | null>(null);
   const [musicBrainzModal, setMusicBrainzModal] = useState(false);
   const [pendingEnrichments, setPendingEnrichments] = useState<PendingEnrichment[]>([]);
+  const [categoryFilter, setCategoryFilter] = useState<string>('');
+
+  // Form for category filtering
+  const filterForm = useForm({
+    defaultValues: {
+      category: '',
+    },
+  });
 
   // GraphQL
   const { data: tracksData, loading: tracksLoading } = useQuery(SEARCH_TRACKS, {
-    variables: { filters: {} },
+    variables: { 
+      filters: categoryFilter ? { subcategoryId: categoryFilter } : {} 
+    },
   });
+
+  const { data: categoriesData, loading: categoriesLoading } = useQuery(GET_CATEGORIES);
 
   const [createEnrichmentJob] = useMutation(CREATE_ENRICHMENT_JOB);
 
   const tracks = useMemo(() => {
     return (tracksData?.tracks?.items as Track[]) || [];
   }, [tracksData?.tracks?.items]);
+
+  // Create autocomplete options from subcategories
+  const subcategoryOptions = useMemo(() => {
+    if (!categoriesData?.categories) return [];
+    
+    const allOption = { value: '', label: 'All Categories', category: '' };
+    const subcategoryOpts = categoriesData.categories.flatMap(category =>
+      category.subcategories.map(subcategory => ({
+        value: subcategory.id,
+        label: subcategory.name,
+        category: category.name,
+      }))
+    );
+    
+    return [allOption, ...subcategoryOpts];
+  }, [categoriesData?.categories]);
+
+  // Handle category filter change
+  const handleCategoryChange = useCallback((value: string | null) => {
+    setCategoryFilter(value || '');
+    filterForm.setValue('category', value || '');
+  }, [filterForm]);
 
   // Auto-select and open MusicBrainz search for specific track from URL
   useEffect(() => {
@@ -209,6 +260,34 @@ export function EnrichTracksForm({
                 </p>
               </>
             )}
+            
+            <div className="enrich-tracks-form__filters">
+              <Controller
+                name="category"
+                control={filterForm.control}
+                render={({ field }) => (
+                  <Autocomplete
+                    label="Filter by Category"
+                    options={subcategoryOptions}
+                    value={field.value}
+                    onChange={handleCategoryChange}
+                    renderOption={(option) => {
+                      if (option.value === '') return option.label;
+                      const subcategory = subcategoryOptions.find(s => s.value === option.value);
+                      return subcategory ? (
+                        <PrimarySecondary
+                          primary={subcategory.label}
+                          secondary={subcategory.category}
+                        />
+                      ) : option.label;
+                    }}
+                    disabled={categoriesLoading}
+                    clearable={true}
+                  />
+                )}
+              />
+            </div>
+            
             <TracksTable
               tracks={tracks}
               loading={tracksLoading}
@@ -224,6 +303,33 @@ export function EnrichTracksForm({
             <p className="enrich-tracks-form__instructions">
               Select multiple tracks, search MusicBrainz for each one, then execute all enrichment jobs at once.
             </p>
+            
+            <div className="enrich-tracks-form__filters">
+              <Controller
+                name="category"
+                control={filterForm.control}
+                render={({ field }) => (
+                  <Autocomplete
+                    label="Filter by Category"
+                    options={subcategoryOptions}
+                    value={field.value}
+                    onChange={handleCategoryChange}
+                    renderOption={(option) => {
+                      if (option.value === '') return option.label;
+                      const subcategory = subcategoryOptions.find(s => s.value === option.value);
+                      return subcategory ? (
+                        <PrimarySecondary
+                          primary={subcategory.label}
+                          secondary={subcategory.category}
+                        />
+                      ) : option.label;
+                    }}
+                    disabled={categoriesLoading}
+                    clearable={true}
+                  />
+                )}
+              />
+            </div>
             
             <TracksTable
               tracks={tracks}

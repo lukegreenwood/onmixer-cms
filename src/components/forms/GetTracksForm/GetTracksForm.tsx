@@ -3,7 +3,7 @@
 import { useMutation, useQuery } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Tabs, Input, Textarea, Switch, Autocomplete } from '@soundwaves/components';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -11,9 +11,8 @@ import {
   CREATE_DOWNLOAD_JOB,
   CREATE_BULK_DOWNLOAD_JOBS,
 } from '@/graphql/mutations/downloadJobs';
-import { SEARCH_YOUTUBE, BULK_SEARCH_YOUTUBE } from '@/graphql/queries/tracks';
 import { GET_CATEGORIES } from '@/graphql/queries/categories';
-import type { Subcategory } from '@/graphql/__generated__/graphql';
+import { SEARCH_YOUTUBE, BULK_SEARCH_YOUTUBE } from '@/graphql/queries/tracks';
 import { toast } from '@/lib';
 
 const singleSearchSchema = z.object({
@@ -99,6 +98,15 @@ export function GetTracksForm() {
       }))
     );
   }, [categoriesData?.categories]);
+
+  // Search function for autocomplete
+  const handleCategorySearch = useCallback((searchText: string) => {
+    // Filter subcategories based on search text
+    return subcategoryOptions.filter(option => 
+      option.label.toLowerCase().includes(searchText.toLowerCase()) ||
+      option.category.toLowerCase().includes(searchText.toLowerCase())
+    );
+  }, [subcategoryOptions]);
 
   const [searchYouTube, { loading: singleSearchLoading }] =
     useMutation(SEARCH_YOUTUBE);
@@ -368,6 +376,7 @@ export function GetTracksForm() {
                     options={subcategoryOptions}
                     value={field.value}
                     onChange={field.onChange}
+                    onSearch={handleCategorySearch}
                     renderOption={(option) => {
                       const subcategory = subcategoryOptions.find(s => s.value === option.value);
                       return subcategory ? (
@@ -421,6 +430,7 @@ export function GetTracksForm() {
                     options={subcategoryOptions}
                     value={field.value}
                     onChange={field.onChange}
+                    onSearch={handleCategorySearch}
                     renderOption={(option) => {
                       const subcategory = subcategoryOptions.find(s => s.value === option.value);
                       return subcategory ? (

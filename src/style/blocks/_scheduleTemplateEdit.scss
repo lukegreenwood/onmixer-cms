@@ -1,0 +1,68 @@
+@use '../theme/palette';
+@use '../theme/sizing';
+@use '../theme/text';
+@use '../theme/shadows';
+@use '../utils/mixins';
+
+.schedule-template-edit {
+  max-width: 1200px;
+  margin: 0 auto;
+
+  &__form {
+    background: palette.$white-50;
+    border-radius: sizing.$radius-lg;
+    box-shadow: shadows.$shadows-sm;
+    overflow: hidden;
+  }
+
+  &__header {
+    padding: mixins.spacing(6);
+    border-bottom: 1px solid palette.$gray-200;
+  }
+
+  &__sections {
+    padding: mixins.spacing(6);
+  }
+
+  &__section {
+    h3 {
+      @include text.text-lg-leading-7-font-semibold;
+      color: palette.$gray-900;
+      margin-bottom: mixins.spacing(6);
+    }
+  }
+
+  &__form-row {
+    margin-bottom: mixins.spacing(6);
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  &__current-networks {
+    margin-top: mixins.spacing(4);
+    
+    label {
+      display: block;
+      @include text.text-sm-leading-5-font-medium;
+      color: palette.$gray-700;
+      margin-bottom: mixins.spacing(2);
+    }
+  }
+
+  &__network-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: mixins.spacing(2);
+  }
+
+  &__actions {
+    padding: mixins.spacing(6);
+    border-top: 1px solid palette.$gray-200;
+    background: palette.$gray-50;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+}

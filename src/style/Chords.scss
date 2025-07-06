@@ -63,6 +63,8 @@
 @use 'blocks/jobDetails';
 @use 'blocks/getTracksForm';
 @use 'blocks/enrichTracksForm';
+@use 'blocks/scheduleTemplateEdit';
+@use 'blocks/scheduleAssignment';
 
 // CMS
 @use 'cms-components/itemPreview';
