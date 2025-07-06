@@ -28,7 +28,7 @@ export const EpisodeCreatePage = () => {
       series: formData.series?.id || undefined,
       featuredImage: formData.mediaId,
       networks: formData.networkIds,
-      presenters: formData.presenters.map((p) => p.id),
+      presenters: formData.presenters?.map((p) => p.id) || [],
     };
 
     createEpisode({

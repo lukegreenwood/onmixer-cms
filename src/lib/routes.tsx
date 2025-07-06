@@ -18,8 +18,7 @@ import {
   ShowsIcon,
   TrackIcon,
 } from '@/components';
-
-import { NetworkSelector } from '../components/Navigation/NetworkSelector';
+import { NetworkSelector } from '@/components/Navigation/NetworkSelector';
 
 type NavigationItemLink = {
   path: RoutePath;
@@ -63,6 +62,10 @@ const navigationRoutes = {
   playlists: '/playlists',
   templates: '/templates',
   templateAssignments: '/templates/assignments',
+  getTracks: '/tracks/get',
+  enrichTracks: '/tracks/enrich',
+  jobsStatus: '/tracks/jobs',
+  jobDetails: '/tracks/jobs/%s',
 } as const;
 
 export type RouteName = keyof typeof navigationRoutes;
@@ -88,6 +91,29 @@ export const navigationItems: Array<NavigationItem> = [
     icon: <TrackIcon />,
     path: navigationRoutes.tracks,
     label: 'Tracks',
+    items: [
+      {
+        path: navigationRoutes.getTracks.replace(
+          navigationRoutes.tracks,
+          '',
+        ) as RoutePath,
+        label: 'Get Tracks',
+      },
+      {
+        path: navigationRoutes.enrichTracks.replace(
+          navigationRoutes.tracks,
+          '',
+        ) as RoutePath,
+        label: 'Enrich Tracks',
+      },
+      {
+        path: navigationRoutes.jobsStatus.replace(
+          navigationRoutes.tracks,
+          '',
+        ) as RoutePath,
+        label: 'Jobs Status',
+      },
+    ],
   },
   {
     icon: <MediaIcon />,

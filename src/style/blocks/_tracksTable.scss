@@ -1,0 +1,37 @@
+.track-title {
+  &__primary {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+
+  &__secondary {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+  }
+}
+
+.track-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.tracks-management {
+  &__bulk-actions {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--color-background-subtle);
+    border-radius: var(--radius);
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+}
+
+.data-table {
+  &__search {
+    margin-bottom: 1rem;
+    width: 100%;
+    max-width: 300px;
+  }
+}

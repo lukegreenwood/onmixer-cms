@@ -58,6 +58,11 @@
 @use 'blocks/drawer';
 @use 'blocks/previewImage';
 @use 'blocks/pagination';
+@use 'blocks/tracksTable';
+@use 'blocks/jobsTable';
+@use 'blocks/jobDetails';
+@use 'blocks/getTracksForm';
+@use 'blocks/enrichTracksForm';
 
 // CMS
 @use 'cms-components/itemPreview';

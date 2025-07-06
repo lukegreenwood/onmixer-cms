@@ -1,0 +1,274 @@
+@use '../theme/palette';
+@use '../theme/sizing';
+@use '../theme/text';
+@use '../theme/shadows';
+@use '../utils/mixins';
+
+.enrich-tracks-form {
+  &__container {
+    background: palette.$white-50;
+    border-radius: sizing.$radius-lg;
+    box-shadow: shadows.$shadows-sm;
+    padding: mixins.spacing(4);
+  }
+
+  &__search-form {
+    margin-bottom: mixins.spacing(8);
+  }
+
+  &__form-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: mixins.spacing(4);
+    margin-bottom: mixins.spacing(4);
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__musicbrainz-search {
+    // Container styles can go here if needed
+  }
+
+  &__track-selector {
+    margin: mixins.spacing(4) 0;
+    padding: mixins.spacing(4);
+    background: palette.$gray-50;
+    border-radius: sizing.$radius-md;
+
+    label {
+      display: block;
+      margin-bottom: mixins.spacing(2);
+      @include text.text-base-leading-6-font-medium;
+    }
+
+    select {
+      width: 100%;
+      padding: mixins.spacing(2) mixins.spacing(3);
+      border: 1px solid palette.$gray-200;
+      border-radius: sizing.$radius-md;
+      background: palette.$white-50;
+      @include text.text-sm-leading-5-font-normal;
+
+      &:focus {
+        outline: none;
+        border-color: palette.$purple-500;
+        box-shadow: 0 0 0 2px palette.$purple-100;
+      }
+    }
+  }
+
+  &__musicbrainz-results {
+    margin-top: mixins.spacing(8);
+
+    h3 {
+      @include text.text-xl-leading-8-font-semibold;
+      color: palette.$gray-900;
+      margin-bottom: mixins.spacing(4);
+    }
+  }
+
+  &__results-list {
+    display: flex;
+    flex-direction: column;
+    gap: mixins.spacing(3);
+  }
+
+  &__result-item {
+    display: flex;
+    align-items: center;
+    gap: mixins.spacing(4);
+    padding: mixins.spacing(4);
+    border: 1px solid palette.$gray-200;
+    border-radius: sizing.$radius-md;
+    background: palette.$white-50;
+    box-shadow: shadows.$shadows-sm;
+  }
+
+  &__result-content {
+    flex: 1;
+  }
+
+  &__result-title {
+    @include text.text-base-leading-6-font-medium;
+    color: palette.$gray-900;
+    margin-bottom: mixins.spacing(1);
+  }
+
+  &__result-artist {
+    @include text.text-sm-leading-5-font-normal;
+    color: palette.$gray-600;
+    margin-bottom: mixins.spacing(1);
+  }
+
+  &__result-score {
+    @include text.text-sm-leading-5-font-medium;
+    color: palette.$green-600;
+    margin-bottom: mixins.spacing(1);
+  }
+
+  &__tracks-management {
+    h3 {
+      @include text.text-xl-leading-8-font-semibold;
+      color: palette.$gray-900;
+      margin-bottom: mixins.spacing(4);
+    }
+  }
+
+  &__bulk-actions {
+    margin-top: mixins.spacing(4);
+    padding: mixins.spacing(4);
+    background: palette.$gray-50;
+    border-radius: sizing.$radius-md;
+    display: flex;
+    gap: mixins.spacing(2);
+    align-items: center;
+  }
+
+  &__bulk-note {
+    @include text.text-sm-leading-5-font-normal;
+    color: palette.$gray-600;
+    margin-top: mixins.spacing(2);
+  }
+
+  &__bulk-form {
+    // Container styles if needed
+  }
+
+  &__bulk-form-fields {
+    margin-bottom: mixins.spacing(4);
+
+    label {
+      display: block;
+      margin-bottom: mixins.spacing(2);
+      @include text.text-base-leading-6-font-medium;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 150px;
+      padding: mixins.spacing(3);
+      border: 1px solid palette.$gray-200;
+      border-radius: sizing.$radius-md;
+      background: palette.$white-50;
+      font-family: var(--font-mono);
+      @include text.text-sm-leading-5-font-normal;
+      resize: vertical;
+
+      &:focus {
+        outline: none;
+        border-color: palette.$purple-500;
+        box-shadow: 0 0 0 2px palette.$purple-100;
+      }
+    }
+  }
+
+  &__form-help {
+    @include text.text-sm-leading-5-font-normal;
+    color: palette.$gray-600;
+    margin-bottom: mixins.spacing(2);
+  }
+
+  &__form-error {
+    color: palette.$red-500;
+    @include text.text-sm-leading-5-font-normal;
+    margin-top: mixins.spacing(1);
+  }
+
+  &__selected-track {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: mixins.spacing(3);
+    margin-bottom: mixins.spacing(4);
+    background: palette.$green-50;
+    border: 1px solid palette.$green-200;
+    border-radius: sizing.$radius-md;
+
+    p {
+      margin: 0;
+      @include text.text-sm-leading-5-font-medium;
+      color: palette.$green-800;
+    }
+  }
+
+  &__no-track-selected {
+    padding: mixins.spacing(3);
+    margin-bottom: mixins.spacing(4);
+    background: palette.$yellow-50;
+    border: 1px solid palette.$yellow-200;
+    border-radius: sizing.$radius-md;
+
+    p {
+      margin: 0;
+      @include text.text-sm-leading-5-font-normal;
+      color: palette.$yellow-800;
+    }
+  }
+
+  &__single,
+  &__bulk {
+    h3 {
+      @include text.text-xl-leading-8-font-semibold;
+      color: palette.$gray-900;
+      margin-bottom: mixins.spacing(2);
+    }
+  }
+
+  &__instructions {
+    @include text.text-sm-leading-5-font-normal;
+    color: palette.$gray-600;
+    margin-bottom: mixins.spacing(6);
+  }
+
+  &__pending {
+    margin-top: mixins.spacing(6);
+    padding: mixins.spacing(4);
+    background: palette.$blue-50;
+    border: 1px solid palette.$blue-200;
+    border-radius: sizing.$radius-md;
+
+    h4 {
+      @include text.text-lg-leading-7-font-semibold;
+      color: palette.$blue-900;
+      margin-bottom: mixins.spacing(4);
+    }
+  }
+
+  &__pending-list {
+    display: flex;
+    flex-direction: column;
+    gap: mixins.spacing(3);
+    margin-bottom: mixins.spacing(4);
+  }
+
+  &__pending-item {
+    display: flex;
+    align-items: center;
+    gap: mixins.spacing(3);
+    padding: mixins.spacing(3);
+    background: palette.$white-50;
+    border: 1px solid palette.$blue-200;
+    border-radius: sizing.$radius-md;
+  }
+
+  &__pending-track {
+    flex: 1;
+    @include text.text-sm-leading-5-font-medium;
+    color: palette.$gray-900;
+  }
+
+  &__pending-release {
+    flex: 2;
+    @include text.text-sm-leading-5-font-normal;
+    color: palette.$gray-600;
+    font-style: italic;
+  }
+
+  &__pending-actions {
+    display: flex;
+    gap: mixins.spacing(3);
+    align-items: center;
+  }
+}

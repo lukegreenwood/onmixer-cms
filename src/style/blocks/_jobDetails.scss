@@ -1,0 +1,67 @@
+@use '../theme/palette';
+@use '../theme/sizing';
+@use '../theme/text';
+@use '../theme/shadows';
+@use '../utils/mixins';
+
+.job-details {
+  background: palette.$white-50;
+  border-radius: sizing.$radius-lg;
+  box-shadow: shadows.$shadows-sm;
+  padding: mixins.spacing(6);
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: mixins.spacing(6);
+  }
+
+  &__title {
+    @include text.text-2xl-leading-8-font-semibold;
+    color: palette.$gray-900;
+    margin: 0;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: mixins.spacing(4);
+  }
+
+  &__field {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: mixins.spacing(4);
+    align-items: flex-start;
+  }
+
+  &__label {
+    @include text.text-sm-leading-5-font-medium;
+    color: palette.$gray-600;
+  }
+
+  &__value {
+    @include text.text-base-leading-6-font-normal;
+    color: palette.$gray-900;
+
+    &--mono {
+      font-family: var(--font-mono);
+      @include text.text-sm-leading-5-font-normal;
+    }
+
+    &--error {
+      color: palette.$red-600;
+    }
+  }
+
+  &__link {
+    color: palette.$purple-500;
+    text-decoration: none;
+    word-break: break-all;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

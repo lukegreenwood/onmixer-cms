@@ -1,0 +1,119 @@
+@use '../theme/palette';
+@use '../theme/sizing';
+@use '../theme/text';
+@use '../theme/shadows';
+@use '../utils/mixins';
+
+.job-details-modal {
+  min-width: 600px;
+  max-width: 800px;
+
+  &__body {
+    padding: mixins.spacing(4);
+  }
+
+  &__footer {
+    padding: mixins.spacing(4);
+    border-top: 1px solid palette.$gray-200;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  &__loading {
+    text-align: center;
+    padding: mixins.spacing(8);
+    @include text.text-base-leading-6-font-normal;
+    color: palette.$gray-600;
+  }
+
+  &__error {
+    padding: mixins.spacing(4);
+    background: palette.$red-50;
+    border: 1px solid palette.$red-200;
+    border-radius: sizing.$radius-md;
+    color: palette.$red-800;
+    @include text.text-sm-leading-5-font-normal;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: mixins.spacing(6);
+  }
+
+  &__field-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: mixins.spacing(4);
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: mixins.spacing(2);
+
+    label {
+      @include text.text-sm-leading-5-font-medium;
+      color: palette.$gray-700;
+    }
+  }
+
+  &__field-value {
+    @include text.text-sm-leading-5-font-normal;
+    color: palette.$gray-900;
+    word-break: break-all;
+  }
+
+  &__link {
+    @include text.text-sm-leading-5-font-normal;
+    color: palette.$blue-600;
+    text-decoration: underline;
+    word-break: break-all;
+
+    &:hover {
+      color: palette.$blue-800;
+    }
+  }
+
+  &__progress {
+    display: flex;
+    align-items: center;
+    gap: mixins.spacing(3);
+  }
+
+  &__progress-bar {
+    flex: 1;
+    height: 8px;
+    background: palette.$gray-200;
+    border-radius: sizing.$radius-full;
+    overflow: hidden;
+  }
+
+  &__progress-fill {
+    height: 100%;
+    background: palette.$blue-500;
+    border-radius: sizing.$radius-full;
+    transition: width 0.3s ease;
+  }
+
+  &__progress-text {
+    @include text.text-sm-leading-5-font-medium;
+    color: palette.$gray-700;
+    min-width: 40px;
+    text-align: right;
+  }
+
+  &__error-message {
+    padding: mixins.spacing(3);
+    background: palette.$red-50;
+    border: 1px solid palette.$red-200;
+    border-radius: sizing.$radius-md;
+    color: palette.$red-800;
+    @include text.text-sm-leading-5-font-normal;
+    white-space: pre-wrap;
+  }
+}
