@@ -34,3 +34,4 @@ export { TrackIcon } from './Track';
 export { UnscheduleIcon } from './Unschedule';
 export { WarningIcon } from './Warning';
 export { EllipsisIcon } from './Ellipsis';
+export { EllipsisVerticalIcon } from './EllipsisVertical';

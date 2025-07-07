@@ -9,7 +9,8 @@ import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 
 import { PageHeader } from '@/blocks/PageHeader/PageHeader';
-import { UPDATE_SCHEDULE_TEMPLATE, DELETE_SCHEDULE_TEMPLATE } from '@/graphql/mutations/scheduleTemplates';
+import { DELETE_SCHEDULE_TEMPLATE } from '@/graphql/mutations/deleteScheduleTemplate';
+import { UPDATE_SCHEDULE_TEMPLATE } from '@/graphql/mutations/updateScheduleTemplate';
 import { GET_NETWORKS } from '@/graphql/queries/networks';
 import { GET_SCHEDULE_TEMPLATE } from '@/graphql/queries/scheduleTemplates';
 import { toast } from '@/lib/toast';

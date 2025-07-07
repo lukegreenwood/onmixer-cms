@@ -292,6 +292,7 @@
     }
 
     &.button--xs-icon {
+      color: palette.$gray-500;
       padding: mixins.spacing(0.5);
 
       &.button--outline {

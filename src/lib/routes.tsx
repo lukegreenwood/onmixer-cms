@@ -62,6 +62,7 @@ const navigationRoutes = {
   playlists: '/playlists',
   templates: '/schedule/templates',
   templateEdit: '/schedule/templates/%s/edit',
+  templateCreate: '/schedule/templates/create',
   templateAssignments: '/schedule/templates/assignments',
   getTracks: '/tracks/get',
   enrichTracks: '/tracks/enrich',

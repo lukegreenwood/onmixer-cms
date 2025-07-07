@@ -11,7 +11,7 @@ export const Copyable = ({
   children,
 }: {
   value: string;
-  children: React.ReactElement;
+  children: React.ReactNode;
 }) => {
   const [isCopied, setIsCopied] = useState(false);
 
