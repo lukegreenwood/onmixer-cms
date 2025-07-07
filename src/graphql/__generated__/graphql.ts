@@ -1398,6 +1398,7 @@ export type Query = {
   subcategory?: Maybe<Subcategory>;
   track?: Maybe<Track>;
   tracks: TrackList;
+  tracksV2: TrackList;
 };
 
 
@@ -1547,6 +1548,11 @@ export type QueryTrackArgs = {
 
 export type QueryTracksArgs = {
   filters?: InputMaybe<TrackListInput>;
+};
+
+
+export type QueryTracksV2Args = {
+  filters?: InputMaybe<TrackListInputV2>;
 };
 
 export type Request = {
@@ -2018,11 +2024,62 @@ export type Track = {
   year: Scalars['String']['output'];
 };
 
+export type TrackBooleanFilter = {
+  field: TrackBooleanFilterField;
+  operator: BooleanFilterOperator;
+  value: Scalars['Boolean']['input'];
+};
+
+export enum TrackBooleanFilterField {
+  Enabled = 'enabled',
+  Overlay = 'overlay',
+  PreciseCue = 'preciseCue'
+}
+
+export type TrackDateFilter = {
+  field: TrackDateFilterField;
+  operator: DateFilterOperator;
+  value: Scalars['DateTime']['input'];
+};
+
+export enum TrackDateFilterField {
+  DateAdded = 'dateAdded',
+  DateModified = 'dateModified',
+  DatePlayed = 'datePlayed',
+  EndDate = 'endDate',
+  StartDate = 'startDate'
+}
+
 export type TrackDuration = {
   __typename?: 'TrackDuration';
   formatted: Scalars['String']['output'];
   raw: Scalars['Float']['output'];
 };
+
+export type TrackFilterGroup = {
+  filters?: InputMaybe<Array<TrackFilterInput>>;
+  groups?: InputMaybe<Array<TrackFilterGroup>>;
+  operator: OperatorType;
+};
+
+export type TrackFilterInput = {
+  booleanFilter?: InputMaybe<TrackBooleanFilter>;
+  dateFilter?: InputMaybe<TrackDateFilter>;
+  multiOptionFilter?: InputMaybe<TrackMultiOptionFilter>;
+  numberFilter?: InputMaybe<TrackNumberFilter>;
+  optionFilter?: InputMaybe<TrackOptionFilter>;
+  textFilter?: InputMaybe<TrackTextFilter>;
+  type: TrackFilterType;
+};
+
+export enum TrackFilterType {
+  Boolean = 'BOOLEAN',
+  Date = 'DATE',
+  MultiOption = 'MULTI_OPTION',
+  Number = 'NUMBER',
+  Option = 'OPTION',
+  Text = 'TEXT'
+}
 
 export type TrackList = ItemList & {
   __typename?: 'TrackList';
@@ -2040,12 +2097,65 @@ export type TrackListInput = {
   subcategoryId?: InputMaybe<Scalars['ID']['input']>;
 };
 
+export type TrackListInputV2 = {
+  filterGroup?: InputMaybe<TrackFilterGroup>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order?: InputMaybe<Array<TrackOrder>>;
+};
+
 export type TrackMetadata = {
   __typename?: 'TrackMetadata';
   id: Scalars['ID']['output'];
   key: Scalars['String']['output'];
   value?: Maybe<Scalars['String']['output']>;
 };
+
+export type TrackMultiOptionFilter = {
+  field: TrackMultiOptionFilterField;
+  operator: MultiOptionFilterOperator;
+  values: Array<Scalars['String']['input']>;
+};
+
+export enum TrackMultiOptionFilterField {
+  Genres = 'genres',
+  Subcategories = 'subcategories'
+}
+
+export type TrackNumberFilter = {
+  field: TrackNumberFilterField;
+  operator: NumberFilterOperator;
+  value: Scalars['Float']['input'];
+};
+
+export enum TrackNumberFilterField {
+  Bpm = 'bpm',
+  CountPlayed = 'countPlayed',
+  DiscNo = 'discNo',
+  Duration = 'duration',
+  Id = 'id',
+  PlayLimit = 'playLimit',
+  Rating = 'rating',
+  TrackNo = 'trackNo',
+  Weight = 'weight',
+  Year = 'year'
+}
+
+export type TrackOptionFilter = {
+  field: TrackOptionFilterField;
+  operator: OptionFilterOperator;
+  value: Scalars['String']['input'];
+};
+
+export enum TrackOptionFilterField {
+  EndType = 'endType',
+  FadeType = 'fadeType',
+  Genre = 'genre',
+  MixType = 'mixType',
+  SongType = 'songType',
+  StartType = 'startType',
+  Subcategory = 'subcategory'
+}
 
 export type TrackOrder = {
   direction: OrderDirection;
@@ -2061,6 +2171,28 @@ export enum TrackOrderField {
   Id = 'id',
   Title = 'title',
   Year = 'year'
+}
+
+export type TrackTextFilter = {
+  field: TrackTextFilterField;
+  operator: TextFilterOperator;
+  value: Scalars['String']['input'];
+};
+
+export enum TrackTextFilterField {
+  Album = 'album',
+  Artist = 'artist',
+  Comments = 'comments',
+  Composer = 'composer',
+  Copyright = 'copyright',
+  Gender = 'gender',
+  Isrc = 'isrc',
+  Label = 'label',
+  Lang = 'lang',
+  Mood = 'mood',
+  Path = 'path',
+  Publisher = 'publisher',
+  Title = 'title'
 }
 
 export type UnassignDefaultScheduleFromNetworkInput = {
@@ -2531,6 +2663,13 @@ export type SearchTracksQueryVariables = Exact<{
 
 export type SearchTracksQuery = { __typename?: 'Query', tracks: { __typename?: 'TrackList', total: number, items: Array<{ __typename?: 'Track', id: string, artist: string, title: string, album: string, path: string, enabled: boolean, year: string, isrc: string, bpm: number, dateAdded?: string | null, dateModified?: string | null, duration: { __typename?: 'TrackDuration', formatted: string, raw: number }, genre?: { __typename?: 'Genre', name: string } | null }> } };
 
+export type SearchTracksV2QueryVariables = Exact<{
+  filters?: InputMaybe<TrackListInputV2>;
+}>;
+
+
+export type SearchTracksV2Query = { __typename?: 'Query', tracksV2: { __typename?: 'TrackList', total: number, items: Array<{ __typename?: 'Track', id: string, artist: string, title: string, album: string, path: string, enabled: boolean, year: string, isrc: string, bpm: number, dateAdded?: string | null, dateModified?: string | null, duration: { __typename?: 'TrackDuration', formatted: string, raw: number }, genre?: { __typename?: 'Genre', id: string, name: string } | null }> } };
+
 export type GetTrackQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
@@ -2618,6 +2757,7 @@ export const GetSeriesDocument = {"kind":"Document","definitions":[{"kind":"Oper
 export const SearchShowsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SearchShows"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filters"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"ShowListInputV2"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"showsV2"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filters"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"total"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"shortId"}},{"kind":"Field","name":{"kind":"Name","value":"shortName"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}},{"kind":"Field","name":{"kind":"Name","value":"featuredImage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"urls"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"square"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"presenters"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"networks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvgIcon"}}]}},{"kind":"Field","name":{"kind":"Name","value":"hidden"}}]}}]}}]}}]} as unknown as DocumentNode<SearchShowsQuery, SearchShowsQueryVariables>;
 export const GetShowDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetShow"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"show"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"extraData"}},{"kind":"Field","name":{"kind":"Name","value":"featuredImage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"key"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"mimeType"}},{"kind":"Field","name":{"kind":"Name","value":"fileSize"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"raw"}}]}},{"kind":"Field","name":{"kind":"Name","value":"urls"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"medium"}},{"kind":"Field","name":{"kind":"Name","value":"square"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"fullDesc"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}},{"kind":"Field","name":{"kind":"Name","value":"hidden"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"networks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvgIcon"}}]}},{"kind":"Field","name":{"kind":"Name","value":"presenters"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"series"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"shortDesc"}},{"kind":"Field","name":{"kind":"Name","value":"shortId"}},{"kind":"Field","name":{"kind":"Name","value":"shortName"}},{"kind":"Field","name":{"kind":"Name","value":"totalEpisodes"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"url"}}]}}]}}]} as unknown as DocumentNode<GetShowQuery, GetShowQueryVariables>;
 export const SearchTracksDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SearchTracks"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filters"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"TrackListInput"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"tracks"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filters"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"artist"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"album"}},{"kind":"Field","name":{"kind":"Name","value":"duration"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"formatted"}},{"kind":"Field","name":{"kind":"Name","value":"raw"}}]}},{"kind":"Field","name":{"kind":"Name","value":"path"}},{"kind":"Field","name":{"kind":"Name","value":"enabled"}},{"kind":"Field","name":{"kind":"Name","value":"year"}},{"kind":"Field","name":{"kind":"Name","value":"genre"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"isrc"}},{"kind":"Field","name":{"kind":"Name","value":"bpm"}},{"kind":"Field","name":{"kind":"Name","value":"dateAdded"}},{"kind":"Field","name":{"kind":"Name","value":"dateModified"}}]}},{"kind":"Field","name":{"kind":"Name","value":"total"}}]}}]}}]} as unknown as DocumentNode<SearchTracksQuery, SearchTracksQueryVariables>;
+export const SearchTracksV2Document = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SearchTracksV2"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filters"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"TrackListInputV2"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"tracksV2"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filters"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"artist"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"album"}},{"kind":"Field","name":{"kind":"Name","value":"duration"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"formatted"}},{"kind":"Field","name":{"kind":"Name","value":"raw"}}]}},{"kind":"Field","name":{"kind":"Name","value":"path"}},{"kind":"Field","name":{"kind":"Name","value":"enabled"}},{"kind":"Field","name":{"kind":"Name","value":"year"}},{"kind":"Field","name":{"kind":"Name","value":"genre"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"isrc"}},{"kind":"Field","name":{"kind":"Name","value":"bpm"}},{"kind":"Field","name":{"kind":"Name","value":"dateAdded"}},{"kind":"Field","name":{"kind":"Name","value":"dateModified"}}]}},{"kind":"Field","name":{"kind":"Name","value":"total"}}]}}]}}]} as unknown as DocumentNode<SearchTracksV2Query, SearchTracksV2QueryVariables>;
 export const GetTrackDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetTrack"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"track"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"artist"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"album"}},{"kind":"Field","name":{"kind":"Name","value":"duration"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"formatted"}},{"kind":"Field","name":{"kind":"Name","value":"raw"}}]}},{"kind":"Field","name":{"kind":"Name","value":"path"}},{"kind":"Field","name":{"kind":"Name","value":"enabled"}},{"kind":"Field","name":{"kind":"Name","value":"year"}},{"kind":"Field","name":{"kind":"Name","value":"genre"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"isrc"}},{"kind":"Field","name":{"kind":"Name","value":"bpm"}},{"kind":"Field","name":{"kind":"Name","value":"dateAdded"}},{"kind":"Field","name":{"kind":"Name","value":"dateModified"}}]}}]}}]} as unknown as DocumentNode<GetTrackQuery, GetTrackQueryVariables>;
 export const SearchYouTubeDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"SearchYouTube"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"query"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"searchYouTube"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"query"},"value":{"kind":"Variable","name":{"kind":"Name","value":"query"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"artist"}},{"kind":"Field","name":{"kind":"Name","value":"duration"}},{"kind":"Field","name":{"kind":"Name","value":"thumbnail"}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}}]}}]} as unknown as DocumentNode<SearchYouTubeMutation, SearchYouTubeMutationVariables>;
 export const BulkSearchYouTubeDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"BulkSearchYouTube"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"BulkSearchYouTubeInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"bulkSearchYouTube"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}},{"kind":"Field","name":{"kind":"Name","value":"message"}},{"kind":"Field","name":{"kind":"Name","value":"results"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"query"}},{"kind":"Field","name":{"kind":"Name","value":"results"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"artist"}},{"kind":"Field","name":{"kind":"Name","value":"duration"}},{"kind":"Field","name":{"kind":"Name","value":"thumbnail"}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}},{"kind":"Field","name":{"kind":"Name","value":"error"}}]}},{"kind":"Field","name":{"kind":"Name","value":"totalQueries"}},{"kind":"Field","name":{"kind":"Name","value":"successfulQueries"}},{"kind":"Field","name":{"kind":"Name","value":"failedQueries"}}]}}]}}]} as unknown as DocumentNode<BulkSearchYouTubeMutation, BulkSearchYouTubeMutationVariables>;

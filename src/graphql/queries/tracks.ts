@@ -28,6 +28,35 @@ export const SEARCH_TRACKS = gql(`
   }
 `);
 
+export const SEARCH_TRACKS_V2 = gql(`
+  query SearchTracksV2($filters: TrackListInputV2) {
+    tracksV2(filters: $filters) {
+      items {
+        id
+        artist
+        title
+        album
+        duration {
+          formatted
+          raw
+        }
+        path
+        enabled
+        year
+        genre {
+          id
+          name
+        }
+        isrc
+        bpm
+        dateAdded
+        dateModified
+      }
+      total
+    }
+  }
+`);
+
 export const GET_TRACK = gql(`
   query GetTrack($id: ID!) {
     track(id: $id) {
