@@ -19,5 +19,15 @@ export const useNavigation = () => {
     return `/networks/${networkCode}${getRoutePath(path, replacements)}`;
   };
 
-  return { getNetworkRoutePath, ...router };
+  const goTo = (path: RouteName, replacements: Array<string | number> = []) => {
+    router.push(getRoutePath(path, replacements));
+  };
+  const networkGoTo = (
+    path: RouteName,
+    replacements: Array<string | number> = [],
+  ) => {
+    router.push(getNetworkRoutePath(path, replacements));
+  };
+
+  return { getNetworkRoutePath, goTo, networkGoTo, ...router };
 };

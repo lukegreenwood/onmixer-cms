@@ -16,7 +16,7 @@ import type { Metadata } from 'next';
 
 import '@/style/Chords.scss';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600'] });
 
 export const metadata: Metadata = {
   title: 'OnMixer CMS',

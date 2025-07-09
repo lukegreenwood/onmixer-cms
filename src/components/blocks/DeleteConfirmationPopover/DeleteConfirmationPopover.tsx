@@ -103,7 +103,9 @@ export const DeleteConfirmationPopover = ({
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
       {children ? (
-        <Popover.Trigger asChild>{children}</Popover.Trigger>
+        <Popover.Trigger asChild disabled={disabled}>
+          {children}
+        </Popover.Trigger>
       ) : (
         <Popover.Anchor />
       )}
@@ -124,9 +126,9 @@ export const DeleteConfirmationPopover = ({
               {entityNameConfirmation
                 ? 'To confirm, type the ' +
                   entityType.toLowerCase() +
-                  ' name &quot;' +
+                  ' name "' +
                   entityName +
-                  '&quot; exactly as it appears:'
+                  '" exactly as it appears:'
                 : ''}
             </p>
             {entityNameConfirmation && (

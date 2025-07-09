@@ -60,10 +60,10 @@ const navigationRoutes = {
   mixes: '/mixes',
   podcasts: '/podcasts',
   playlists: '/playlists',
-  templates: '/schedule/templates',
-  templateEdit: '/schedule/templates/%s/edit',
-  templateCreate: '/schedule/templates/create',
-  templateAssignments: '/schedule/templates/assignments',
+  scheduleTemplates: '/schedule/templates',
+  scheduleTemplateEdit: '/schedule/templates/%s/edit',
+  scheduleTemplateCreate: '/schedule/templates/create',
+  scheduleTemplateAssignments: '/schedule/templates/assignments',
   getTracks: '/tracks/get',
   enrichTracks: '/tracks/enrich',
   jobsStatus: '/tracks/jobs',
@@ -125,11 +125,11 @@ export const navigationItems: Array<NavigationItem> = [
     label: 'Schedule',
     items: [
       {
-        path: navigationRoutes.templates,
+        path: navigationRoutes.scheduleTemplates,
         label: 'Templates',
       },
       {
-        path: navigationRoutes.templateAssignments,
+        path: navigationRoutes.scheduleTemplateAssignments,
         label: 'Template Assignments',
       },
     ],

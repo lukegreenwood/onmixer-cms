@@ -1,4 +1,6 @@
 @use '../utils/mixins';
+@use '../theme/palette';
+@use '../theme/text';
 
 @for $i from 1 through 8 {
   .padding-#{$i} {
@@ -60,4 +62,15 @@
 
 .height-full {
   height: 100%;
+}
+
+.text-muted {
+  color: palette.$gray-500;
+}
+
+.text-sm-leading-6-font-normal {
+  @include text.text-sm-leading-6-font-normal;
+}
+.text-sm-leading-6-font-medium {
+  @include text.text-sm-leading-6-font-medium;
 }

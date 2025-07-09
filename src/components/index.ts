@@ -12,6 +12,7 @@ export {
   type MediaSelectorModalProps,
 } from './MediaSelectorModal';
 export { Copyable } from './Copyable/Copyable';
+export { DynamicForm } from './DynamicForm/DynamicForm';
 
 export * from './blocks';
 export * from './forms';

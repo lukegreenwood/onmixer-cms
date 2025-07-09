@@ -14,22 +14,22 @@
     }
   }
 
-  .entity-edit-form__start {
+  .entity-edit-form__start,
+  .entity-edit-form__end {
     flex: 1;
     min-width: 0;
     display: flex;
     flex-direction: column;
     gap: mixins.spacing(4);
+  }
 
+  .entity-edit-form__start {
     @include mixins.mq('lg') {
       flex: 2;
     }
   }
 
   .entity-edit-form__end {
-    flex: 1;
-    min-width: 0;
-
     @include mixins.mq('lg') {
       flex: 1;
     }

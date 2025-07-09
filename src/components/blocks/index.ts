@@ -18,3 +18,4 @@ export { Pagination } from './Pagination';
 export { PresentersTable } from './PresentersTable';
 export { SeriesTable } from './SeriesTable/SeriesTable';
 export { ShowsTable } from './ShowsTable/ShowsTable';
+export { ItemList } from './ItemList/ItemList';

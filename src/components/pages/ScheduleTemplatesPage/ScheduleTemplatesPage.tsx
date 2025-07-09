@@ -18,7 +18,7 @@ export function ScheduleTemplatesPage() {
         subheading="Pre-defined defaults to used to quickly build schedules"
         actions={
           <Button asChild>
-            <Link href={getNetworkRoutePath('templateCreate')}>
+            <Link href={getNetworkRoutePath('scheduleTemplateCreate')}>
               Create template
             </Link>
           </Button>

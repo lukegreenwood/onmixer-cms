@@ -11,20 +11,22 @@ import { useState, useCallback, useMemo } from 'react';
 
 import { DataTable, Pagination, Copyable } from '@/components';
 import {
+  DELETE_SCHEDULE_TEMPLATE,
+  DUPLICATE_SCHEDULE_TEMPLATE,
+} from '@/graphql';
+import { GET_DEFAULT_SCHEDULES } from '@/graphql';
+import {
   DefaultScheduleFilterField,
   FilterType,
-  GetScheduleTemplatesQuery,
+  GetDefaultSchedulesQuery,
 } from '@/graphql/__generated__/graphql';
-import { DELETE_SCHEDULE_TEMPLATE } from '@/graphql/mutations/deleteScheduleTemplate';
-import { DUPLICATE_SCHEDULE_TEMPLATE } from '@/graphql/mutations/duplicateScheduleTemplate';
-import { GET_SCHEDULE_TEMPLATES } from '@/graphql/queries/scheduleTemplates';
 import { useNavigation, useNetwork } from '@/hooks';
 import { toast } from '@/lib';
 
 import { ScheduleTemplateActionsCell } from './ScheduleTemplateActionsCell';
 
 type TemplateRow =
-  GetScheduleTemplatesQuery['defaultSchedules']['items'][number];
+  GetDefaultSchedulesQuery['defaultSchedules']['items'][number];
 const columnHelper = createColumnHelper<TemplateRow>();
 
 const TEMPLATES_PER_PAGE = 25;
@@ -38,7 +40,7 @@ export const ScheduleTemplateTable = () => {
 
   const offset = (currentPage - 1) * TEMPLATES_PER_PAGE;
 
-  const { data, error, refetch } = useSuspenseQuery(GET_SCHEDULE_TEMPLATES, {
+  const { data, error, refetch } = useSuspenseQuery(GET_DEFAULT_SCHEDULES, {
     variables: {
       filters: {
         limit: TEMPLATES_PER_PAGE,
@@ -98,7 +100,7 @@ export const ScheduleTemplateTable = () => {
 
   const handleEdit = useCallback(
     (templateId: string) => {
-      push(getNetworkRoutePath('templateEdit', [templateId]));
+      push(getNetworkRoutePath('scheduleTemplateEdit', [templateId]));
     },
     [push, getNetworkRoutePath],
   );
@@ -231,7 +233,7 @@ export const ScheduleTemplateTable = () => {
   };
 
   const handleRowClick = (row: TemplateRow) => {
-    push(getNetworkRoutePath('templateEdit', [row.id]));
+    push(getNetworkRoutePath('scheduleTemplateEdit', [row.id]));
   };
 
   if (error) {
