@@ -6,11 +6,14 @@ import { AUTH_CONFIG } from '@/lib/auth-config';
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const code = searchParams.get('code');
-  const redirectUri = `${request.nextUrl.origin}/auth/callback`;
+  const redirectUri = `${AUTH_CONFIG.CLIENT_CALLBACK_BASE_URL}/auth/callback`;
 
   if (!code) {
     return NextResponse.redirect(
-      new URL('/auth?error=missing_code', request.url),
+      new URL(
+        `${AUTH_CONFIG.CLIENT_CALLBACK_BASE_URL}/auth?error=missing_code`,
+        request.url,
+      ),
     );
   }
 
@@ -41,12 +44,17 @@ export async function GET(request: NextRequest) {
     if (!response.ok || !result.success) {
       console.error('Auth callback failed:', result.message);
       return NextResponse.redirect(
-        new URL('/auth?error=auth_failed', request.url),
+        new URL(
+          `${AUTH_CONFIG.CLIENT_CALLBACK_BASE_URL}/auth?error=auth_failed`,
+          request.url,
+        ),
       );
     }
 
     // Create response and set auth cookies
-    const redirectResponse = NextResponse.redirect(new URL('/', request.url));
+    const redirectResponse = NextResponse.redirect(
+      new URL(AUTH_CONFIG.CLIENT_CALLBACK_BASE_URL, request.url),
+    );
 
     // Forward all cookies from the auth service
     setAuthCookies(redirectResponse, response);
@@ -55,7 +63,10 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Auth callback error:', error);
     return NextResponse.redirect(
-      new URL('/auth?error=server_error', request.url),
+      new URL(
+        `${AUTH_CONFIG.CLIENT_CALLBACK_BASE_URL}/auth?error=server_error`,
+        request.url,
+      ),
     );
   }
 }

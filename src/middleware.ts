@@ -64,7 +64,7 @@ function redirectToLogin(request: NextRequest): NextResponse {
   const authUrl = new URL(AUTH_CONFIG.AUTH_FRONTEND_URI);
   const redirectUri = `${authUrl}login?${new URLSearchParams({
     client_id: AUTH_CONFIG.CLIENT_ID,
-    redirect_uri: AUTH_CONFIG.CLIENT_CALLBACK_URL,
+    redirect_uri: `${AUTH_CONFIG.CLIENT_CALLBACK_BASE_URL}/auth/callback`,
   }).toString()}`;
 
   return NextResponse.redirect(new URL(redirectUri, request.url));
