@@ -64,7 +64,7 @@ function redirectToLogin(request: NextRequest): NextResponse {
   const authUrl = new URL(AUTH_CONFIG.AUTH_FRONTEND_URI);
   const redirectUri = `${authUrl}login?${new URLSearchParams({
     client_id: AUTH_CONFIG.CLIENT_ID,
-    redirect_uri: `${request.nextUrl.origin}/auth/callback`,
+    redirect_uri: AUTH_CONFIG.CLIENT_CALLBACK_URL,
   }).toString()}`;
 
   return NextResponse.redirect(new URL(redirectUri, request.url));
@@ -72,5 +72,5 @@ function redirectToLogin(request: NextRequest): NextResponse {
 
 export const config = {
   // Match all routes except API, static files, images, and favicon
-  matcher: ['/((?!api|auth|_next/static|_next/image|favicon.ico).*)'],
+  matcher: ['/((?!api|auth|health|_next/static|_next/image|favicon.ico).*)'],
 };
