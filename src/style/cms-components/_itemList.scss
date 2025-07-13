@@ -1,0 +1,92 @@
+@use '../theme/palette';
+@use '../theme/sizing';
+@use '../theme/shadows';
+@use '../utils/mixins';
+@use '../theme/text';
+
+.item-list {
+  border-radius: sizing.$radius-md;
+  box-shadow: shadows.$shadows-sm;
+  background-color: palette.$white-50;
+
+  .item-list__items {
+    display: flex;
+    flex-direction: column;
+
+    .item-list__item {
+      display: flex;
+      flex-direction: row;
+      gap: mixins.spacing(4);
+      border-block-start: 1px solid palette.$gray-100;
+      padding-inline: mixins.spacing(4);
+      padding-block: mixins.spacing(2);
+
+      &:first-child {
+        border-block-start: none;
+      }
+
+      &.item-list__item--selectable {
+        cursor: pointer;
+
+        &:hover {
+          background-color: palette.$gray-50;
+
+          .item-list__image {
+            img {
+              transform: scale(1.2);
+            }
+          }
+        }
+      }
+
+      &.item-list__item--selected {
+        background-color: palette.$gray-50;
+      }
+
+      .item-list__actions {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        margin-inline-start: auto;
+      }
+
+      .item-list__image {
+        overflow: hidden;
+        border-radius: sizing.$radius-sm;
+        width: 48px;
+        height: 48px;
+        border: 1px solid palette.$gray-100;
+
+        img {
+          width: 48px;
+          object-fit: contain;
+          transition: transform 200ms ease-in-out;
+        }
+      }
+    }
+  }
+
+  .item-list__add {
+    @include mixins.resetButtonStyles;
+    @include text.text-sm-leading-6-font-medium;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: mixins.spacing(1);
+    padding-inline: mixins.spacing(4);
+    padding-block: mixins.spacing(2);
+    width: 100%;
+    border-block-start: 1px solid palette.$gray-100;
+    border-end-start-radius: sizing.$radius-md;
+    border-end-end-radius: sizing.$radius-md;
+
+    &:hover {
+      background-color: palette.$gray-50;
+    }
+
+    svg {
+      color: palette.$gray-500;
+    }
+  }
+}

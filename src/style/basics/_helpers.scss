@@ -74,3 +74,24 @@
 .text-sm-leading-6-font-medium {
   @include text.text-sm-leading-6-font-medium;
 }
+
+.meta-list {
+  display: flex;
+  flex-direction: row;
+  gap: mixins.spacing(1);
+  color: palette.$gray-700;
+
+  > span {
+    &::after {
+      content: '•';
+      margin-inline-start: mixins.spacing(1);
+      color: palette.$gray-500;
+    }
+
+    &:last-child {
+      &::after {
+        content: none;
+      }
+    }
+  }
+}

@@ -1,0 +1,48 @@
+@use '../theme/palette';
+@use '../theme/shadows';
+@use '../theme/sizing';
+@use '../theme/text';
+@use '../utils/mixins';
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: palette.$background;
+  padding: mixins.spacing(4);
+
+  .auth-page__container {
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .auth-page__content {
+    background-color: palette.$white-50;
+    border-radius: sizing.$radius-lg;
+    padding: mixins.spacing(8);
+    box-shadow: shadows.$shadows-lg;
+    text-align: center;
+  }
+
+  .auth-page__title {
+    @include text.text-2xl-leading-9-font-semibold;
+    color: palette.$gray-900;
+    margin-bottom: mixins.spacing(6);
+  }
+
+  .auth-page__description {
+    @include text.text-base-leading-6-font-normal;
+    color: palette.$gray-600;
+    margin-bottom: mixins.spacing(6);
+    line-height: 1.5;
+  }
+
+  .auth-page__error {
+    margin-bottom: mixins.spacing(4);
+  }
+
+  .auth-page__signin-button {
+    margin-top: mixins.spacing(4);
+  }
+}

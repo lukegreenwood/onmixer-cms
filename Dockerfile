@@ -11,6 +11,8 @@ RUN npm ci
 
 COPY . .
 
+RUN printenv
+
 RUN npm run build
 
 FROM node:22-alpine AS runner

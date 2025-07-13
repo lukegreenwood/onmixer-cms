@@ -61,7 +61,7 @@ export const GET_DEFAULT_SCHEDULE = gql(`
           shortName
           featuredImage {
             urls {
-              customSquare(size: 80)
+              customSquare(size: 120)
             }
           }
         }

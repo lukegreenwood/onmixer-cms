@@ -13,6 +13,7 @@ export type ItemListProps = {
     secondary?: React.ReactNode;
     image?: React.ReactNode;
   }>;
+  selectedId?: string;
   onSelect?: (itemId: string) => void;
   onRemove?: (itemId: string) => void;
   onAdd?: () => void;
@@ -20,6 +21,7 @@ export type ItemListProps = {
 
 export const ItemList = ({
   items,
+  selectedId,
   onSelect,
   onRemove,
   onAdd,
@@ -34,6 +36,9 @@ export const ItemList = ({
               className={clsx(
                 'item-list__item',
                 onSelect && 'item-list__item--selectable',
+                onSelect &&
+                  item.id === selectedId &&
+                  'item-list__item--selected',
               )}
               {...(onSelect
                 ? {
@@ -59,18 +64,20 @@ export const ItemList = ({
                 />
               </div>
               {onRemove && (
-                <Button
-                  variant="outline"
-                  className="item-list__remove"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onRemove(item.id);
-                  }}
-                  isIconOnly
-                  size="xs-icon"
-                >
-                  <CloseIcon />
-                </Button>
+                <div className="item-list__actions">
+                  <Button
+                    variant="outline"
+                    className="item-list__remove"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onRemove(item.id);
+                    }}
+                    isIconOnly
+                    size="sm"
+                  >
+                    <CloseIcon />
+                  </Button>
+                </div>
               )}
             </div>
           ))}

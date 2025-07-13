@@ -2,11 +2,11 @@
 
 import { Button, DropdownMenu } from '@soundwaves/components';
 
-import type { GetScheduleTemplatesQuery } from '@/graphql/__generated__/graphql';
+import type { GetDefaultSchedulesQuery } from '@/graphql/__generated__/graphql';
 import { EllipsisVerticalIcon } from '@/icons';
 
 type TemplateRow =
-  GetScheduleTemplatesQuery['defaultSchedules']['items'][number];
+  GetDefaultSchedulesQuery['defaultSchedules']['items'][number];
 
 interface ScheduleTemplateActionsCellProps {
   template: TemplateRow;

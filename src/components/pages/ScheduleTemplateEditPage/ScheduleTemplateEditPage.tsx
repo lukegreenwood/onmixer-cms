@@ -2,9 +2,9 @@
 
 import { useMutation, useSuspenseQuery } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Badge, Alert } from '@soundwaves/components';
-import React, { useCallback } from 'react';
-import { useForm, FormProvider } from 'react-hook-form';
+import { Button, Badge, Alert, Tooltip } from '@soundwaves/components';
+import React, { useCallback, useMemo, useState } from 'react';
+import { useForm, FormProvider, useFieldArray } from 'react-hook-form';
 import { z } from 'zod';
 
 import {
@@ -27,7 +27,72 @@ import { toast } from '@/lib/toast';
 const templateFormSchema = z.object({
   name: z.string().min(1, 'Template name is required'),
   networks: z.array(z.string()),
-  assignedTo: z.array(z.string()).optional(),
+  items: z.array(
+    z
+      .object({
+        databaseId: z.string(),
+        start: z.string(),
+        end: z.string(),
+        endsNextDay: z.boolean(),
+        episodeName: z.string().nullish(),
+        episodeDesc: z.string().nullish(),
+        show: z
+          .object({
+            id: z.string(),
+            shortName: z.string(),
+            featuredImage: z.object({
+              urls: z.object({
+                customSquare: z.string().nullish(),
+              }),
+            }),
+          })
+          .passthrough(),
+        series: z
+          .object({
+            id: z.string(),
+            shortName: z.string(),
+          })
+          .nullish(),
+        presenters: z
+          .array(
+            z.object({
+              id: z.string(),
+              name: z.string(),
+            }),
+          )
+          .nullish(),
+        media: z
+          .object({
+            id: z.string(),
+          })
+          .passthrough()
+          .nullish(),
+        networks: z
+          .array(
+            z
+              .object({
+                id: z.string(),
+                name: z.string(),
+              })
+              .passthrough(),
+          )
+          .nullish(),
+        existingEpisode: z
+          .object({
+            id: z.string(),
+            name: z.string(),
+          })
+          .passthrough()
+          .nullish(),
+        repeatOf: z
+          .object({
+            id: z.string(),
+          })
+          .passthrough()
+          .nullish(),
+      })
+      .passthrough(),
+  ),
 });
 
 type TemplateFormData = z.infer<typeof templateFormSchema>;
@@ -40,6 +105,7 @@ export function ScheduleTemplateEditPage({
   id,
 }: ScheduleTemplateEditPageProps) {
   const { getNetworkRoutePath, networkGoTo } = useNavigation();
+  const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
 
   const { data: templateData, error: templateError } = useSuspenseQuery(
     GET_DEFAULT_SCHEDULE,
@@ -65,18 +131,27 @@ export function ScheduleTemplateEditPage({
   const form = useForm<TemplateFormData>({
     resolver: zodResolver(templateFormSchema),
     defaultValues: {
-      name: '',
-      networks: [],
-      assignedTo: [],
+      name: template?.name || '',
+      networks: template?.networks?.map((n) => n.id) || [],
+      items: template?.items.map((i) => ({ ...i, databaseId: i.id })) || [],
     },
     values: template
       ? {
           name: template.name,
           networks: template.networks?.map((n) => n.id) || [],
-          assignedTo: template.assignedTo || [],
+          items: template?.items.map((i) => ({ ...i, databaseId: i.id })) || [],
         }
       : undefined,
   });
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: 'items',
+  });
+  const selectedIndex = useMemo(
+    () => fields.findIndex((field) => field.id === selectedId),
+    [fields, selectedId],
+  );
 
   const handleSubmit = useCallback(
     (data: TemplateFormData) => {
@@ -203,7 +278,7 @@ export function ScheduleTemplateEditPage({
             <FormProvider {...form}>
               <div className="entity-edit-form__start">
                 <ItemList
-                  items={template.items.map((item) => ({
+                  items={fields.map((item) => ({
                     id: item.id,
                     image: (
                       <img
@@ -227,25 +302,58 @@ export function ScheduleTemplateEditPage({
                           {item.start} - {item.end}
                         </span>
                         {item.networks && (
-                          <span>
-                            {item.networks
-                              .map((network) => network.name)
-                              .join(', ')}
-                          </span>
+                          <Tooltip
+                            content="Networks"
+                            size="sm"
+                            color="secondary"
+                          >
+                            <span>
+                              {item.networks
+                                .map((network) => network.name)
+                                .join(', ')}
+                            </span>
+                          </Tooltip>
                         )}
                         {item.presenters && (
-                          <span>
-                            {item.presenters
-                              .map((presenter) => presenter.name)
-                              .join(', ')}
-                          </span>
+                          <Tooltip
+                            content="Presenters"
+                            size="sm"
+                            color="secondary"
+                          >
+                            <span>
+                              {item.presenters
+                                .map((presenter) => presenter.name)
+                                .join(', ')}
+                            </span>
+                          </Tooltip>
                         )}
-                        {item.series && <span>{item.series.shortName}</span>}
+                        {item.series && (
+                          <Tooltip content="Series" size="sm" color="secondary">
+                            <span>{item.series.shortName}</span>
+                          </Tooltip>
+                        )}
                       </div>
                     ),
                   }))}
+                  selectedId={selectedId}
                   onSelect={(id) => {
-                    form.setValue('networks', [id]);
+                    setSelectedId(id);
+                  }}
+                  onRemove={(id) => {
+                    remove(fields.findIndex((field) => field.id === id));
+                  }}
+                  onAdd={() => {
+                    append({
+                      databaseId: '',
+                      start: '',
+                      end: '',
+                      endsNextDay: false,
+                      show: {
+                        id: '',
+                        shortName: '',
+                        featuredImage: { urls: { customSquare: '' } },
+                      },
+                    });
                   }}
                 />
               </div>
@@ -267,9 +375,19 @@ export function ScheduleTemplateEditPage({
                     ]}
                   />
                 </div>
-                <div className="card">
-                  <DynamicForm fields={[]} />
-                </div>
+                {selectedId && (
+                  <div className="card">
+                    <DynamicForm
+                      fields={[
+                        {
+                          component: 'showSelector',
+                          name: `items.${selectedIndex}.show`,
+                          label: 'Show',
+                        },
+                      ]}
+                    />
+                  </div>
+                )}
               </div>
             </FormProvider>
           </div>
