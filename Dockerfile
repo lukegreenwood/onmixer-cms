@@ -11,7 +11,6 @@ RUN npm ci
 
 COPY . .
 
-RUN printenv
 
 RUN npm run build
 
