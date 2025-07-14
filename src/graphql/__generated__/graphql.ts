@@ -1606,6 +1606,7 @@ export type Series = {
   /** @deprecated Use featuredImage object instead */
   promoImage?: Maybe<Scalars['String']['output']>;
   shortDesc: Scalars['String']['output'];
+  shortId: Scalars['String']['output'];
   shortName: Scalars['String']['output'];
   show: Show;
   url: Scalars['String']['output'];

@@ -1,4 +1,4 @@
-import { jwtVerify, createRemoteJWKSet } from 'jose';
+import { jwtVerify, createRemoteJWKSet, decodeJwt } from 'jose';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { AUTH_CONFIG } from './auth-config';
@@ -18,7 +18,7 @@ export async function verifyJWT(token: string): Promise<JWTPayload | null> {
     // Verify JWT signature using remote JWKS
     const { payload } = await jwtVerify(token, JWKS, {
       issuer: AUTH_CONFIG.JWT_ISSUER,
-      audience: AUTH_CONFIG.JWT_AUDIENCE,
+      audience: AUTH_CONFIG.CLIENT_ID,
     });
 
     if (!payload || typeof payload === 'string') {
@@ -37,6 +37,24 @@ export async function verifyJWT(token: string): Promise<JWTPayload | null> {
   } catch (error) {
     console.error('JWT verification error:', error);
     return null;
+  }
+}
+
+export function isTokenExpired(token: string): boolean {
+  try {
+    const decoded = decodeJwt(token);
+
+    if (!decoded || typeof decoded === 'string') {
+      return true;
+    }
+
+    const payload = decoded as JWTPayload;
+    const currentTime = Math.floor(Date.now() / 1000);
+
+    return payload.exp ? payload.exp < currentTime : true;
+  } catch (error) {
+    console.error('Token expiration check error:', error);
+    return true;
   }
 }
 

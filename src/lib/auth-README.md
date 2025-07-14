@@ -22,6 +22,7 @@ Configuration file containing all auth-related constants and environment variabl
 Core authentication utilities:
 
 - `verifyJWT()`: Decodes and verifies JWT tokens, checks expiration
+- `isTokenExpired()`: Checks if a JWT token is expired without signature verification
 - `getAuthCookies()`: Extracts auth cookies from requests
 - `setAuthCookies()`: Forwards all cookies from auth service responses
 - `clearAuthCookies()`: Clears auth cookies
@@ -33,7 +34,8 @@ Updated Next.js middleware that:
 1. Extracts JWT tokens from cookies
 2. Verifies token validity and expiration
 3. Attempts token refresh if expired (forwards all cookies from auth service)
-4. Redirects to login if authentication fails
+4. Checks refresh token expiration before attempting refresh
+5. Redirects to login if authentication fails
 
 ### `src/app/auth/callback/route.ts`
 
@@ -50,7 +52,6 @@ AUTH_BASE_URL=https://your-auth-service.com
 AUTH_CLIENT_ID=your-client-id
 AUTH_JWKS_URL=https://your-auth-service.com/.well-known/jwks.json
 AUTH_JWT_ISSUER=soundwaves-auth
-AUTH_JWT_AUDIENCE=soundwaves-clients
 ```
 
 ## Usage
@@ -59,9 +60,20 @@ The middleware automatically handles JWT verification for all protected routes. 
 
 1. **Request comes in** → Middleware extracts JWT from cookies
 2. **JWT is valid** → Request proceeds normally
-3. **JWT is expired** → Middleware attempts refresh using refresh token
-4. **Refresh succeeds** → New access token is set and request proceeds
-5. **Refresh fails** → User is redirected to login
+3. **JWT is expired** → Middleware checks if refresh token is valid
+4. **Refresh token valid** → Middleware calls `/refresh-token` endpoint
+5. **Refresh succeeds** → New cookies are forwarded transparently to user
+6. **Refresh fails** → User is redirected to login
+
+## Token Refresh Flow
+
+When an access token expires, the middleware automatically:
+
+1. **Validates refresh token**: Checks if refresh token is not expired
+2. **Calls auth service**: Makes POST request to `${AUTH_BASE_URL}/refresh-token`
+3. **Forwards cookies**: All cookies from the auth service response are forwarded to the user
+4. **Transparent experience**: User continues their session without interruption
+5. **Fallback**: If refresh fails, user is redirected to login page
 
 ## Security Features
 
@@ -94,7 +106,7 @@ export async function verifyJWT(token: string): Promise<JWTPayload | null> {
     // Verify JWT signature using remote JWKS
     const { payload } = await jwtVerify(token, JWKS, {
       issuer: AUTH_CONFIG.JWT_ISSUER,
-      audience: AUTH_CONFIG.JWT_AUDIENCE,
+      audience: AUTH_CONFIG.CLIENT_ID, // Validates that JWT was issued for this client
     });
 
     return payload as JWTPayload;
@@ -104,3 +116,10 @@ export async function verifyJWT(token: string): Promise<JWTPayload | null> {
   }
 }
 ```
+
+**Security Features:**
+
+- **Issuer Validation**: Ensures tokens are issued by the trusted auth service
+- **Audience Validation**: Ensures tokens are intended for this specific client application
+- **Signature Verification**: Prevents token tampering using remote JWKS
+- **Automatic Key Rotation**: JWKS handles key rotation automatically

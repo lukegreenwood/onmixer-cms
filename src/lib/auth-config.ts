@@ -10,7 +10,6 @@ export const AUTH_CONFIG = {
   JWKS_URL:
     process.env.AUTH_JWKS_URL || 'http://localhost:4001/.well-known/jwks.json',
   JWT_ISSUER: process.env.AUTH_JWT_ISSUER || 'soundwaves-auth',
-  JWT_AUDIENCE: process.env.AUTH_JWT_AUDIENCE || 'soundwaves-clients',
   REFRESH_ENDPOINT: '/refresh-token',
   VERIFY_CODE_ENDPOINT: '/verify-code',
 } as const;

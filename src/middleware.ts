@@ -5,6 +5,7 @@ import {
   getAuthCookies,
   setAuthCookies,
   clearAuthCookies,
+  isTokenExpired,
 } from '@/lib/auth';
 import { AUTH_CONFIG } from '@/lib/auth-config';
 
@@ -12,7 +13,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Skip auth check for auth callback and public routes
-  if (pathname.startsWith('/auth')) {
+  if (pathname.startsWith('/auth/callback') || pathname === '/auth') {
     return NextResponse.next();
   }
 
@@ -20,6 +21,7 @@ export async function middleware(request: NextRequest) {
 
   // If no access token, redirect to login
   if (!accessToken) {
+    console.log('No access token found, redirecting to login');
     return redirectToLogin(request);
   }
 
@@ -32,45 +34,58 @@ export async function middleware(request: NextRequest) {
   }
 
   // Token is expired or invalid, try to refresh
-  if (refreshToken) {
-    const refreshResponse = await fetch(
-      `${AUTH_CONFIG.BASE_URL}${AUTH_CONFIG.REFRESH_ENDPOINT}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          refresh_token: refreshToken,
-        }),
-      },
-    );
+  if (refreshToken && !isTokenExpired(refreshToken)) {
+    console.log('Access token expired, attempting refresh');
 
-    if (refreshResponse.ok) {
-      // Create response and forward all cookies from auth service
-      const response = NextResponse.next();
-      setAuthCookies(response, refreshResponse);
-      return response;
+    try {
+      const refreshResponse = await fetch(
+        `${AUTH_CONFIG.BASE_URL}${AUTH_CONFIG.REFRESH_ENDPOINT}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            refresh_token: refreshToken,
+          }),
+        },
+      );
+
+      if (refreshResponse.ok) {
+        console.log('Token refresh successful, forwarding new cookies');
+        // Create response and forward all cookies from auth service
+        const response = NextResponse.next();
+        setAuthCookies(response, refreshResponse);
+        return response;
+      } else {
+        console.log(
+          'Token refresh failed:',
+          refreshResponse.status,
+          refreshResponse.statusText,
+        );
+      }
+    } catch (error) {
+      console.error('Token refresh error:', error);
     }
+  } else {
+    console.log('No refresh token available or refresh token expired');
   }
 
   // Refresh failed or no refresh token, clear cookies and redirect to login
+  console.log(
+    'Authentication failed, clearing cookies and redirecting to login',
+  );
   const response = redirectToLogin(request);
   clearAuthCookies(response);
   return response;
 }
 
 function redirectToLogin(request: NextRequest): NextResponse {
-  const authUrl = new URL(AUTH_CONFIG.AUTH_FRONTEND_URI);
-  const redirectUri = `${authUrl}login?${new URLSearchParams({
-    client_id: AUTH_CONFIG.CLIENT_ID,
-    redirect_uri: `${AUTH_CONFIG.CLIENT_CALLBACK_BASE_URL}/auth/callback`,
-  }).toString()}`;
-
-  return NextResponse.redirect(new URL(redirectUri, request.url));
+  // Redirect to our auth page which will handle the signin flow
+  return NextResponse.redirect(new URL('/auth', request.url));
 }
 
 export const config = {
   // Match all routes except API, static files, images, and favicon
-  matcher: ['/((?!api|auth|health|_next/static|_next/image|favicon.ico).*)'],
+  matcher: ['/((?!api|health|_next/static|_next/image|favicon.ico).*)'],
 };
