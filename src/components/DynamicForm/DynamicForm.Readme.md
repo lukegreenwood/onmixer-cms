@@ -13,7 +13,14 @@ The DynamicForm component is a flexible form builder that takes an array of fiel
   - Checkbox groups
   - Switches
   - Date pickers
+  - Time inputs
   - Radio groups
+  - Episode selectors
+  - Show selectors
+  - Series selectors
+  - Presenter selectors
+  - Network selectors
+  - Media editors
 - Form state management through React Hook Form's FormProvider
 - Error handling and validation support
 - Extensible field types
@@ -36,6 +43,9 @@ interface FormData {
   preferences: string[];
   darkMode: boolean;
   birthDate: Date;
+  startTime: string;
+  episode: { id: string; name: string };
+  show: { id: string; name: string };
   role: string;
 }
 
@@ -88,6 +98,21 @@ const fields: DynamicFormField<FormData>[] = [
     component: 'date',
     name: 'birthDate',
     label: 'Birth Date',
+  },
+  {
+    component: 'time',
+    name: 'startTime',
+    label: 'Start Time',
+  },
+  {
+    component: 'episodeSelector',
+    name: 'episode',
+    label: 'Episode',
+  },
+  {
+    component: 'showSelector',
+    name: 'show',
+    label: 'Show',
   },
   {
     component: 'radioGroup',
@@ -218,6 +243,89 @@ interface RadioGroupFieldConfig<T> {
   name: Path<T>;
   label: string;
   options: Array<{ label: string; value: string }>;
+}
+```
+
+### Time Field
+
+```tsx
+interface TimeFieldConfig<T> {
+  component: 'time';
+  name: Path<T>;
+  label: string;
+  locale?: string;
+}
+```
+
+### Episode Selector Field
+
+```tsx
+interface EpisodeSelectorFieldConfig<T> {
+  component: 'episodeSelector';
+  name: Path<T>;
+  label: string;
+  placeholder?: string;
+  className?: string;
+}
+```
+
+### Show Selector Field
+
+```tsx
+interface ShowSelectorFieldConfig<T> {
+  component: 'showSelector';
+  name: Path<T>;
+  label: string;
+  placeholder?: string;
+  className?: string;
+}
+```
+
+### Series Selector Field
+
+```tsx
+interface SeriesSelectorFieldConfig<T> {
+  component: 'seriesSelector';
+  name: Path<T>;
+  label: string;
+  placeholder?: string;
+  className?: string;
+}
+```
+
+### Presenter Selector Field
+
+```tsx
+interface PresenterSelectorFieldConfig<T> {
+  component: 'presenterSelector';
+  name: Path<T>;
+  label: string;
+  placeholder?: string;
+  className?: string;
+}
+```
+
+### Network Selector Field
+
+```tsx
+interface NetworkSelectorFieldConfig<T> {
+  component: 'networkSelector';
+  name: Path<T>;
+  label: string;
+  placeholder?: string;
+  className?: string;
+  multiple?: boolean;
+}
+```
+
+### Media Editor Field
+
+```tsx
+interface MediaEditorFieldConfig<T> {
+  component: 'mediaEditor';
+  name: Path<T>;
+  label: string;
+  type: MediaType;
 }
 ```
 

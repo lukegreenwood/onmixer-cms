@@ -1,5 +1,7 @@
 export { APPLY_ASSIGNED_DEFAULT_SCHEDULE } from './applyAssignedDefaultSchedule';
 export { APPLY_DEFAULT_SCHEDULE } from './applyDefaultSchedule';
+export { BULK_DELETE_DEFAULT_SCHEDULE_ITEMS } from './bulkDeleteDefaultScheduleItems';
+export { BULK_UPSERT_DEFAULT_SCHEDULE_ITEMS } from './bulkUpsertDefaultScheduleItems';
 export { CREATE_EPISODE } from './createEpisode';
 export { CREATE_PRESENTER } from './createPresenter';
 export { CREATE_SCHEDULE_ITEM } from './createScheduleItem';

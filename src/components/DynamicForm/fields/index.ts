@@ -1,6 +1,7 @@
 export { CheckboxField } from './CheckboxField';
 export { CheckboxGroupField } from './CheckboxGroupField';
 export { DateField } from './DateField';
+export { EpisodeSelectorField } from './EpisodeSelectorField';
 export { MediaEditorField } from './MediaEditorField';
 export { MultiSelectField } from './MultiSelectField';
 export { NetworkSelectorField } from './NetworkSelectorField';
@@ -11,3 +12,4 @@ export { ShowSelectorField } from './ShowSelectorField';
 export { SwitchField } from './SwitchField';
 export { TextareaField } from './TextareaField';
 export { TextField } from './TextField';
+export { TimeField } from './TimeField';

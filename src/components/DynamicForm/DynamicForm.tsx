@@ -10,6 +10,7 @@ import {
   RadioGroupProps,
   SwitchProps,
   TextareaProps,
+  TimeFieldProps,
   type MultiSelectOption,
 } from '@soundwaves/components';
 import clsx from 'clsx';
@@ -30,7 +31,9 @@ import {
   NetworkSelectorField,
   SeriesSelectorField,
   ShowSelectorField,
+  EpisodeSelectorField,
   MediaEditorField,
+  TimeField,
 } from './fields';
 
 import type { ReactElement } from 'react';
@@ -91,6 +94,13 @@ interface DateFieldConfig<T extends FieldValues>
   component: 'date';
 }
 
+interface TimeFieldConfig<T extends FieldValues>
+  extends BaseField<T>,
+    Omit<TimeFieldProps, 'label' | 'name'> {
+  component: 'time';
+  locale?: string;
+}
+
 interface RadioGroupFieldConfig<T extends FieldValues>
   extends BaseField<T>,
     Omit<RadioGroupProps, 'label' | 'name'> {
@@ -126,6 +136,13 @@ interface SeriesSelectorFieldConfig<T extends FieldValues>
   className?: string;
 }
 
+interface EpisodeSelectorFieldConfig<T extends FieldValues>
+  extends BaseField<T> {
+  component: 'episodeSelector';
+  placeholder?: string;
+  className?: string;
+}
+
 interface MediaEditorFieldConfig<T extends FieldValues>
   extends BaseField<T>,
     Omit<MediaEditorProps, 'label'> {
@@ -140,11 +157,13 @@ export type DynamicFormField<T extends FieldValues> =
   | CheckboxGroupFieldConfig<T>
   | SwitchFieldConfig<T>
   | DateFieldConfig<T>
+  | TimeFieldConfig<T>
   | RadioGroupFieldConfig<T>
   | PresenterSelectorFieldConfig<T>
   | NetworkSelectorFieldConfig<T>
   | ShowSelectorFieldConfig<T>
   | SeriesSelectorFieldConfig<T>
+  | EpisodeSelectorFieldConfig<T>
   | MediaEditorFieldConfig<T>;
 
 interface DynamicFormProps<T extends FieldValues> {
@@ -192,6 +211,10 @@ export const DynamicForm = <T extends FieldValues>({
         const { ...rest } = field;
         return <DateField {...rest} key={name} name={name} label={label} />;
       }
+      case 'time': {
+        const { ...rest } = field;
+        return <TimeField {...rest} key={name} name={name} label={label} />;
+      }
       case 'radioGroup': {
         const { ...rest } = field;
         return (
@@ -231,6 +254,12 @@ export const DynamicForm = <T extends FieldValues>({
         const { ...rest } = field;
         return (
           <SeriesSelectorField {...rest} key={name} name={name} label={label} />
+        );
+      }
+      case 'episodeSelector': {
+        const { ...rest } = field;
+        return (
+          <EpisodeSelectorField {...rest} key={name} name={name} label={label} />
         );
       }
       case 'mediaEditor': {

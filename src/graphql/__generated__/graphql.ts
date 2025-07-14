@@ -60,6 +60,26 @@ export type Broadcast = {
   start: Scalars['DateTime']['output'];
 };
 
+export type BulkDeleteDefaultScheduleItemsInput = {
+  ids: Array<Scalars['ID']['input']>;
+};
+
+export type BulkDeleteDefaultScheduleItemsOutput = {
+  __typename?: 'BulkDeleteDefaultScheduleItemsOutput';
+  deletedIds: Array<Scalars['ID']['output']>;
+  failedItems: Array<BulkDeleteFailedItem>;
+  failureCount: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+  successCount: Scalars['Int']['output'];
+  totalItems: Scalars['Int']['output'];
+};
+
+export type BulkDeleteFailedItem = {
+  __typename?: 'BulkDeleteFailedItem';
+  error: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+};
+
 export type BulkDownloadJobItem = {
   autoEnrich?: InputMaybe<Scalars['Boolean']['input']>;
   id?: InputMaybe<Scalars['String']['input']>;
@@ -107,6 +127,46 @@ export type BulkSearchYouTubeResponse = {
   success: Scalars['Boolean']['output'];
   successfulQueries: Scalars['Int']['output'];
   totalQueries: Scalars['Int']['output'];
+};
+
+export type BulkUpsertDefaultScheduleItemInput = {
+  defaultSchedule: Scalars['ID']['input'];
+  end: Scalars['String']['input'];
+  endsNextDay: Scalars['Boolean']['input'];
+  episodeDesc?: InputMaybe<Scalars['String']['input']>;
+  episodeName?: InputMaybe<Scalars['String']['input']>;
+  existingEpisode?: InputMaybe<Scalars['ID']['input']>;
+  featuredImage?: InputMaybe<Scalars['String']['input']>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  media?: InputMaybe<Scalars['ID']['input']>;
+  networks?: InputMaybe<Array<Scalars['ID']['input']>>;
+  presenters?: InputMaybe<Array<Scalars['ID']['input']>>;
+  repeatOf?: InputMaybe<Scalars['ID']['input']>;
+  series?: InputMaybe<Scalars['ID']['input']>;
+  show: Scalars['ID']['input'];
+  start: Scalars['String']['input'];
+};
+
+export type BulkUpsertDefaultScheduleItemsInput = {
+  items: Array<BulkUpsertDefaultScheduleItemInput>;
+};
+
+export type BulkUpsertDefaultScheduleItemsOutput = {
+  __typename?: 'BulkUpsertDefaultScheduleItemsOutput';
+  createdCount: Scalars['Int']['output'];
+  failedItems: Array<BulkUpsertFailedItem>;
+  failureCount: Scalars['Int']['output'];
+  success: Scalars['Boolean']['output'];
+  successCount: Scalars['Int']['output'];
+  totalItems: Scalars['Int']['output'];
+  updatedCount: Scalars['Int']['output'];
+  upsertedItems: Array<DefaultScheduleItem>;
+};
+
+export type BulkUpsertFailedItem = {
+  __typename?: 'BulkUpsertFailedItem';
+  error: Scalars['String']['output'];
+  id?: Maybe<Scalars['ID']['output']>;
 };
 
 export enum CacheControlScope {
@@ -897,8 +957,10 @@ export type Mutation = {
   applyAssignedDefaultSchedule: ActionOutput;
   applyDefaultSchedule: ActionOutput;
   assignDefaultScheduleToNetwork: ActionOutput;
+  bulkDeleteDefaultScheduleItems: BulkDeleteDefaultScheduleItemsOutput;
   bulkSearchMusicBrainz: BulkSearchMusicBrainzResponse;
   bulkSearchYouTube: BulkSearchYouTubeResponse;
+  bulkUpsertDefaultScheduleItems: BulkUpsertDefaultScheduleItemsOutput;
   cancelJob: Scalars['Boolean']['output'];
   createBulkDownloadJobs: BulkDownloadJobsResponse;
   createDefaultSchedule: DefaultScheduleMutationOutput;
@@ -951,6 +1013,11 @@ export type MutationAssignDefaultScheduleToNetworkArgs = {
 };
 
 
+export type MutationBulkDeleteDefaultScheduleItemsArgs = {
+  input: BulkDeleteDefaultScheduleItemsInput;
+};
+
+
 export type MutationBulkSearchMusicBrainzArgs = {
   input: BulkSearchMusicBrainzInput;
 };
@@ -958,6 +1025,11 @@ export type MutationBulkSearchMusicBrainzArgs = {
 
 export type MutationBulkSearchYouTubeArgs = {
   input: BulkSearchYouTubeInput;
+};
+
+
+export type MutationBulkUpsertDefaultScheduleItemsArgs = {
+  input: BulkUpsertDefaultScheduleItemsInput;
 };
 
 
@@ -2331,6 +2403,20 @@ export type ApplyDefaultScheduleMutationVariables = Exact<{
 
 export type ApplyDefaultScheduleMutation = { __typename?: 'Mutation', applyDefaultSchedule: { __typename?: 'ActionOutput', success: boolean, message?: string | null } };
 
+export type BulkDeleteDefaultScheduleItemsMutationVariables = Exact<{
+  input: BulkDeleteDefaultScheduleItemsInput;
+}>;
+
+
+export type BulkDeleteDefaultScheduleItemsMutation = { __typename?: 'Mutation', bulkDeleteDefaultScheduleItems: { __typename?: 'BulkDeleteDefaultScheduleItemsOutput', success: boolean, successCount: number, failureCount: number, totalItems: number, deletedIds: Array<string>, failedItems: Array<{ __typename?: 'BulkDeleteFailedItem', id: string, error: string }> } };
+
+export type BulkUpsertDefaultScheduleItemsMutationVariables = Exact<{
+  input: BulkUpsertDefaultScheduleItemsInput;
+}>;
+
+
+export type BulkUpsertDefaultScheduleItemsMutation = { __typename?: 'Mutation', bulkUpsertDefaultScheduleItems: { __typename?: 'BulkUpsertDefaultScheduleItemsOutput', success: boolean, successCount: number, failureCount: number, totalItems: number, upsertedItems: Array<{ __typename?: 'DefaultScheduleItem', id: string, start: string, end: string, endsNextDay: boolean, episodeName?: string | null, episodeDesc?: string | null, show: { __typename?: 'Show', id: string, shortName: string }, series?: { __typename?: 'Series', id: string, shortName: string } | null, presenters?: Array<{ __typename?: 'Presenter', id: string, name: string }> | null, networks?: Array<{ __typename?: 'Network', id: string, name: string }> | null, existingEpisode?: { __typename?: 'Episode', id: string, name: string } | null, repeatOf?: { __typename?: 'DefaultScheduleItem', id: string } | null }>, failedItems: Array<{ __typename?: 'BulkUpsertFailedItem', id?: string | null, error: string }> } };
+
 export type CreateEpisodeMutationVariables = Exact<{
   input: CreateEpisodeInput;
 }>;
@@ -2718,6 +2804,8 @@ export type BulkSearchMusicBrainzMutation = { __typename?: 'Mutation', bulkSearc
 
 export const ApplyAssignedDefaultScheduleDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"ApplyAssignedDefaultSchedule"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"networkId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"date"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"DateTime"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"assignedTo"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"DayOfWeek"}}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"applyAssignedDefaultSchedule"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"networkId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"networkId"}}},{"kind":"ObjectField","name":{"kind":"Name","value":"date"},"value":{"kind":"Variable","name":{"kind":"Name","value":"date"}}},{"kind":"ObjectField","name":{"kind":"Name","value":"assignedTo"},"value":{"kind":"Variable","name":{"kind":"Name","value":"assignedTo"}}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}},{"kind":"Field","name":{"kind":"Name","value":"message"}}]}}]}}]} as unknown as DocumentNode<ApplyAssignedDefaultScheduleMutation, ApplyAssignedDefaultScheduleMutationVariables>;
 export const ApplyDefaultScheduleDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"ApplyDefaultSchedule"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"defaultScheduleId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"date"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"DateTime"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"applyDefaultSchedule"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"defaultSchedule"},"value":{"kind":"Variable","name":{"kind":"Name","value":"defaultScheduleId"}}},{"kind":"ObjectField","name":{"kind":"Name","value":"date"},"value":{"kind":"Variable","name":{"kind":"Name","value":"date"}}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}},{"kind":"Field","name":{"kind":"Name","value":"message"}}]}}]}}]} as unknown as DocumentNode<ApplyDefaultScheduleMutation, ApplyDefaultScheduleMutationVariables>;
+export const BulkDeleteDefaultScheduleItemsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"BulkDeleteDefaultScheduleItems"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"BulkDeleteDefaultScheduleItemsInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"bulkDeleteDefaultScheduleItems"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}},{"kind":"Field","name":{"kind":"Name","value":"successCount"}},{"kind":"Field","name":{"kind":"Name","value":"failureCount"}},{"kind":"Field","name":{"kind":"Name","value":"totalItems"}},{"kind":"Field","name":{"kind":"Name","value":"deletedIds"}},{"kind":"Field","name":{"kind":"Name","value":"failedItems"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"error"}}]}}]}}]}}]} as unknown as DocumentNode<BulkDeleteDefaultScheduleItemsMutation, BulkDeleteDefaultScheduleItemsMutationVariables>;
+export const BulkUpsertDefaultScheduleItemsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"BulkUpsertDefaultScheduleItems"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"BulkUpsertDefaultScheduleItemsInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"bulkUpsertDefaultScheduleItems"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}},{"kind":"Field","name":{"kind":"Name","value":"successCount"}},{"kind":"Field","name":{"kind":"Name","value":"failureCount"}},{"kind":"Field","name":{"kind":"Name","value":"totalItems"}},{"kind":"Field","name":{"kind":"Name","value":"upsertedItems"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"start"}},{"kind":"Field","name":{"kind":"Name","value":"end"}},{"kind":"Field","name":{"kind":"Name","value":"endsNextDay"}},{"kind":"Field","name":{"kind":"Name","value":"episodeName"}},{"kind":"Field","name":{"kind":"Name","value":"episodeDesc"}},{"kind":"Field","name":{"kind":"Name","value":"show"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"shortName"}}]}},{"kind":"Field","name":{"kind":"Name","value":"series"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"shortName"}}]}},{"kind":"Field","name":{"kind":"Name","value":"presenters"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"networks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"existingEpisode"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"repeatOf"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"failedItems"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"error"}}]}}]}}]}}]} as unknown as DocumentNode<BulkUpsertDefaultScheduleItemsMutation, BulkUpsertDefaultScheduleItemsMutationVariables>;
 export const CreateEpisodeDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateEpisode"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateEpisodeInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createEpisode"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"episode"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"duration"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"formatted"}},{"kind":"Field","name":{"kind":"Name","value":"raw"}}]}},{"kind":"Field","name":{"kind":"Name","value":"extraData"}},{"kind":"Field","name":{"kind":"Name","value":"shortId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"featuredImage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"key"}},{"kind":"Field","name":{"kind":"Name","value":"urls"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"medium"}},{"kind":"Field","name":{"kind":"Name","value":"square"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"show"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"shortName"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}}]}},{"kind":"Field","name":{"kind":"Name","value":"series"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}}]}},{"kind":"Field","name":{"kind":"Name","value":"presenters"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"networks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvgIcon"}}]}}]}}]}}]}}]} as unknown as DocumentNode<CreateEpisodeMutation, CreateEpisodeMutationVariables>;
 export const CreatePresenterDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreatePresenter"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreatePresenterInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createPresenter"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"presenter"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"bio"}},{"kind":"Field","name":{"kind":"Name","value":"shortBio"}},{"kind":"Field","name":{"kind":"Name","value":"hidden"}},{"kind":"Field","name":{"kind":"Name","value":"hero"}},{"kind":"Field","name":{"kind":"Name","value":"picture"}},{"kind":"Field","name":{"kind":"Name","value":"networks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvgIcon"}}]}}]}}]}}]}}]} as unknown as DocumentNode<CreatePresenterMutation, CreatePresenterMutationVariables>;
 export const CreateScheduleItemDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateScheduleItem"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateScheduleItemInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createScheduleItem"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"scheduleItem"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"end"}},{"kind":"Field","name":{"kind":"Name","value":"start"}},{"kind":"Field","name":{"kind":"Name","value":"networks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"episode"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"show"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"shortName"}}]}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"broadcasts"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"start"}},{"kind":"Field","name":{"kind":"Name","value":"end"}}]}},{"kind":"Field","name":{"kind":"Name","value":"featuredImage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"urls"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"square"}},{"kind":"Field","name":{"kind":"Name","value":"customSquare"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"size"},"value":{"kind":"IntValue","value":"150"}}]}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"networks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvgIcon"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<CreateScheduleItemMutation, CreateScheduleItemMutationVariables>;
