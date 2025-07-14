@@ -6,6 +6,7 @@ import { AUTH_CONFIG } from '@/lib/auth-config';
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const code = searchParams.get('code');
+  const returnTo = searchParams.get('returnTo');
   const redirectUri = `${AUTH_CONFIG.CLIENT_CALLBACK_BASE_URL}/auth/callback`;
 
   if (!code) {
@@ -52,9 +53,11 @@ export async function GET(request: NextRequest) {
     }
 
     // Create response and set auth cookies
-    const redirectResponse = NextResponse.redirect(
-      new URL(AUTH_CONFIG.CLIENT_CALLBACK_BASE_URL, request.url),
-    );
+    const redirectUrl = returnTo 
+      ? new URL(returnTo, AUTH_CONFIG.CLIENT_CALLBACK_BASE_URL)
+      : new URL(AUTH_CONFIG.CLIENT_CALLBACK_BASE_URL, request.url);
+    
+    const redirectResponse = NextResponse.redirect(redirectUrl);
 
     // Forward all cookies from the auth service
     setAuthCookies(redirectResponse, response);
