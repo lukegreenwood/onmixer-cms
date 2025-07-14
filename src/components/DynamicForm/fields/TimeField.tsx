@@ -29,17 +29,17 @@ export const TimeField = <T extends FieldValues>({
   // Handle different input value types
   const timeValue = (() => {
     if (!value) return '';
-    
+
     // If it's already a formatted time string (HH:mm:ss or HH:mm), return it
     if (typeof value === 'string' && /^\d{1,2}:\d{2}(:\d{2})?$/.test(value)) {
       return value;
     }
-    
+
     // If it's a Date object, format it
-    if (value instanceof Date) {
-      return format(value, 'HH:mm:ss');
+    if (typeof value === 'object' && (value as unknown) instanceof Date) {
+      return format(value as Date, 'HH:mm:ss');
     }
-    
+
     // If it's a string that might be a date/time, try to parse it
     if (typeof value === 'string') {
       try {
@@ -52,11 +52,11 @@ export const TimeField = <T extends FieldValues>({
         return value;
       }
     }
-    
+
     return '';
   })();
 
-  const handleTimeChange = (newTimeValue: string) => {
+  const handleTimeChange = (newTimeValue: string | null) => {
     if (!newTimeValue) {
       onChange('');
       return;
@@ -65,7 +65,7 @@ export const TimeField = <T extends FieldValues>({
     // For time-only fields, we might want to store just the time string
     // or create a Date object with today's date but the specified time
     const currentDate = new Date();
-    
+
     try {
       // Try parsing as HH:mm:ss first, then HH:mm
       let parsedTime;
@@ -77,7 +77,7 @@ export const TimeField = <T extends FieldValues>({
           parsedTime = parse(newTimeValue, 'HH:mm', currentDate);
         }
       }
-      
+
       if (parsedTime && !isNaN(parsedTime.getTime())) {
         // Store as time string for consistency
         onChange(format(parsedTime, 'HH:mm:ss'));
@@ -99,8 +99,7 @@ export const TimeField = <T extends FieldValues>({
       value={timeValue}
       onChange={handleTimeChange}
       locale={locale}
-      errorMessage={error?.message}
-      helperText={error?.message ?? helperText}
+      errorMessage={error?.message ?? helperText}
     />
   );
 };

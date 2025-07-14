@@ -96,7 +96,7 @@ interface DateFieldConfig<T extends FieldValues>
 
 interface TimeFieldConfig<T extends FieldValues>
   extends BaseField<T>,
-    Omit<TimeFieldProps, 'label' | 'name'> {
+    Omit<TimeFieldProps, 'label' | 'name' | 'locale'> {
   component: 'time';
   locale?: string;
 }
