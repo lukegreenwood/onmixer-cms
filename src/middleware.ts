@@ -13,7 +13,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Skip auth check for auth callback and public routes
-  if (pathname.startsWith('/auth/callback') || pathname === '/auth') {
+  if (pathname.startsWith('/auth')) {
     return NextResponse.next();
   }
 
@@ -21,7 +21,6 @@ export async function middleware(request: NextRequest) {
 
   // If no access token, redirect to login
   if (!accessToken) {
-    console.log('No access token found, redirecting to login');
     return redirectToLogin(request);
   }
 
@@ -52,7 +51,6 @@ export async function middleware(request: NextRequest) {
       );
 
       if (refreshResponse.ok) {
-        console.log('Token refresh successful, forwarding new cookies');
         // Create response and forward all cookies from auth service
         const response = NextResponse.next();
         setAuthCookies(response, refreshResponse);
@@ -81,8 +79,13 @@ export async function middleware(request: NextRequest) {
 }
 
 function redirectToLogin(request: NextRequest): NextResponse {
-  // Redirect to our auth page which will handle the signin flow
-  return NextResponse.redirect(new URL('/auth', request.url));
+  const authUrl = new URL(AUTH_CONFIG.AUTH_FRONTEND_URI);
+  const redirectUri = `${authUrl}login?${new URLSearchParams({
+    client_id: AUTH_CONFIG.CLIENT_ID,
+    redirect_uri: `${AUTH_CONFIG.CLIENT_CALLBACK_BASE_URL}/auth/callback`,
+  }).toString()}`;
+
+  return NextResponse.redirect(new URL(redirectUri, request.url));
 }
 
 export const config = {
