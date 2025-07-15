@@ -32,46 +32,69 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Token is expired or invalid, try to refresh
-  if (refreshToken && !isTokenExpired(refreshToken)) {
-    console.log('Access token expired, attempting refresh');
+  // Token is expired or invalid, try to refresh if refresh token exists
+  if (refreshToken) {
+    console.log('Access token expired, attempting refresh for:', pathname);
+
+    // Check if refresh token is expired before attempting refresh
+    if (isTokenExpired(refreshToken)) {
+      console.log('Refresh token is also expired, redirecting to login');
+      const response = redirectToLogin(request);
+      clearAuthCookies(response);
+      return response;
+    }
 
     try {
-      const refreshResponse = await fetch(
-        `${AUTH_CONFIG.BASE_URL}${AUTH_CONFIG.REFRESH_ENDPOINT}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            refresh_token: refreshToken,
-          }),
+      const refreshUrl = `${AUTH_CONFIG.BASE_URL}${AUTH_CONFIG.REFRESH_ENDPOINT}`;
+      const refreshBody = {
+        refresh_token: refreshToken,
+        client_id: AUTH_CONFIG.CLIENT_ID,
+      };
+      
+      console.log('Making refresh request to:', refreshUrl);
+      console.log('With client_id:', AUTH_CONFIG.CLIENT_ID);
+      
+      const refreshResponse = await fetch(refreshUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': request.headers.get('user-agent') || '',
+          'X-Forwarded-For':
+            request.headers.get('x-forwarded-for') ||
+            request.headers.get('x-real-ip') ||
+            '',
         },
-      );
+        body: JSON.stringify(refreshBody),
+      });
 
       if (refreshResponse.ok) {
+        console.log('Token refresh successful for:', pathname);
         // Create response and forward all cookies from auth service
         const response = NextResponse.next();
         setAuthCookies(response, refreshResponse);
         return response;
       } else {
-        console.log(
+        const errorText = await refreshResponse.text();
+        console.error(
           'Token refresh failed:',
           refreshResponse.status,
           refreshResponse.statusText,
+          'Body:',
+          errorText,
         );
       }
     } catch (error) {
-      console.error('Token refresh error:', error);
+      console.error('Token refresh network error:', error);
     }
   } else {
-    console.log('No refresh token available or refresh token expired');
+    console.log('No refresh token available, redirecting to login');
   }
 
   // Refresh failed or no refresh token, clear cookies and redirect to login
-  console.log(
-    'Authentication failed, clearing cookies and redirecting to login',
+  console.error(
+    'Authentication failed for:',
+    pathname,
+    '- clearing cookies and redirecting to login',
   );
   const response = redirectToLogin(request);
   clearAuthCookies(response);

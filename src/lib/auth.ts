@@ -16,6 +16,7 @@ const JWKS = createRemoteJWKSet(new URL(AUTH_CONFIG.JWKS_URL));
 export async function verifyJWT(token: string): Promise<JWTPayload | null> {
   try {
     // Verify JWT signature using remote JWKS
+    // Note: jwtVerify automatically checks expiration, so we don't need to do it manually
     const { payload } = await jwtVerify(token, JWKS, {
       issuer: AUTH_CONFIG.JWT_ISSUER,
       audience: AUTH_CONFIG.CLIENT_ID,
@@ -25,17 +26,14 @@ export async function verifyJWT(token: string): Promise<JWTPayload | null> {
       return null;
     }
 
-    const jwtPayload = payload as JWTPayload;
-
-    // Check if token is expired
-    const currentTime = Math.floor(Date.now() / 1000);
-    if (jwtPayload.exp && jwtPayload.exp < currentTime) {
-      return null;
-    }
-
-    return jwtPayload;
+    return payload as JWTPayload;
   } catch (error) {
-    console.error('JWT verification error:', error);
+    // Log JWT verification errors for debugging
+    if (error instanceof Error) {
+      console.error('JWT verification error:', error.message);
+    } else {
+      console.error('JWT verification error:', error);
+    }
     return null;
   }
 }
