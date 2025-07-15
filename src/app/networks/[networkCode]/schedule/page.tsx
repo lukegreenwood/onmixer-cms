@@ -5,9 +5,10 @@ import { SchedulePage } from '@/components';
 export default async function SchedulePageRoot({
   params,
 }: {
-  params: Promise<{ date?: string }>;
+  params: Promise<{ networkCode: string }>;
 }) {
-  const { date = format(new Date(), 'yyyy-MM-dd') } = await params;
+  const { networkCode: _networkCode } = await params;
+  const date = format(new Date(), 'yyyy-MM-dd');
 
   return <SchedulePage date={date} />;
 }

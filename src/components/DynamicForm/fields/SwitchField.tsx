@@ -23,7 +23,7 @@ export const SwitchField = <T extends FieldValues>({
       {...rest}
       label={label}
       checked={Boolean(value)}
-      onChange={onChange}
+      onCheckedChange={onChange}
       helperText={error?.message ?? rest.helperText}
     />
   );

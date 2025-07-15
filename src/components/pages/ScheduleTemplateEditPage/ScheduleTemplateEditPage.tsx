@@ -384,19 +384,20 @@ export function ScheduleTemplateEditPage({
                           <span>
                             {item.start} - {item.end}
                           </span>
-                          {existingItem?.networks && (
-                            <Tooltip
-                              content="Networks"
-                              size="sm"
-                              color="secondary"
-                            >
-                              <span>
-                                {existingItem.networks
-                                  .map((network) => network.name)
-                                  .join(', ')}
-                              </span>
-                            </Tooltip>
-                          )}
+                          {existingItem?.networks &&
+                            existingItem.networks.length > 0 && (
+                              <Tooltip
+                                content="Networks"
+                                size="sm"
+                                color="secondary"
+                              >
+                                <span>
+                                  {existingItem.networks
+                                    .map((network) => network.name)
+                                    .join(', ')}
+                                </span>
+                              </Tooltip>
+                            )}
                           {item?.presenters && item.presenters.length > 0 && (
                             <Tooltip
                               content="Presenters"

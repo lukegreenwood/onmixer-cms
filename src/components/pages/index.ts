@@ -6,6 +6,7 @@ export { PresenterCreatePage } from './PresenterCreatePage';
 export { PresenterEditPage } from './PresenterEditPage';
 export { PresentersPage } from './PresentersPage';
 export { SchedulePage } from './SchedulePage';
+export { ScheduleTemplateCreatePage } from './ScheduleTemplateCreatePage';
 export { SeriesCreatePage } from './SeriesCreatePage';
 export { SeriesEditPage } from './SeriesEditPage';
 export { SeriesPage } from './SeriesPage';

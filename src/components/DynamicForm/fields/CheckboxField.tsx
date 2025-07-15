@@ -24,7 +24,7 @@ export const CheckboxField = <T extends FieldValues>({
       {...rest}
       label={label}
       checked={Boolean(value)}
-      onChange={onChange}
+      onCheckedChange={onChange}
       helperText={error?.message}
     />
   );

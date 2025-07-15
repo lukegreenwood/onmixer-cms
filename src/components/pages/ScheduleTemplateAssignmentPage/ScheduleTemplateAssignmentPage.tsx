@@ -1,14 +1,16 @@
 'use client';
 
-import { useQuery } from '@apollo/client';
-import { Button, Autocomplete } from '@soundwaves/components';
+import { useQuery, useMutation } from '@apollo/client';
+import { Button, Autocomplete, Loading } from '@soundwaves/components';
+import { useDebouncer } from '@tanstack/react-pacer';
 import { useRouter } from 'next/navigation';
 import React, { useCallback, useMemo, useState } from 'react';
 
 import { PageHeader } from '@/blocks/PageHeader/PageHeader';
-import { GET_DEFAULT_SCHEDULES } from '@/graphql';
-import { GetDefaultSchedulesQuery } from '@/graphql/__generated__/graphql';
+import { SEARCH_DEFAULT_SCHEDULE, ASSIGN_DEFAULT_SCHEDULE_TO_NETWORK } from '@/graphql';
+import { SearchDefaultScheduleQuery, DefaultScheduleFilterField, FilterType } from '@/graphql/__generated__/graphql';
 import { useNavigation } from '@/hooks/useNavigation';
+import { useNetwork } from '@/hooks/useNetwork';
 import { toast } from '@/lib/toast';
 
 const DAYS_OF_WEEK = [
@@ -28,7 +30,7 @@ interface ScheduleTemplateAssignmentPageProps {
 type TemplateOption = {
   value: string;
   label: string;
-  template: GetDefaultSchedulesQuery['defaultSchedules']['items'][number];
+  template: SearchDefaultScheduleQuery['defaultSchedules']['items'][number];
 };
 
 type DayAssignment = {
@@ -41,17 +43,28 @@ export function ScheduleTemplateAssignmentPage({
 }: ScheduleTemplateAssignmentPageProps) {
   const router = useRouter();
   const { getNetworkRoutePath } = useNavigation();
+  const { currentNetwork } = useNetwork();
 
   const [assignments, setAssignments] = useState<DayAssignment[]>(
     DAYS_OF_WEEK.map((day) => ({ day: day.key, templateId: null })),
   );
 
-  // Fetch all available templates
-  const { data: templatesData } = useQuery(GET_DEFAULT_SCHEDULES, {
+  const [assignToNetwork, { loading: assignLoading }] = useMutation(
+    ASSIGN_DEFAULT_SCHEDULE_TO_NETWORK,
+  );
+
+  // Search templates with debounced search
+  const { data: templatesData, refetch, loading: templatesLoading } = useQuery(SEARCH_DEFAULT_SCHEDULE, {
     variables: {
       filters: {
-        limit: 100, // Get all templates for selection
-        offset: 0,
+        limit: 20,
+        filter: [
+          {
+            field: DefaultScheduleFilterField.Name,
+            type: FilterType.Contains,
+            value: '',
+          },
+        ],
       },
     },
     fetchPolicy: 'cache-and-network',
@@ -68,7 +81,7 @@ export function ScheduleTemplateAssignmentPage({
       value: '',
       label: 'No template assigned',
       template:
-        {} as GetDefaultSchedulesQuery['defaultSchedules']['items'][number],
+        {} as SearchDefaultScheduleQuery['defaultSchedules']['items'][number],
     };
 
     const templateOpts: TemplateOption[] = templates.map((template) => ({
@@ -81,23 +94,46 @@ export function ScheduleTemplateAssignmentPage({
   }, [templates]);
 
   const handleTemplateAssignment = useCallback(
-    (day: string, templateId: string | null) => {
-      setAssignments((prev) =>
-        prev.map((assignment) =>
-          assignment.day === day
-            ? { ...assignment, templateId: templateId || null }
-            : assignment,
-        ),
-      );
+    async (day: string, templateId: string | null) => {
+      if (!currentNetwork?.id) {
+        toast('Network not selected', 'error');
+        return;
+      }
 
-      // TODO: Call API to save assignment
-      const templateName = templateId
-        ? templates.find((t) => t.id === templateId)?.name || 'Template'
-        : 'No template';
+      try {
+        if (templateId) {
+          // Assign template to network for this day
+          await assignToNetwork({
+            variables: {
+              input: {
+                networkId: currentNetwork.id,
+                defaultScheduleId: templateId,
+                days: [day], // DayOfWeek scalar
+              },
+            },
+          });
+        }
+        
+        // Update local state
+        setAssignments((prev) =>
+          prev.map((assignment) =>
+            assignment.day === day
+              ? { ...assignment, templateId: templateId || null }
+              : assignment,
+          ),
+        );
 
-      toast(`${day}: ${templateName} assigned`, 'success');
+        const templateName = templateId
+          ? templates.find((t) => t.id === templateId)?.name || 'Template'
+          : 'No template';
+
+        toast(`${day}: ${templateName} assigned`, 'success');
+      } catch (error) {
+        console.error('Assignment error:', error);
+        toast('Failed to assign template', 'error');
+      }
     },
-    [templates],
+    [templates, currentNetwork?.id, assignToNetwork],
   );
 
   const handleAddTemplate = useCallback(() => {
@@ -105,7 +141,7 @@ export function ScheduleTemplateAssignmentPage({
   }, [router, getNetworkRoutePath]);
 
   const renderTemplateItem = (
-    template: GetDefaultSchedulesQuery['defaultSchedules']['items'][number],
+    template: SearchDefaultScheduleQuery['defaultSchedules']['items'][number],
   ) => {
     if (!template) return null;
 
@@ -132,6 +168,23 @@ export function ScheduleTemplateAssignmentPage({
       </div>
     );
   };
+
+  const handleSearchChange = useCallback((search: string) => {
+    refetch({
+      filters: {
+        limit: 20,
+        filter: [
+          {
+            field: DefaultScheduleFilterField.Name,
+            type: FilterType.Contains,
+            value: search,
+          },
+        ],
+      },
+    });
+  }, [refetch]);
+
+  const debouncedHandleSearch = useDebouncer(handleSearchChange, { wait: 500 });
 
   const getAssignedTemplate = (day: string) => {
     const assignment = assignments.find((a) => a.day === day);
@@ -173,7 +226,9 @@ export function ScheduleTemplateAssignmentPage({
                           handleTemplateAssignment(day.key, value || null)
                         }
                         placeholder="Select template..."
-                        onSearch={() => {}} // TODO: Implement search functionality
+                        onSearch={debouncedHandleSearch.maybeExecute}
+                        disabled={assignLoading}
+                        after={templatesLoading ? <Loading size="xs" /> : undefined}
                       />
                     </div>
                   </div>
