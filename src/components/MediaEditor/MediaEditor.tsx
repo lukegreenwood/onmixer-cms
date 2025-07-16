@@ -72,16 +72,14 @@ export const MediaEditor = forwardRef<HTMLDivElement, MediaEditorProps>(
         setUploadProgress(0);
         try {
           const formData = new FormData();
-          formData.append('file', file);
           formData.append('type', type);
+          formData.append('file', file);
 
           const response = await axios.post(
             `${process.env.NEXT_PUBLIC_MEDIA_API}/media/upload`,
             formData,
             {
               timeout: 60 * 1000, // 60 seconds
-              maxContentLength: Infinity,
-              maxBodyLength: Infinity,
               onUploadProgress: (progressEvent) => {
                 if (progressEvent.total) {
                   const percentCompleted = Math.round(
@@ -94,7 +92,7 @@ export const MediaEditor = forwardRef<HTMLDivElement, MediaEditorProps>(
           );
 
           if (response.data?.id) {
-            onChange?.(response.data.id);
+            onChange?.(response.data.id.toString());
           }
         } catch (error) {
           console.error('Error uploading file:', error);

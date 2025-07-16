@@ -369,7 +369,7 @@ export function ScheduleTemplateEditPage({
                       ) : undefined,
                       primary: (
                         <span className="flex flex-row">
-                          <p className="text-sm-leading-6-font-medium ">
+                          <p className="text-sm-leading-6-font-medium">
                             {existingItem?.show.shortName ||
                               item.show.name ||
                               `New item`}

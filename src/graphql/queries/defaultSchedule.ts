@@ -5,16 +5,38 @@ export const SEARCH_DEFAULT_SCHEDULE = gql(`
         defaultSchedules(
             filters: $filters
         ) {
-		total
-		items {
-			id
-			assignedTo
-			name
-            networks {
-                id
-                name
-            }
+      total
+      items {
+        id
+        assignedTo
+        name
+        networks {
+            id
+            name
+            logoSvgIcon
         }
+        items {
+          id
+          start
+          end
+          episodeName
+          media {
+            id
+            urls {
+              customSquare(size: 120)
+            }
+          }
+          show {
+            id
+            shortName
+            featuredImage {
+              urls {
+                customSquare(size: 120)
+              }
+            }
+          }
+        }
+      }
     }
 }`);
 
@@ -29,8 +51,28 @@ export const GET_DEFAULT_SCHEDULES = gql(`
         networks {
           id
           name
-          code
           logoSvgIcon
+        }
+        items {
+          id
+          start
+          end
+          episodeName
+          media {
+            id
+            urls {
+              customSquare(size: 120)
+            }
+          }
+          show {
+            id
+            shortName
+            featuredImage {
+              urls {
+                customSquare(size: 120)
+              }
+            }
+          }
         }
       }
     }

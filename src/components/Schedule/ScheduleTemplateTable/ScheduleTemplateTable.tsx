@@ -89,7 +89,6 @@ export const ScheduleTemplateTable = () => {
 
   const handleDeleteConfirm = useCallback(
     (id: string) => {
-      console.log('handleDeleteConfirm', id);
       if (id) {
         handleDelete(id);
         refetch();

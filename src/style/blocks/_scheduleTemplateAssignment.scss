@@ -1,0 +1,36 @@
+@use '../theme/palette';
+@use '../theme/sizing';
+@use '../theme/text';
+@use '../theme/shadows';
+@use '../utils/mixins';
+
+.schedule-template-assignment {
+  max-width: calc(100vw - 304px);
+  overflow-x: auto;
+
+  .schedule-template-assignment__grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(300px, 1fr));
+    gap: mixins.spacing(4);
+  }
+
+  .schedule-template-assignment__column {
+    min-height: 600px;
+
+    .item-list__content {
+      &:not(:first-child) {
+        width: 100%;
+        overflow: hidden;
+
+        .primary-secondary
+          .primary-secondary__primary
+          .text-sm-leading-6-font-medium {
+          width: 100%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+      }
+    }
+  }
+}
