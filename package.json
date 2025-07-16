@@ -12,6 +12,7 @@
     "watch": "graphql-codegen -w"
   },
   "dependencies": {
+    "@soundwaves/client-auth": "file:./packages/auth",
     "@apollo/client": "^3.13.7",
     "@apollo/client-integration-nextjs": "^0.12.1",
     "@date-fns/utc": "^2.1.0",
