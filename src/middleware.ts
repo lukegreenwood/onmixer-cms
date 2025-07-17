@@ -20,6 +20,7 @@ export async function middleware(request: NextRequest) {
   if (authResult.success) {
     if (authResult.shouldRefresh) {
       // Apply refresh token cookies
+      console.log('Refreshing token for:', pathname);
       const response = NextResponse.next();
       return applyAuthCookies(response, authResult);
     }
