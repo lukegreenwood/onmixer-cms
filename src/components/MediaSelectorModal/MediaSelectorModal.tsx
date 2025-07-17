@@ -2,7 +2,7 @@
 
 import { useQuery } from '@apollo/client';
 import { Button, Dialog, Input, Loading } from '@soundwaves/components';
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef } from 'react';
 
 import { SearchIcon } from '@/components/icons';
 import {
@@ -39,8 +39,6 @@ export const MediaSelectorModal = ({
   className = '',
 }: MediaSelectorModalProps) => {
   const [searchKey, setSearchKey] = useState('');
-  const lastItemRef = useRef<HTMLButtonElement>(null);
-  const observerRef = useRef<IntersectionObserver | null>(null);
   
   const ITEMS_PER_PAGE = 20;
 
@@ -98,7 +96,6 @@ export const MediaSelectorModal = ({
   });
 
   const allMedia = searchData?.mediaList?.items || [];
-  const hasMore = allMedia.length > 0 && allMedia.length % ITEMS_PER_PAGE === 0;
 
   const handleMediaSelect = useCallback(
     (media: SearchMediaQuery['mediaList']['items'][number]) => {
@@ -108,44 +105,42 @@ export const MediaSelectorModal = ({
     [onSelect, onOpenChange],
   );
 
-  const loadMore = useCallback(() => {
-    if (!hasMore || searchLoading) return;
 
-    fetchMore({
-      variables: {
-        filters: getFilters(allMedia.length),
-      },
-    });
-  }, [hasMore, searchLoading, fetchMore, getFilters, allMedia.length]);
-
-  useEffect(() => {
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  
+  const loadMoreRef = useCallback((node: HTMLDivElement | null) => {
+    if (searchLoading) return;
+    
     if (observerRef.current) {
       observerRef.current.disconnect();
     }
-
-    observerRef.current = new IntersectionObserver(
-      (entries) => {
-        const [entry] = entries;
-        if (entry.isIntersecting && hasMore && !searchLoading) {
-          loadMore();
+    
+    if (node) {
+      observerRef.current = new IntersectionObserver(
+        (entries) => {
+          const [entry] = entries;
+          if (entry.isIntersecting) {
+            const currentItems = searchData?.mediaList?.items || [];
+            const hasMore = currentItems.length > 0 && currentItems.length % ITEMS_PER_PAGE === 0;
+            
+            if (hasMore && !searchLoading) {
+              fetchMore({
+                variables: {
+                  filters: getFilters(currentItems.length),
+                },
+              });
+            }
+          }
+        },
+        {
+          threshold: 0.1,
+          rootMargin: '50px',
         }
-      },
-      {
-        threshold: 0.1,
-        rootMargin: '50px',
-      }
-    );
-
-    if (lastItemRef.current) {
-      observerRef.current.observe(lastItemRef.current);
+      );
+      
+      observerRef.current.observe(node);
     }
-
-    return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-      }
-    };
-  }, [hasMore, searchLoading, loadMore, allMedia.length]);
+  }, [searchLoading, searchData, fetchMore, getFilters, ITEMS_PER_PAGE]);
 
   const handleSearchChange = useCallback(
     (
@@ -192,33 +187,34 @@ export const MediaSelectorModal = ({
               </div>
             ) : (
               <div className="media-selector-modal__grid">
-                {allMedia.map((media, index) => {
-                  const isLastItem = index === allMedia.length - 1;
-                  return (
-                    <button
-                      key={media.id}
-                      ref={isLastItem ? lastItemRef : null}
-                      className="media-selector-modal__item"
-                      onClick={() => handleMediaSelect(media)}
-                    >
-                      <div className="media-selector-modal__item-preview">
-                        <img
-                          src={media.urls.square}
-                          alt={media.key}
-                          className="media-selector-modal__item-image"
-                        />
-                      </div>
-                      <div className="media-selector-modal__item-info">
-                        <span className="media-selector-modal__item-name">
-                          {media.key}
-                        </span>
-                        <span className="media-selector-modal__item-size">
-                          {media.fileSize?.label || 'Unknown size'}
-                        </span>
-                      </div>
-                    </button>
-                  );
-                })}
+                {allMedia.map((media) => (
+                  <button
+                    key={media.id}
+                    className="media-selector-modal__item"
+                    onClick={() => handleMediaSelect(media)}
+                  >
+                    <div className="media-selector-modal__item-preview">
+                      <img
+                        src={media.urls.square}
+                        alt={media.key}
+                        className="media-selector-modal__item-image"
+                      />
+                    </div>
+                    <div className="media-selector-modal__item-info">
+                      <span className="media-selector-modal__item-name">
+                        {media.key}
+                      </span>
+                      <span className="media-selector-modal__item-size">
+                        {media.fileSize?.label || 'Unknown size'}
+                      </span>
+                    </div>
+                  </button>
+                ))}
+                <div 
+                  ref={loadMoreRef}
+                  className="media-selector-modal__load-more-trigger"
+                  style={{ height: '1px' }}
+                />
                 {searchLoading && allMedia.length > 0 && (
                   <div className="media-selector-modal__loading-more">
                     <Loading size="sm" />
