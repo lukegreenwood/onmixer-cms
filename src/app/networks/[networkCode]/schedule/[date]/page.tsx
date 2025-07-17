@@ -1,4 +1,11 @@
-import SchedulePage from '../page';
+import { SchedulePage } from '@/components';
 
-// Shared page with root path
-export default SchedulePage;
+export default async function ScheduleDatePage({
+  params,
+}: {
+  params: Promise<{ networkCode: string; date: string }>;
+}) {
+  const { date } = await params;
+  
+  return <SchedulePage date={date} />;
+}

@@ -43,8 +43,10 @@ const client = () => {
               keyArgs: ['filters', ['filterGroup', 'order']],
               merge(existing, incoming, { args }) {
                 const offset = args?.filters?.offset || 0;
-                const merged = existing ? { ...existing } : { items: [], total: 0 };
-                
+                const merged = existing
+                  ? { ...existing }
+                  : { items: [], total: 0 };
+
                 if (offset === 0) {
                   // New search or refetch - replace entirely
                   merged.items = incoming.items;
@@ -52,7 +54,7 @@ const client = () => {
                   // Pagination - append new items
                   merged.items = [...(merged.items || []), ...incoming.items];
                 }
-                
+
                 merged.total = incoming.total;
                 return merged;
               },

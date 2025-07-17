@@ -33,7 +33,9 @@ export const DateNavigation = ({
             <Calendar
               value={scheduleDate}
               onChange={(date) => {
-                onDateChange(date.toDate('UTC'));
+                if (date) {
+                  onDateChange(date.toDate('UTC'));
+                }
               }}
             />
           </Popover.Content>

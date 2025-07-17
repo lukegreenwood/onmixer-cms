@@ -1,0 +1,1 @@
+export { MediaManagementPage } from './MediaManagementPage';

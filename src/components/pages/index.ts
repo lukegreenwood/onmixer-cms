@@ -13,3 +13,4 @@ export { SeriesPage } from './SeriesPage';
 export { ShowCreatePage } from './ShowCreatePage';
 export { ShowEditPage } from './ShowEditPage/ShowEditPage';
 export { ShowsPage } from './ShowsPage';
+export { MediaManagementPage } from './MediaManagementPage';

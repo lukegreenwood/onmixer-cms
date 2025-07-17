@@ -35,3 +35,4 @@ export { UnscheduleIcon } from './Unschedule';
 export { WarningIcon } from './Warning';
 export { EllipsisIcon } from './Ellipsis';
 export { EllipsisVerticalIcon } from './EllipsisVertical';
+export { ReplaceIcon } from './ReplaceIcon';

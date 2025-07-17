@@ -5,7 +5,7 @@ import { Alert, Button, DropdownMenu, Tooltip } from '@soundwaves/components';
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { format, isValid, parse } from 'date-fns';
 import { useRouter } from 'next/navigation';
-import { Fragment, useState } from 'react';
+import { Fragment, useState, useMemo } from 'react';
 
 import { PageHeader, DataTable } from '@/blocks';
 import {
@@ -48,7 +48,8 @@ const getDateFromParams = (date: string) => {
 };
 
 export const SchedulePage = ({ date }: SchedulePageProps) => {
-  const scheduleDate = getDateFromParams(date);
+  const scheduleDate = useMemo(() => getDateFromParams(date), [date]);
+  
   const router = useRouter();
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [showTemplateModal, setShowTemplateModal] = useState(false);

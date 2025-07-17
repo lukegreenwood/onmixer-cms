@@ -20,6 +20,8 @@ export const useSchedule = ({
       network: networkId?.toString() ?? '',
     },
     skip: !date || !networkId,
+    fetchPolicy: 'cache-and-network',
+    notifyOnNetworkStatusChange: true,
   });
 
   return result;
