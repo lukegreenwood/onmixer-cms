@@ -7,16 +7,19 @@ export async function refreshAccessToken(
   refreshToken: string,
   config: AuthConfig,
   getHeader: HeadersGetter,
+  redirectUri?: string,
 ): Promise<RefreshTokenResponse> {
   try {
     const refreshUrl = `${config.BASE_URL}${config.REFRESH_ENDPOINT}`;
     const refreshBody = {
       refresh_token: refreshToken,
       client_id: config.CLIENT_ID,
+      ...(redirectUri && { redirect_uri: redirectUri }),
     };
 
     console.log('Making refresh request to:', refreshUrl);
     console.log('With client_id:', config.CLIENT_ID);
+    console.log('With redirect_uri:', redirectUri);
 
     const response = await fetch(refreshUrl, {
       method: 'POST',

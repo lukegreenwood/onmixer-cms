@@ -14,3 +14,4 @@ export { ShowCreatePage } from './ShowCreatePage';
 export { ShowEditPage } from './ShowEditPage/ShowEditPage';
 export { ShowsPage } from './ShowsPage';
 export { MediaManagementPage } from './MediaManagementPage';
+export { TrackEditPage } from './TrackEditPage';

@@ -78,6 +78,16 @@ export const GET_TRACK = gql(`
       bpm
       dateAdded
       dateModified
+      label
+      copyright
+      composer
+      publisher
+      image
+      metadata {
+        id
+        key
+        value
+      }
     }
   }
 `);

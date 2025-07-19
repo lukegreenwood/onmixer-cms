@@ -56,10 +56,14 @@ export async function authenticateRequest(context: AuthContext): Promise<AuthRes
       };
     }
 
+    // Construct redirect URI for refresh token request
+    const redirectUri = new URL('/auth/callback', context.config.CLIENT_CALLBACK_BASE_URL).toString();
+    
     const refreshResult = await refreshAccessToken(
       refreshToken,
       context.config,
       context.getHeader,
+      redirectUri,
     );
 
     if (refreshResult.success) {

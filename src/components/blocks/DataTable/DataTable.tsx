@@ -1,10 +1,12 @@
-import { flexRender, Table } from '@tanstack/react-table';
+import { Cell, flexRender, Row, Table } from '@tanstack/react-table';
 import clsx from 'clsx';
+import { useCallback } from 'react';
 export type DataTableProps<TData> = {
   className?: string;
   table: Table<TData>;
   onRowClick?: (row: TData) => void;
   noHover?: boolean;
+  excludeRowClickColumns?: string[];
 };
 
 export function DataTable<TData>({
@@ -12,7 +14,18 @@ export function DataTable<TData>({
   table,
   onRowClick,
   noHover = false,
+  excludeRowClickColumns = [],
 }: DataTableProps<TData>) {
+  const handleRowClick = useCallback(
+    (row: Row<TData>, cell: Cell<TData, unknown>) => {
+      if (excludeRowClickColumns?.includes(cell.column.id)) {
+        return;
+      }
+      onRowClick?.(row.original);
+    },
+    [onRowClick, excludeRowClickColumns],
+  );
+
   return (
     <table
       className={clsx('data-table', className, {
@@ -42,7 +55,6 @@ export function DataTable<TData>({
         {table.getRowModel().rows.map((row) => (
           <tr
             key={row.id}
-            onClick={() => onRowClick?.(row.original)}
             className={
               row.getIsSelected()
                 ? 'data-table__row data-table__row--selected'
@@ -50,7 +62,11 @@ export function DataTable<TData>({
             }
           >
             {row.getVisibleCells().map((cell) => (
-              <td key={cell.id} className="data-table__cell">
+              <td
+                key={cell.id}
+                className="data-table__cell"
+                onClick={() => handleRowClick(row, cell)}
+              >
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </td>
             ))}

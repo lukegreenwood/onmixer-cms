@@ -1,7 +1,14 @@
 'use client';
 
-import { useQuery } from '@apollo/client';
-import { Alert, Badge, Button, Checkbox, Input } from '@soundwaves/components';
+import { useLazyQuery, useSuspenseQuery } from '@apollo/client';
+import {
+  Alert,
+  Badge,
+  Button,
+  Checkbox,
+  Input,
+  Loading,
+} from '@soundwaves/components';
 import { useDebouncer } from '@tanstack/react-pacer';
 import {
   createColumnHelper,
@@ -23,14 +30,16 @@ import {
 import type {
   SearchTracksV2Query,
   TrackListInputV2,
-  TrackTextFilterField,
   TrackBooleanFilterField,
 } from '@/graphql/__generated__/graphql';
 import {
   TrackFilterType,
   TextFilterOperator,
   BooleanFilterOperator,
+  NumberFilterOperator,
   OperatorType,
+  TrackTextFilterField,
+  TrackNumberFilterField,
 } from '@/graphql/__generated__/graphql';
 import { SEARCH_TRACKS_V2 } from '@/graphql/queries/tracks';
 import { TrackIcon } from '@/icons';
@@ -131,50 +140,126 @@ export function TracksListPage() {
   const page = Number(searchParams.get('page') ?? '1');
 
   const [rowSelection, setRowSelection] = useState({});
-  const [globalFilter, setGlobalFilter] = useState(
-    searchParams.get('search') ?? '',
-  );
+  const [globalFilter, setGlobalFilter] = useState('');
   const [filtersState, setFiltersState] = useState<FiltersState>([]);
+  const [hasTriggeredLazyQuery, setHasTriggeredLazyQuery] = useState(false);
 
   const offset = (page - 1) * TRACKS_PER_PAGE;
 
-  const graphqlFilters = useMemo(
-    () =>
-      convertFiltersStateToTrackGraphQL(filtersState, {
-        limit: TRACKS_PER_PAGE,
-        offset,
-      }),
-    [filtersState, offset],
-  );
+  const createGraphqlFilters = useCallback((searchTerm: string, filters: FiltersState) => {
+    const baseFilters = convertFiltersStateToTrackGraphQL(filters, {
+      limit: TRACKS_PER_PAGE,
+      offset,
+    });
 
-  const { data, loading, error, refetch } = useQuery(SEARCH_TRACKS_V2, {
-    variables: { filters: graphqlFilters },
-    fetchPolicy: 'cache-and-network',
-  });
+    // Add global search filters if search term exists
+    if (searchTerm.trim()) {
+      const trimmedSearchTerm = searchTerm.trim();
+      const searchFilters = [];
+
+      // Search by title
+      searchFilters.push({
+        type: TrackFilterType.Text,
+        textFilter: {
+          field: TrackTextFilterField.Title,
+          operator: TextFilterOperator.Contains,
+          value: trimmedSearchTerm,
+        },
+      });
+
+      // Search by artist
+      searchFilters.push({
+        type: TrackFilterType.Text,
+        textFilter: {
+          field: TrackTextFilterField.Artist,
+          operator: TextFilterOperator.Contains,
+          value: trimmedSearchTerm,
+        },
+      });
+
+      // Search by ID if the search term is a number
+      if (!isNaN(Number(trimmedSearchTerm))) {
+        searchFilters.push({
+          type: TrackFilterType.Number,
+          numberFilter: {
+            field: TrackNumberFilterField.Id,
+            operator: NumberFilterOperator.Is,
+            value: Number(trimmedSearchTerm),
+          },
+        });
+      }
+
+      // Create a search filter group with OR operator
+      const searchFilterGroup = {
+        operator: OperatorType.Or,
+        filters: searchFilters,
+      };
+
+      // Combine existing filters with search filters using AND
+      if (
+        baseFilters.filterGroup?.filters &&
+        baseFilters.filterGroup.filters.length > 0
+      ) {
+        return {
+          ...baseFilters,
+          filterGroup: {
+            operator: OperatorType.And,
+            filters: [...baseFilters.filterGroup.filters, ...searchFilters],
+          },
+        };
+      } else {
+        return {
+          ...baseFilters,
+          filterGroup: searchFilterGroup,
+        };
+      }
+    }
+
+    return baseFilters;
+  }, [offset]);
+
+  const { data: initialData, error: initialError } = useSuspenseQuery(
+    SEARCH_TRACKS_V2,
+    {
+      variables: {
+        filters: convertFiltersStateToTrackGraphQL([], {
+          limit: TRACKS_PER_PAGE,
+          offset,
+        }),
+      },
+    },
+  );
+  const [fetchTracks, { data, error, called, loading }] = useLazyQuery(
+    SEARCH_TRACKS_V2,
+    {
+      fetchPolicy: 'cache-and-network',
+    },
+  );
 
   const tracks = useMemo(
-    () => data?.tracksV2?.items || [],
-    [data?.tracksV2?.items],
+    () =>
+      called ? data?.tracksV2?.items || [] : initialData?.tracksV2?.items || [],
+    [data?.tracksV2?.items, initialData?.tracksV2?.items, called],
   );
-  const totalCount = data?.tracksV2?.total || 0;
-
-  // Client-side filtering for search since we want to keep the search bar
-  const filteredTracks = useMemo(() => {
-    if (!globalFilter.trim()) return tracks;
-
-    const searchTerm = globalFilter.toLowerCase();
-    return tracks.filter(
-      (track) =>
-        track.title.toLowerCase().includes(searchTerm) ||
-        track.artist.toLowerCase().includes(searchTerm) ||
-        (track.album && track.album.toLowerCase().includes(searchTerm)),
-    );
-  }, [tracks, globalFilter]);
+  const totalCount = called 
+    ? data?.tracksV2?.total || 0 
+    : initialData?.tracksV2?.total || 0;
 
   const handleFiltersChange = (
     newFilters: FiltersState | ((prevState: FiltersState) => FiltersState),
   ) => {
-    setFiltersState(newFilters);
+    const updatedFilters = typeof newFilters === 'function' ? newFilters(filtersState) : newFilters;
+    setFiltersState(updatedFilters);
+    
+    // Trigger lazy query on first filter application
+    if (!hasTriggeredLazyQuery) {
+      setHasTriggeredLazyQuery(true);
+    }
+    
+    // Execute query with updated filters
+    const filters = createGraphqlFilters(globalFilter, updatedFilters);
+    fetchTracks({ variables: { filters } });
+    
     if (page !== 1) {
       router.push('?page=1');
     }
@@ -182,16 +267,16 @@ export function TracksListPage() {
 
   const handleSearch = useCallback(
     (searchTerm: string) => {
-      setGlobalFilter(searchTerm);
-      const params = new URLSearchParams(searchParams);
-      if (searchTerm) {
-        params.set('search', searchTerm);
-      } else {
-        params.delete('search');
+      // Trigger lazy query on first search
+      if (!hasTriggeredLazyQuery) {
+        setHasTriggeredLazyQuery(true);
       }
-      router.push(`?${params.toString()}`);
+      
+      // Execute query with search term
+      const filters = createGraphqlFilters(searchTerm, filtersState);
+      fetchTracks({ variables: { filters } });
     },
-    [router, searchParams],
+    [createGraphqlFilters, filtersState, fetchTracks, hasTriggeredLazyQuery],
   );
 
   const debouncedSearch = useDebouncer(handleSearch, { wait: 500 });
@@ -206,12 +291,12 @@ export function TracksListPage() {
     [],
   );
 
-  const handleEdit = useCallback((trackId: string) => {
-    toast(
-      `Edit functionality for track ${trackId} not yet implemented`,
-      'gray',
-    );
-  }, []);
+  const handleEdit = useCallback(
+    (trackId: string) => {
+      router.push(`/tracks/${trackId}/edit`);
+    },
+    [router],
+  );
 
   const handleToggleEnabled = useCallback(
     (trackId: string, enabled: boolean) => {
@@ -353,7 +438,7 @@ export function TracksListPage() {
   );
 
   const table = useReactTable({
-    data: filteredTracks,
+    data: tracks,
     columns: tableColumns,
     getCoreRowModel: getCoreRowModel(),
     onRowSelectionChange: setRowSelection,
@@ -367,19 +452,31 @@ export function TracksListPage() {
     const params = new URLSearchParams(searchParams);
     params.set('page', newPage.toString());
     router.push(`?${params.toString()}`);
+    
+    // If lazy query has been triggered, refetch with new offset
+    if (hasTriggeredLazyQuery) {
+      const newOffset = (newPage - 1) * TRACKS_PER_PAGE;
+      const filters = createGraphqlFilters(globalFilter, filtersState);
+      // Update offset in filters
+      const filtersWithNewOffset = {
+        ...filters,
+        offset: newOffset,
+      };
+      fetchTracks({ variables: { filters: filtersWithNewOffset } });
+    }
   };
 
   const handleRowClick = (
     row: SearchTracksV2Query['tracksV2']['items'][number],
   ) => {
-    toast(`View details for "${row.title}" by ${row.artist}`, 'gray');
+    router.push(`/tracks/${row.id}/edit`);
   };
 
-  if (error) {
+  if (error || initialError) {
     return (
       <div className="page-content">
         <Alert variant="expanded" color="error" title="Error fetching tracks">
-          {error.message}
+          {error?.message || initialError?.message}
         </Alert>
       </div>
     );
@@ -391,24 +488,30 @@ export function TracksListPage() {
         heading="Tracks"
         subheading="Browse and manage your music tracks library"
         actions={
-          <Button onClick={() => refetch()} variant="outline">
+          <Button 
+            onClick={() => {
+              const filters = createGraphqlFilters(globalFilter, filtersState);
+              fetchTracks({ variables: { filters } });
+            }} 
+            variant="outline"
+          >
             Refresh
           </Button>
         }
       />
 
       <div className="page-content">
-        {/* Search Controls */}
         <div className="tracks-filters">
           <div className="tracks-filters__search">
             <Input
-              placeholder="Search tracks by title, artist, or album..."
+              placeholder="Search tracks by title, artist, or ID..."
               value={globalFilter}
               onChange={(e) => {
                 const value = (e.target as HTMLInputElement).value;
                 setGlobalFilter(value);
                 debouncedSearch.maybeExecute(value);
               }}
+              after={loading ? <Loading size="xxs" /> : null}
             />
           </div>
         </div>
@@ -421,15 +524,12 @@ export function TracksListPage() {
         />
 
         <div className="card card--flush">
-          {loading ? (
-            <div className="data-table__loading">Loading tracks...</div>
-          ) : (
-            <DataTable
-              className="data-table--contained"
-              table={table}
-              onRowClick={handleRowClick}
-            />
-          )}
+          <DataTable
+            className="data-table--contained"
+            table={table}
+            onRowClick={handleRowClick}
+            excludeRowClickColumns={['select', 'actions']}
+          />
           <Pagination
             className="pagination--contained"
             total={totalCount}
