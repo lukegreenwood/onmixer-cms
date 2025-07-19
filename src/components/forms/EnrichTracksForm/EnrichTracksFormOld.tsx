@@ -83,8 +83,12 @@ export function EnrichTracksForm({
     try {
       const result = await searchMusicBrainz({
         variables: {
-          artist: data.artist,
-          title: data.title,
+          input: {
+            artist: data.artist,
+            title: data.title,
+            limit: 10,
+            preferSingles: true,
+          },
         },
       });
 

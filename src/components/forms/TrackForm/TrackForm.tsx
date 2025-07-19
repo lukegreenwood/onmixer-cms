@@ -2,12 +2,13 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@soundwaves/components';
+import React, { forwardRef, useImperativeHandle, useCallback } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { z } from 'zod';
 
 import { EntityEditForm, ActionBar } from '@/components';
 import { DynamicForm } from '@/components/DynamicForm/DynamicForm';
-import { MediaType, GetTrackQuery } from '@/graphql/__generated__/graphql';
+import { MediaType, GetTrackQuery, SearchMusicBrainzQuery } from '@/graphql/__generated__/graphql';
 
 const trackFormSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -39,7 +40,12 @@ export interface TrackFormProps {
   onSubmit: (data: TrackFormData) => void;
 }
 
-export const TrackForm = ({ trackData, onSubmit }: TrackFormProps) => {
+export interface TrackFormRef {
+  applyMusicBrainzData: (recording: SearchMusicBrainzQuery['searchMusicBrainz'][0], release: SearchMusicBrainzQuery['searchMusicBrainz'][0]['releases'][0]) => void;
+}
+
+export const TrackForm = forwardRef<TrackFormRef, TrackFormProps>((props, ref) => {
+  const { trackData, onSubmit } = props;
   const methods = useForm<TrackFormData>({
     resolver: zodResolver(trackFormSchema),
     defaultValues: {
@@ -145,7 +151,7 @@ export const TrackForm = ({ trackData, onSubmit }: TrackFormProps) => {
     <div className="metadata-section">
       <h3>Metadata</h3>
       <div className="metadata-fields">
-        {methods.watch('metadata')?.map((item, index) => (
+        {methods.watch('metadata')?.map((_, index) => (
           <div key={index} className="metadata-field">
             <div className="metadata-field__inputs">
               <input
@@ -193,6 +199,104 @@ export const TrackForm = ({ trackData, onSubmit }: TrackFormProps) => {
     onSubmit(data);
   };
 
+  // Function to map MusicBrainz data to form fields and metadata
+  const applyMusicBrainzData = useCallback((recording: SearchMusicBrainzQuery['searchMusicBrainz'][0], release: SearchMusicBrainzQuery['searchMusicBrainz'][0]['releases'][0]) => {
+    // Map basic fields
+    methods.setValue('title', recording.title);
+    methods.setValue('artist', recording.artist);
+    methods.setValue('album', release.album);
+    methods.setValue('year', release.year?.toString() || '');
+    methods.setValue('isrc', recording.isrc || '');
+    methods.setValue('label', release.label || '');
+
+    // Create metadata array based on the mapping table
+    const metadata = [];
+
+    // Add release date
+    if (release.date) {
+      metadata.push({ key: 'release_date', value: release.date });
+    }
+
+    // Add album artist (same as artist for most cases)
+    metadata.push({ key: 'album_artist', value: recording.artist });
+
+    // Add artist sort order
+    if (recording.artistSortOrder) {
+      metadata.push({ key: 'album_artist_sort_order', value: recording.artistSortOrder });
+      metadata.push({ key: 'performer_sort_order', value: recording.artistSortOrder });
+    }
+
+    // Add barcode
+    if (release.barcode) {
+      metadata.push({ key: 'barcode', value: release.barcode });
+    }
+
+    // Add ISRC to metadata as well
+    if (recording.isrc) {
+      metadata.push({ key: 'isrc', value: recording.isrc });
+    }
+
+    // Add MusicBrainz IDs
+    if (recording.artistId) {
+      metadata.push({ key: 'mbz_artist_id', value: recording.artistId });
+    }
+    if (recording.recordingId) {
+      metadata.push({ key: 'mbz_recording_id', value: recording.recordingId });
+    }
+    if (release.releaseArtistId) {
+      metadata.push({ key: 'mbz_release_artist_id', value: release.releaseArtistId });
+    }
+    if (release.releaseGroupId) {
+      metadata.push({ key: 'mbz_release_group_id', value: release.releaseGroupId });
+    }
+    if (release.releaseId) {
+      metadata.push({ key: 'mbz_release_id', value: release.releaseId });
+    }
+    if (release.trackId) {
+      metadata.push({ key: 'mbz_track_id', value: release.trackId });
+    }
+
+    // Add original release date
+    if (release.originalDate) {
+      metadata.push({ key: 'original_release_date', value: release.originalDate });
+    }
+
+    // Add original year
+    if (release.year) {
+      metadata.push({ key: 'originalyear', value: release.year.toString() });
+    }
+
+    // Add release country
+    if (release.country) {
+      metadata.push({ key: 'release_country', value: release.country });
+    }
+
+    // Add release type
+    if (release.releaseType) {
+      metadata.push({ key: 'mbz_album_type', value: release.releaseType });
+    }
+
+    // Add dynamic fields from MusicBrainz
+    if (recording.dynamicFields) {
+      recording.dynamicFields.forEach(field => {
+        if (field.key && field.value) {
+          metadata.push({ key: field.key, value: field.value });
+        }
+      });
+    }
+
+    // Set the metadata in the form
+    methods.setValue('metadata', metadata);
+
+    // Mark form as dirty to enable save button
+    methods.trigger();
+  }, [methods]);
+
+  // Expose the applyMusicBrainzData function via ref
+  useImperativeHandle(ref, () => ({
+    applyMusicBrainzData
+  }), [applyMusicBrainzData]);
+
   return (
     <FormProvider {...methods}>
       <div className="track-form">
@@ -222,4 +326,6 @@ export const TrackForm = ({ trackData, onSubmit }: TrackFormProps) => {
       </div>
     </FormProvider>
   );
-};
+});
+
+TrackForm.displayName = 'TrackForm';

@@ -5,86 +5,143 @@
 @use '../utils/mixins';
 
 .musicbrainz-search-modal {
-  min-width: 600px;
-  max-width: 800px;
+  min-width: 800px;
+  max-width: 90vw;
+  width: 1200px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
 
-  &__body {
+  .musicbrainz-search-modal__body {
     padding: mixins.spacing(4);
-  }
-
-  &__form {
-    margin-bottom: mixins.spacing(6);
-  }
-
-  &__footer {
-    padding: mixins.spacing(4);
-    border-top: 1px solid palette.$gray-200;
+    flex: 1;
     display: flex;
-    justify-content: flex-end;
+    flex-direction: column;
+    gap: mixins.spacing(6);
+    overflow: hidden;
   }
 
-  &__form-fields {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+  .musicbrainz-search-modal__form {
+    display: flex;
+    flex-direction: column;
     gap: mixins.spacing(4);
-    margin-bottom: mixins.spacing(4);
+  }
+
+  .musicbrainz-search-modal__form-fields {
+    display: flex;
+    flex-direction: column;
+    gap: mixins.spacing(4);
+  }
+
+  .musicbrainz-search-modal__form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: mixins.spacing(4);
 
     @media (max-width: 768px) {
       grid-template-columns: 1fr;
     }
   }
 
-  &__results {
-    margin-top: mixins.spacing(6);
+  .musicbrainz-search-modal__checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: mixins.spacing(2);
+    @include text.text-sm-leading-5-font-medium;
+    color: palette.$gray-900;
+    cursor: pointer;
+  }
 
+  .musicbrainz-search-modal__checkbox {
+    width: mixins.spacing(4);
+    height: mixins.spacing(4);
+    accent-color: palette.$blue-600;
+  }
+
+  .musicbrainz-search-modal__footer {
+    padding: mixins.spacing(4);
+    border-top: 1px solid palette.$gray-200;
+    display: flex;
+    justify-content: flex-end;
+    gap: mixins.spacing(3);
+  }
+
+  .musicbrainz-search-modal__results {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: mixins.spacing(4);
+    overflow: hidden;
+  }
+
+  .musicbrainz-search-modal__results-header {
     h3 {
       @include text.text-lg-leading-7-font-semibold;
       color: palette.$gray-900;
-      margin-bottom: mixins.spacing(4);
+      margin: 0;
     }
   }
 
-  &__results-list {
-    display: flex;
-    flex-direction: column;
-    gap: mixins.spacing(3);
-    max-height: 400px;
-    overflow-y: auto;
-  }
-
-  &__result-item {
-    display: flex;
-    align-items: center;
-    gap: mixins.spacing(4);
-    padding: mixins.spacing(3);
+  .musicbrainz-search-modal__results-table {
+    flex: 1;
+    overflow: auto;
     border: 1px solid palette.$gray-200;
     border-radius: sizing.$radius-md;
     background: palette.$white-50;
-    box-shadow: shadows.$shadows-sm;
+  }
 
-    &:hover {
+  .musicbrainz-search-modal__table {
+    width: 100%;
+    min-width: 100%;
+
+    th {
+      position: sticky;
+      top: 0;
       background: palette.$gray-50;
+      z-index: 1;
+      padding: mixins.spacing(3);
+      @include text.text-sm-leading-5-font-semibold;
+      color: palette.$gray-900;
+      text-align: left;
+      border-bottom: 1px solid palette.$gray-200;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: mixins.spacing(3);
+      @include text.text-sm-leading-5-font-normal;
+      color: palette.$gray-700;
+      border-bottom: 1px solid palette.$gray-100;
+      vertical-align: top;
+    }
+
+    tbody tr {
+      &:hover {
+        background-color: palette.$gray-50;
+      }
+
+      &:last-child td {
+        border-bottom: none;
+      }
+    }
+
+    .font-medium {
+      @include text.text-sm-leading-5-font-medium;
+      color: palette.$gray-900;
     }
   }
 
-  &__result-content {
-    flex: 1;
-  }
+  // Responsive adjustments
+  @media (max-width: 768px) {
+    min-width: 95vw;
+    max-height: 85vh;
 
-  &__result-title {
-    @include text.text-base-leading-6-font-medium;
-    color: palette.$gray-900;
-    margin-bottom: mixins.spacing(1);
-  }
+    .musicbrainz-search-modal__table {
+      @include text.text-xs-leading-4-font-normal;
 
-  &__result-artist {
-    @include text.text-sm-leading-5-font-normal;
-    color: palette.$gray-600;
-    margin-bottom: mixins.spacing(1);
-  }
-
-  &__result-score {
-    @include text.text-sm-leading-5-font-medium;
-    color: palette.$green-600;
+      th, td {
+        padding: mixins.spacing(2);
+      }
+    }
   }
 }

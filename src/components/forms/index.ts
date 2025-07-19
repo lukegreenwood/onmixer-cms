@@ -7,4 +7,4 @@ export type { SeriesFormData } from './SeriesForm';
 export { ShowForm } from './ShowForm';
 export type { ShowFormData, ShowFormProps } from './ShowForm';
 export { TrackForm } from './TrackForm';
-export type { TrackFormData, TrackFormProps } from './TrackForm';
+export type { TrackFormData, TrackFormProps, TrackFormRef } from './TrackForm';

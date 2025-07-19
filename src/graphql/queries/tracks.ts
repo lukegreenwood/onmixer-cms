@@ -130,12 +130,82 @@ export const BULK_SEARCH_YOUTUBE = gql(`
 `);
 
 export const SEARCH_MUSICBRAINZ = gql(`
-  mutation SearchMusicBrainz($artist: String!, $title: String!) {
-    searchMusicBrainz(artist: $artist, title: $title) {
+  query SearchMusicBrainz($input: MusicBrainzSearchInput!) {
+    searchMusicBrainz(input: $input) {
+      # Core recording identification
       id
+      recordingId
+
+      # Core metadata (with Picard scoring weights)
       title
       artist
+      artistId
+      artistSortOrder
+
+      # Full artist credits array
+      artists {
+        id
+        name
+        sortName
+        joinPhrase
+      }
+
+      # Track metadata
+      length
+
+      # Industry identifiers
+      isrc
+
+      # Enhanced scoring
       score
+
+      # Nested releases for this recording
+      releases {
+        # Core release identification
+        id
+        releaseId
+        releaseGroupId
+
+        # Core metadata
+        album
+
+        # Track information within this release
+        trackNumber
+        totalTracks
+        discNumber
+        totalDiscs
+
+        # Release information
+        date
+        originalDate
+        year
+        country
+
+        # Release categorization
+        releaseType
+        releaseStatus
+
+        # Industry identifiers
+        barcode
+
+        # Additional metadata
+        albumArtistSortOrder
+        media
+        label # Resolved via field resolver using DataLoader
+
+        # MusicBrainz IDs for linking
+        releaseArtistId
+        trackId
+
+        # Enhanced scoring for this specific release
+        score
+      }
+
+      # Dynamic metadata fields
+      dynamicFields {
+        key
+        value
+      }
     }
   }
 `);
