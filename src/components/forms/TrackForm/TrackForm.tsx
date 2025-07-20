@@ -20,7 +20,7 @@ const trackFormSchema = z.object({
   artist: z.string().min(1, 'Artist is required'),
   album: z.string().optional(),
   year: z.string().optional(),
-  genre: z.string().optional(),
+  genreId: z.string().optional(),
   isrc: z.string().optional(),
   label: z.string().optional(),
   copyright: z.string().optional(),
@@ -55,6 +55,7 @@ export interface TrackFormRef {
 export const TrackForm = forwardRef<TrackFormRef, TrackFormProps>(
   (props, ref) => {
     const { trackData, onSubmit } = props;
+    
     const form = useForm<TrackFormData>({
       resolver: zodResolver(trackFormSchema),
       defaultValues: {
@@ -62,7 +63,7 @@ export const TrackForm = forwardRef<TrackFormRef, TrackFormProps>(
         artist: trackData.artist,
         album: trackData.album || '',
         year: trackData.year || '',
-        genre: trackData.genre?.name || '',
+        genreId: trackData.genre?.id || '',
         isrc: trackData.isrc || '',
         label: trackData.label || '',
         copyright: trackData.copyright || '',
@@ -115,13 +116,6 @@ export const TrackForm = forwardRef<TrackFormRef, TrackFormProps>(
       },
       {
         component: 'text' as const,
-        name: 'genre' as const,
-        label: 'Genre',
-        placeholder: 'Enter genre',
-      },
-
-      {
-        component: 'text' as const,
         name: 'isrc' as const,
         label: 'ISRC',
         placeholder: 'Enter ISRC code',
@@ -150,6 +144,12 @@ export const TrackForm = forwardRef<TrackFormRef, TrackFormProps>(
         label: 'Publisher',
         placeholder: 'Enter publisher name',
       },
+      {
+        component: 'genreSelector' as const,
+        name: 'genreId' as const,
+        label: 'Genre',
+        placeholder: 'Select or create a genre...',
+      },
     ];
 
     // Define the form fields for the right section (image editor)
@@ -172,6 +172,9 @@ export const TrackForm = forwardRef<TrackFormRef, TrackFormProps>(
       },
       [fields.length, append],
     );
+
+
+
 
     const isDirty = form.formState.isDirty;
 
@@ -200,6 +203,8 @@ export const TrackForm = forwardRef<TrackFormRef, TrackFormProps>(
         form.setValue('year', release.year?.toString() || '');
         form.setValue('isrc', recording.isrc || '');
         form.setValue('label', release.label || '');
+        
+        // Note: MusicBrainz doesn't provide genre data, so we don't update the genre field
 
         // Create metadata array based on the mapping table
         const metadata = [];
@@ -320,28 +325,18 @@ export const TrackForm = forwardRef<TrackFormRef, TrackFormProps>(
       <FormProvider {...form}>
         <div className="track-form">
           <EntityEditForm
-            startSection={<DynamicForm fields={startSectionFields} />}
+            startSection={[
+              <DynamicForm key="startSection" fields={startSectionFields} />
+            ]}
             endSection={[
               <DynamicForm key="endSection" fields={endSectionFields} />,
               <div key="metadataSection" className="metadata-section">
-                <h3 className="text-base-leading-7-font-medium mbe-2">
-                  Metadata
-                </h3>
-                <div className="flex flex--column">
-                  <div className="flex" style={{ width: '100%' }}>
-                    <p
-                      className="text-sm-leading-6-font-medium"
-                      style={{ marginInlineEnd: 'auto' }}
-                    >
-                      Key
-                    </p>
-                    <p
-                      className="text-sm-leading-6-font-medium"
-                      style={{ marginInlineEnd: 'auto' }}
-                    >
-                      Value
-                    </p>
-                    <div style={{ width: '32px' }} />
+                <h3 className="metadata-section__header">Metadata</h3>
+                <div className="metadata-section__fields">
+                  <div className="metadata-section__row metadata-section__row--header">
+                    <p>Key</p>
+                    <p>Value</p>
+                    <div className="metadata-section__row-placeholder" />
                   </div>
                   {fields.map((field, index) => {
                     const isLastRow = index === fields.length - 1;
@@ -353,11 +348,10 @@ export const TrackForm = forwardRef<TrackFormRef, TrackFormProps>(
                     const showRemoveButton = !(isLastRow && isEmptyRow);
 
                     return (
-                      <div key={field.id} className="flex">
+                      <div key={field.id} className="metadata-section__row">
                         <TextField
                           name={`metadata.${index}.key` as const}
                           aria-label="Key"
-                          label=""
                           placeholder="key"
                           onMouseDown={() =>
                             handleMetadataFieldInteraction(index)
@@ -366,10 +360,9 @@ export const TrackForm = forwardRef<TrackFormRef, TrackFormProps>(
                         <TextField
                           name={`metadata.${index}.value` as const}
                           aria-label="Value"
-                          label=""
                           placeholder="value"
                         />
-                        <div className="flex flex--align-center">
+                        <div className="metadata-section__row-actions">
                           {showRemoveButton ? (
                             <Button
                               variant="transparent"
@@ -380,7 +373,7 @@ export const TrackForm = forwardRef<TrackFormRef, TrackFormProps>(
                               <CloseIcon />
                             </Button>
                           ) : (
-                            <div style={{ width: '32px' }} />
+                            <div className="metadata-section__row-placeholder" />
                           )}
                         </div>
                       </div>

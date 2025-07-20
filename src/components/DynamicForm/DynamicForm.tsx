@@ -32,6 +32,7 @@ import {
   SeriesSelectorField,
   ShowSelectorField,
   EpisodeSelectorField,
+  GenreSelectorField,
   MediaEditorField,
   TimeField,
 } from './fields';
@@ -143,6 +144,13 @@ interface EpisodeSelectorFieldConfig<T extends FieldValues>
   className?: string;
 }
 
+interface GenreSelectorFieldConfig<T extends FieldValues>
+  extends BaseField<T> {
+  component: 'genreSelector';
+  placeholder?: string;
+  className?: string;
+}
+
 interface MediaEditorFieldConfig<T extends FieldValues>
   extends BaseField<T>,
     Omit<MediaEditorProps, 'label'> {
@@ -164,6 +172,7 @@ export type DynamicFormField<T extends FieldValues> =
   | ShowSelectorFieldConfig<T>
   | SeriesSelectorFieldConfig<T>
   | EpisodeSelectorFieldConfig<T>
+  | GenreSelectorFieldConfig<T>
   | MediaEditorFieldConfig<T>;
 
 interface DynamicFormProps<T extends FieldValues> {
@@ -260,6 +269,12 @@ export const DynamicForm = <T extends FieldValues>({
         const { ...rest } = field;
         return (
           <EpisodeSelectorField {...rest} key={name} name={name} label={label} />
+        );
+      }
+      case 'genreSelector': {
+        const { ...rest } = field;
+        return (
+          <GenreSelectorField {...rest} key={name} name={name} label={label} />
         );
       }
       case 'mediaEditor': {

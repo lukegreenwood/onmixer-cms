@@ -2,6 +2,7 @@ export { CheckboxField } from './CheckboxField';
 export { CheckboxGroupField } from './CheckboxGroupField';
 export { DateField } from './DateField';
 export { EpisodeSelectorField } from './EpisodeSelectorField';
+export { GenreSelectorField } from './GenreSelectorField';
 export { MediaEditorField } from './MediaEditorField';
 export { MultiSelectField } from './MultiSelectField';
 export { NetworkSelectorField } from './NetworkSelectorField';

@@ -3,7 +3,8 @@ import { useController, type FieldValues, type Path } from 'react-hook-form';
 
 interface TextFieldProps<T extends FieldValues> extends InputProps {
   name: Path<T>;
-  label: string;
+  /* If not provided must provide aria-label for accessibility */
+  label?: string;
   placeholder?: string;
   maxLength?: number;
 }

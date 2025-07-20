@@ -1,0 +1,41 @@
+@use '../theme/text';
+@use '../theme/palette';
+@use '../utils/mixins';
+
+.track-form {
+  .metadata-section {
+    .metadata-section__header {
+      @include text.text-base-leading-7-font-medium;
+      margin-bottom: mixins.spacing(2);
+    }
+
+    .metadata-section__fields {
+      display: flex;
+      flex-direction: column;
+      gap: mixins.spacing(2);
+
+      .metadata-section__row {
+        display: flex;
+        flex-direction: row;
+        gap: mixins.spacing(2);
+
+        &.metadata-section__row--header {
+          @include text.text-sm-leading-6-font-medium;
+
+          p {
+            margin-inline-end: auto;
+          }
+        }
+
+        .metadata-section__row-actions {
+          display: flex;
+          align-items: center;
+        }
+
+        .metadata-section__row-placeholder {
+          width: 32px;
+        }
+      }
+    }
+  }
+}

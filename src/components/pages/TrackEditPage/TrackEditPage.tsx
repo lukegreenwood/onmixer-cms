@@ -77,7 +77,7 @@ export const TrackEditPage = ({ id }: TrackEditPageProps) => {
           artist: formData.artist,
           album: formData.album || null,
           year: formData.year || null,
-          genre: formData.genre || null,
+          genre: formData.genreId || null,
           isrc: formData.isrc || null,
           label: formData.label || null,
           copyright: formData.copyright || null,
@@ -101,7 +101,9 @@ export const TrackEditPage = ({ id }: TrackEditPageProps) => {
             input: {
               trackId: id,
               metadata: (formData.metadata || [])
-                .filter(meta => meta.key.trim() !== '' && meta.value.trim() !== '')
+                .filter(
+                  (meta) => meta.key.trim() !== '' && meta.value.trim() !== '',
+                )
                 .map((meta) => ({
                   id: meta.id || undefined,
                   key: meta.key,

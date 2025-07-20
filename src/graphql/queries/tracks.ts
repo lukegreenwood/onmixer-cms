@@ -72,6 +72,7 @@ export const GET_TRACK = gql(`
       enabled
       year
       genre {
+        id
         name
       }
       isrc
