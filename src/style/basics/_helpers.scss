@@ -6,11 +6,25 @@
   .padding-#{$i} {
     padding: mixins.spacing($i);
   }
-}
 
-@for $i from 1 through 8 {
   .margin-#{$i} {
     margin: mixins.spacing($i);
+  }
+
+  .mbe-#{$i} {
+    margin-block-end: mixins.spacing($i);
+  }
+
+  .mbs-#{$i} {
+    margin-block-start: mixins.spacing($i);
+  }
+
+  .mis-#{$i} {
+    margin-inline-start: mixins.spacing($i);
+  }
+
+  .mie-#{$i} {
+    margin-inline-end: mixins.spacing($i);
   }
 }
 
@@ -73,6 +87,10 @@
 }
 .text-sm-leading-6-font-medium {
   @include text.text-sm-leading-6-font-medium;
+}
+
+.text-base-leading-7-font-medium {
+  @include text.text-base-leading-7-font-medium;
 }
 
 .meta-list {

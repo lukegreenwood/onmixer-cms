@@ -100,11 +100,13 @@ export const TrackEditPage = ({ id }: TrackEditPageProps) => {
           variables: {
             input: {
               trackId: id,
-              metadata: (formData.metadata || []).map((meta) => ({
-                id: meta.id || undefined,
-                key: meta.key,
-                value: meta.value,
-              })),
+              metadata: (formData.metadata || [])
+                .filter(meta => meta.key.trim() !== '' && meta.value.trim() !== '')
+                .map((meta) => ({
+                  id: meta.id || undefined,
+                  key: meta.key,
+                  value: meta.value,
+                })),
             },
           },
           onCompleted: (metadataResult) => {
