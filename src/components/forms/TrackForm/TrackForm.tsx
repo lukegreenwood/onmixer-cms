@@ -55,7 +55,7 @@ export interface TrackFormRef {
 export const TrackForm = forwardRef<TrackFormRef, TrackFormProps>(
   (props, ref) => {
     const { trackData, onSubmit } = props;
-    
+
     const form = useForm<TrackFormData>({
       resolver: zodResolver(trackFormSchema),
       defaultValues: {
@@ -115,6 +115,12 @@ export const TrackForm = forwardRef<TrackFormRef, TrackFormProps>(
         placeholder: 'Enter year',
       },
       {
+        component: 'genreSelector' as const,
+        name: 'genreId' as const,
+        label: 'Genre',
+        placeholder: 'Select or create a genre...',
+      },
+      {
         component: 'text' as const,
         name: 'isrc' as const,
         label: 'ISRC',
@@ -144,12 +150,6 @@ export const TrackForm = forwardRef<TrackFormRef, TrackFormProps>(
         label: 'Publisher',
         placeholder: 'Enter publisher name',
       },
-      {
-        component: 'genreSelector' as const,
-        name: 'genreId' as const,
-        label: 'Genre',
-        placeholder: 'Select or create a genre...',
-      },
     ];
 
     // Define the form fields for the right section (image editor)
@@ -172,9 +172,6 @@ export const TrackForm = forwardRef<TrackFormRef, TrackFormProps>(
       },
       [fields.length, append],
     );
-
-
-
 
     const isDirty = form.formState.isDirty;
 
@@ -203,7 +200,7 @@ export const TrackForm = forwardRef<TrackFormRef, TrackFormProps>(
         form.setValue('year', release.year?.toString() || '');
         form.setValue('isrc', recording.isrc || '');
         form.setValue('label', release.label || '');
-        
+
         // Note: MusicBrainz doesn't provide genre data, so we don't update the genre field
 
         // Create metadata array based on the mapping table
@@ -326,7 +323,7 @@ export const TrackForm = forwardRef<TrackFormRef, TrackFormProps>(
         <div className="track-form">
           <EntityEditForm
             startSection={[
-              <DynamicForm key="startSection" fields={startSectionFields} />
+              <DynamicForm key="startSection" fields={startSectionFields} />,
             ]}
             endSection={[
               <DynamicForm key="endSection" fields={endSectionFields} />,
