@@ -6,9 +6,11 @@ import { useController, type FieldValues, type Path } from 'react-hook-form';
 
 import {
   GenreFilterType,
+  GenreOptionFilterField,
   GenreOrderField,
   GenreTextFilterField,
   OperatorType,
+  OptionFilterOperator,
   OrderDirection,
   TextFilterOperator,
 } from '@/graphql/__generated__/graphql';
@@ -48,7 +50,34 @@ export const GenreSelectorField = <T extends FieldValues>({
     data: genresData,
     refetch: refetchGenres,
     loading,
-  } = useQuery(GET_GENRES);
+  } = useQuery(GET_GENRES, {
+    variables: {
+      filters: {
+        limit: 30,
+        filterGroup: {
+          operator: OperatorType.Or,
+          filters: [
+            {
+              optionFilter: {
+                field: GenreOptionFilterField.Id,
+                operator: OptionFilterOperator.Is,
+                value,
+              },
+              type: GenreFilterType.Option,
+            },
+            {
+              textFilter: {
+                field: GenreTextFilterField.Name,
+                operator: TextFilterOperator.Contains,
+                value: '',
+              },
+              type: GenreFilterType.Text,
+            },
+          ],
+        },
+      },
+    },
+  });
   const [createGenre, { loading: isCreatingGenre }] = useMutation(CREATE_GENRE);
 
   // Convert to autocomplete options
@@ -84,7 +113,7 @@ export const GenreSelectorField = <T extends FieldValues>({
     setSearchTerm(search);
     refetchGenres({
       filters: {
-        limit: 20,
+        limit: 30,
         order: [
           {
             direction: OrderDirection.Descending,
@@ -94,6 +123,14 @@ export const GenreSelectorField = <T extends FieldValues>({
         filterGroup: {
           operator: OperatorType.Or,
           filters: [
+            {
+              optionFilter: {
+                field: GenreOptionFilterField.Id,
+                operator: OptionFilterOperator.Is,
+                value,
+              },
+              type: GenreFilterType.Option,
+            },
             {
               textFilter: {
                 field: GenreTextFilterField.Name,

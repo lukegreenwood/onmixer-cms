@@ -1,3 +1,4 @@
+export { CategorySelectorField } from './CategorySelectorField';
 export { CheckboxField } from './CheckboxField';
 export { CheckboxGroupField } from './CheckboxGroupField';
 export { DateField } from './DateField';
@@ -10,6 +11,7 @@ export { PresenterSelectorField } from './PresenterSelectorField';
 export { RadioGroupField } from './RadioGroupField';
 export { SeriesSelectorField } from './SeriesSelectorField';
 export { ShowSelectorField } from './ShowSelectorField';
+export { SvgUploadField } from './SvgUploadField';
 export { SwitchField } from './SwitchField';
 export { TextareaField } from './TextareaField';
 export { TextField } from './TextField';

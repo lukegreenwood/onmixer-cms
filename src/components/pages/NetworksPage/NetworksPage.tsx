@@ -8,6 +8,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 import { DataTable, PageHeader } from '@/components/blocks';
 import { LinkIcon } from '@/components/icons';
@@ -82,6 +83,11 @@ const columns = [
 
 export const NetworksPage = () => {
   const { data } = useSuspenseQuery(GET_NETWORKS);
+  const router = useRouter();
+
+  const handleRowClick = (network: GetNetworksQuery['networks'][number]) => {
+    router.push(`/networks/${network.code}/edit`);
+  };
 
   const table = useReactTable({
     data: data.networks,
@@ -101,7 +107,11 @@ export const NetworksPage = () => {
         }
       />
       <div className="page-content">
-        <DataTable table={table} />
+        <DataTable 
+          table={table} 
+          onRowClick={handleRowClick}
+          excludeRowClickColumns={['link']}
+        />
       </div>
     </>
   );

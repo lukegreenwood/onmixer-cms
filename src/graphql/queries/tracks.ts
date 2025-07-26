@@ -47,6 +47,17 @@ export const SEARCH_TRACKS_V2 = gql(`
           id
           name
         }
+        subcategory {
+          id
+          name
+          category {
+            id
+            name
+          }
+        }
+        metadata {
+          id
+        }
         isrc
         bpm
         dateAdded
@@ -74,6 +85,14 @@ export const GET_TRACK = gql(`
       genre {
         id
         name
+      }
+      subcategory {
+        id
+        name
+        category {
+          id
+          name
+        }
       }
       isrc
       bpm

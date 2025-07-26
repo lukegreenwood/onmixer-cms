@@ -114,9 +114,35 @@ export function EnrichTracksForm({
   }, [subcategoryOptions, categorySearchTerm]);
 
   // Handle category search
-  const handleCategorySearch = useCallback((searchTerm: string) => {
-    setCategorySearchTerm(searchTerm);
-  }, []);
+  const handleCategorySearch = useCallback(
+    (searchTerm: string) => {
+      setCategorySearchTerm(searchTerm);
+
+      // If search term is empty, clear the category filter
+      if (!searchTerm.trim()) {
+        setCategoryFilter('');
+        filterForm.setValue('category', '');
+        return;
+      }
+
+      // Find exact match in filtered options and auto-select if there's only one match
+      const searchTermLower = searchTerm.toLowerCase();
+      const matches = subcategoryOptions.filter((option) => {
+        if (option.value === '') return false; // Skip "All Categories"
+        return (
+          option.label.toLowerCase().includes(searchTermLower) ||
+          option.category.toLowerCase().includes(searchTermLower)
+        );
+      });
+
+      // If exactly one match, auto-select it
+      if (matches.length === 1) {
+        setCategoryFilter(matches[0].value);
+        filterForm.setValue('category', matches[0].value);
+      }
+    },
+    [subcategoryOptions, filterForm],
+  );
 
   // Auto-select and open MusicBrainz search for specific track from URL
   useEffect(() => {

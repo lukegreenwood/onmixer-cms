@@ -1,0 +1,121 @@
+.svg-upload-field {
+  &__label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--color-text-primary);
+  }
+
+  &__required {
+    color: var(--color-destructive);
+    margin-left: 0.25rem;
+  }
+
+  &__dropzone {
+    border: 2px dashed var(--color-border);
+    border-radius: var(--radius);
+    padding: 2rem;
+    text-align: center;
+    background: var(--color-background-subtle);
+    transition: all 0.2s ease;
+    cursor: pointer;
+
+    &:hover {
+      border-color: var(--color-primary);
+      background: var(--color-primary-subtle);
+    }
+
+    &--drag-over {
+      border-color: var(--color-primary);
+      background: var(--color-primary-subtle);
+      transform: scale(1.02);
+    }
+
+    &--error {
+      border-color: var(--color-destructive);
+      background: var(--color-destructive-subtle);
+    }
+  }
+
+  &__preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  &__preview-content {
+    max-width: 200px;
+    max-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background: var(--color-background);
+
+    svg {
+      max-width: 100%;
+      max-height: 100%;
+    }
+  }
+
+  &__preview-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  &__placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  &__placeholder-icon {
+    color: var(--color-text-secondary);
+  }
+
+  &__placeholder-text {
+    color: var(--color-text-secondary);
+    margin: 0;
+  }
+
+  &__placeholder-button {
+    color: var(--color-primary);
+    text-decoration: underline;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font: inherit;
+
+    &:hover {
+      color: var(--color-primary-hover);
+    }
+  }
+
+  &__placeholder-hint {
+    font-size: 0.875rem;
+    color: var(--color-text-tertiary);
+    margin: 0;
+  }
+
+  &__file-input {
+    display: none;
+  }
+
+  &__helper-text {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    margin-bottom: 0;
+  }
+
+  &__error-text {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--color-destructive);
+    margin-bottom: 0;
+  }
+}

@@ -1,13 +1,16 @@
 'use client';
 
-import { useLazyQuery, useSuspenseQuery } from '@apollo/client';
+import { useLazyQuery, useSuspenseQuery, useMutation } from '@apollo/client';
 import {
   Alert,
   Badge,
   Button,
   Checkbox,
-  Input,
   Loading,
+  Textarea,
+  Toggle,
+  Dialog,
+  Autocomplete,
 } from '@soundwaves/components';
 import { useDebouncer } from '@tanstack/react-pacer';
 import {
@@ -15,9 +18,12 @@ import {
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table';
+import { format } from 'date-fns';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useCallback, useMemo, useState } from 'react';
 
+import { DeleteConfirmationPopover } from '@/blocks/DeleteConfirmationPopover/DeleteConfirmationPopover';
+import { MusicBrainzSearchModal } from '@/blocks/MusicBrainzSearchModal';
 import { PageHeader } from '@/blocks/PageHeader/PageHeader';
 import { Pagination } from '@/blocks/Pagination/Pagination';
 import { Copyable, DataTable } from '@/components';
@@ -31,6 +37,7 @@ import type {
   SearchTracksV2Query,
   TrackListInputV2,
   TrackBooleanFilterField,
+  SearchMusicBrainzQuery,
 } from '@/graphql/__generated__/graphql';
 import {
   TrackFilterType,
@@ -40,9 +47,16 @@ import {
   OperatorType,
   TrackTextFilterField,
   TrackNumberFilterField,
+  TrackOptionFilterField,
+  TrackMultiOptionFilterField,
+  OptionFilterOperator,
+  MultiOptionFilterOperator,
 } from '@/graphql/__generated__/graphql';
+import { DELETE_TRACK } from '@/graphql/mutations/deleteTrack';
+import { UPDATE_TRACK } from '@/graphql/mutations/updateTrack';
+import { GET_CATEGORIES } from '@/graphql/queries/categories';
 import { SEARCH_TRACKS_V2 } from '@/graphql/queries/tracks';
-import { TrackIcon } from '@/icons';
+import { TrackIcon, EnrichIcon, EditIcon, DeleteIcon } from '@/icons';
 import { toast } from '@/lib/toast';
 
 // Helper function to convert filters to GraphQL format
@@ -75,6 +89,28 @@ const convertFiltersStateToTrackGraphQL = (
               booleanFilter: {
                 field: filter.columnId as TrackBooleanFilterField,
                 operator: BooleanFilterOperator.Is,
+                value: Array.isArray(filter.values)
+                  ? filter.values[0]
+                  : filter.values,
+              },
+            };
+          case 'multiOption':
+            return {
+              type: TrackFilterType.MultiOption,
+              multiOptionFilter: {
+                field: filter.columnId as TrackMultiOptionFilterField,
+                operator: MultiOptionFilterOperator.IncludeAnyOf,
+                values: Array.isArray(filter.values)
+                  ? filter.values
+                  : [filter.values],
+              },
+            };
+          case 'option':
+            return {
+              type: TrackFilterType.Option,
+              optionFilter: {
+                field: filter.columnId as TrackOptionFilterField,
+                operator: OptionFilterOperator.Is,
                 value: Array.isArray(filter.values)
                   ? filter.values[0]
                   : filter.values,
@@ -130,6 +166,13 @@ const columnsConfig = [
     .displayName('Enabled')
     .icon(TrackIcon)
     .build(),
+  columnConfigHelper
+    .multiOption()
+    .id('subcategory')
+    .accessor((row) => row.subcategory?.id)
+    .displayName('Category')
+    .icon(TrackIcon)
+    .build(),
 ] as const;
 
 const TRACKS_PER_PAGE = 50;
@@ -143,80 +186,104 @@ export function TracksListPage() {
   const [globalFilter, setGlobalFilter] = useState('');
   const [filtersState, setFiltersState] = useState<FiltersState>([]);
   const [hasTriggeredLazyQuery, setHasTriggeredLazyQuery] = useState(false);
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [musicBrainzModalOpen, setMusicBrainzModalOpen] = useState(false);
+  const [currentTrackForEnrich, setCurrentTrackForEnrich] = useState<
+    SearchTracksV2Query['tracksV2']['items'][0] | null
+  >(null);
 
   const offset = (page - 1) * TRACKS_PER_PAGE;
 
-  const createGraphqlFilters = useCallback((searchTerm: string, filters: FiltersState) => {
-    const baseFilters = convertFiltersStateToTrackGraphQL(filters, {
-      limit: TRACKS_PER_PAGE,
-      offset,
-    });
-
-    // Add global search filters if search term exists
-    if (searchTerm.trim()) {
-      const trimmedSearchTerm = searchTerm.trim();
-      const searchFilters = [];
-
-      // Search by title
-      searchFilters.push({
-        type: TrackFilterType.Text,
-        textFilter: {
-          field: TrackTextFilterField.Title,
-          operator: TextFilterOperator.Contains,
-          value: trimmedSearchTerm,
-        },
+  const createGraphqlFilters = useCallback(
+    (searchTerm: string, filters: FiltersState) => {
+      const baseFilters = convertFiltersStateToTrackGraphQL(filters, {
+        limit: TRACKS_PER_PAGE,
+        offset,
       });
 
-      // Search by artist
-      searchFilters.push({
-        type: TrackFilterType.Text,
-        textFilter: {
-          field: TrackTextFilterField.Artist,
-          operator: TextFilterOperator.Contains,
-          value: trimmedSearchTerm,
-        },
-      });
+      // Add global search filters if search term exists
+      if (searchTerm.trim()) {
+        const searchTerms = searchTerm
+          .split('\n')
+          .map((term) => term.trim())
+          .filter((term) => term.length > 0);
 
-      // Search by ID if the search term is a number
-      if (!isNaN(Number(trimmedSearchTerm))) {
-        searchFilters.push({
-          type: TrackFilterType.Number,
-          numberFilter: {
-            field: TrackNumberFilterField.Id,
-            operator: NumberFilterOperator.Is,
-            value: Number(trimmedSearchTerm),
-          },
-        });
+        const allSearchFilters = [];
+
+        // Create filters for each search term
+        for (const trimmedSearchTerm of searchTerms) {
+          const termFilters = [];
+
+          // Search by title
+          termFilters.push({
+            type: TrackFilterType.Text,
+            textFilter: {
+              field: TrackTextFilterField.Title,
+              operator: TextFilterOperator.Contains,
+              value: trimmedSearchTerm,
+            },
+          });
+
+          // Search by artist
+          termFilters.push({
+            type: TrackFilterType.Text,
+            textFilter: {
+              field: TrackTextFilterField.Artist,
+              operator: TextFilterOperator.Contains,
+              value: trimmedSearchTerm,
+            },
+          });
+
+          // Search by ID if the search term is a number
+          if (!isNaN(Number(trimmedSearchTerm))) {
+            termFilters.push({
+              type: TrackFilterType.Number,
+              numberFilter: {
+                field: TrackNumberFilterField.Id,
+                operator: NumberFilterOperator.Is,
+                value: Number(trimmedSearchTerm),
+              },
+            });
+          }
+
+          // Add each term's filters to the main search filters array
+          allSearchFilters.push(...termFilters);
+        }
+
+        // Create a search filter group with OR operator for all search filters
+        const searchFilterGroup = {
+          operator: OperatorType.Or,
+          filters: allSearchFilters,
+        };
+
+        // Combine existing filters with search filters using AND
+        if (
+          baseFilters.filterGroup?.filters &&
+          baseFilters.filterGroup.filters.length > 0
+        ) {
+          return {
+            ...baseFilters,
+            filterGroup: {
+              operator: OperatorType.And,
+              filters: [
+                ...baseFilters.filterGroup.filters,
+                ...allSearchFilters,
+              ],
+            },
+          };
+        } else {
+          return {
+            ...baseFilters,
+            filterGroup: searchFilterGroup,
+          };
+        }
       }
 
-      // Create a search filter group with OR operator
-      const searchFilterGroup = {
-        operator: OperatorType.Or,
-        filters: searchFilters,
-      };
-
-      // Combine existing filters with search filters using AND
-      if (
-        baseFilters.filterGroup?.filters &&
-        baseFilters.filterGroup.filters.length > 0
-      ) {
-        return {
-          ...baseFilters,
-          filterGroup: {
-            operator: OperatorType.And,
-            filters: [...baseFilters.filterGroup.filters, ...searchFilters],
-          },
-        };
-      } else {
-        return {
-          ...baseFilters,
-          filterGroup: searchFilterGroup,
-        };
-      }
-    }
-
-    return baseFilters;
-  }, [offset]);
+      return baseFilters;
+    },
+    [offset],
+  );
 
   const { data: initialData, error: initialError } = useSuspenseQuery(
     SEARCH_TRACKS_V2,
@@ -235,31 +302,35 @@ export function TracksListPage() {
       fetchPolicy: 'cache-and-network',
     },
   );
+  const [deleteTrack] = useMutation(DELETE_TRACK);
+  const [updateTrack] = useMutation(UPDATE_TRACK);
+  const { data: categoriesData } = useSuspenseQuery(GET_CATEGORIES);
 
   const tracks = useMemo(
     () =>
       called ? data?.tracksV2?.items || [] : initialData?.tracksV2?.items || [],
     [data?.tracksV2?.items, initialData?.tracksV2?.items, called],
   );
-  const totalCount = called 
-    ? data?.tracksV2?.total || 0 
+  const totalCount = called
+    ? data?.tracksV2?.total || 0
     : initialData?.tracksV2?.total || 0;
 
   const handleFiltersChange = (
     newFilters: FiltersState | ((prevState: FiltersState) => FiltersState),
   ) => {
-    const updatedFilters = typeof newFilters === 'function' ? newFilters(filtersState) : newFilters;
+    const updatedFilters =
+      typeof newFilters === 'function' ? newFilters(filtersState) : newFilters;
     setFiltersState(updatedFilters);
-    
+
     // Trigger lazy query on first filter application
     if (!hasTriggeredLazyQuery) {
       setHasTriggeredLazyQuery(true);
     }
-    
+
     // Execute query with updated filters
     const filters = createGraphqlFilters(globalFilter, updatedFilters);
     fetchTracks({ variables: { filters } });
-    
+
     if (page !== 1) {
       router.push('?page=1');
     }
@@ -271,7 +342,7 @@ export function TracksListPage() {
       if (!hasTriggeredLazyQuery) {
         setHasTriggeredLazyQuery(true);
       }
-      
+
       // Execute query with search term
       const filters = createGraphqlFilters(searchTerm, filtersState);
       fetchTracks({ variables: { filters } });
@@ -283,10 +354,8 @@ export function TracksListPage() {
 
   const handleEnrich = useCallback(
     (track: SearchTracksV2Query['tracksV2']['items'][number]) => {
-      toast(
-        `Enrichment for track ${track.id} - navigate to Enrich Tracks page for full functionality`,
-        'gray',
-      );
+      setCurrentTrackForEnrich(track);
+      setMusicBrainzModalOpen(true);
     },
     [],
   );
@@ -299,14 +368,158 @@ export function TracksListPage() {
   );
 
   const handleToggleEnabled = useCallback(
-    (trackId: string, enabled: boolean) => {
-      toast(
-        `Toggle enabled for track ${trackId} to ${enabled} not yet implemented`,
-        'gray',
-      );
+    async (trackId: string, enabled: boolean) => {
+      try {
+        await updateTrack({
+          variables: {
+            input: {
+              id: trackId,
+              enabled,
+            },
+          },
+        });
+        toast(
+          `Track ${enabled ? 'enabled' : 'disabled'} successfully`,
+          'success',
+        );
+        // Refetch tracks to update the table
+        const filters = createGraphqlFilters(globalFilter, filtersState);
+        fetchTracks({ variables: { filters } });
+      } catch {
+        toast(`Failed to ${enabled ? 'enable' : 'disable'} track`, 'error');
+      }
     },
-    [],
+    [
+      updateTrack,
+      createGraphqlFilters,
+      globalFilter,
+      filtersState,
+      fetchTracks,
+    ],
   );
+
+  const handleDelete = useCallback(
+    async (trackId: string) => {
+      try {
+        await deleteTrack({
+          variables: { input: { id: trackId } },
+        });
+        toast('Track deleted successfully', 'success');
+        // Refetch tracks to update the table
+        const filters = createGraphqlFilters(globalFilter, filtersState);
+        fetchTracks({ variables: { filters } });
+        setRowSelection({});
+      } catch {
+        toast('Failed to delete track', 'error');
+      }
+    },
+    [
+      deleteTrack,
+      createGraphqlFilters,
+      globalFilter,
+      filtersState,
+      fetchTracks,
+    ],
+  );
+
+  const handleMusicBrainzSelect = useCallback(
+    async (
+      recording: SearchMusicBrainzQuery['searchMusicBrainz'][0],
+      release: SearchMusicBrainzQuery['searchMusicBrainz'][0]['releases'][0],
+    ) => {
+      if (!currentTrackForEnrich) return;
+
+      try {
+        await updateTrack({
+          variables: {
+            input: {
+              id: currentTrackForEnrich.id,
+              title: recording.title,
+              artist: recording.artist,
+              album: release.album,
+              year: release.year?.toString() || null,
+              isrc: recording.isrc || null,
+              label: release.label || null,
+            },
+          },
+        });
+        toast('Track enriched successfully', 'success');
+        setMusicBrainzModalOpen(false);
+        setCurrentTrackForEnrich(null);
+        // Refetch tracks to update the table
+        const filters = createGraphqlFilters(globalFilter, filtersState);
+        fetchTracks({ variables: { filters } });
+      } catch {
+        toast('Failed to enrich track', 'error');
+      }
+    },
+    [
+      currentTrackForEnrich,
+      updateTrack,
+      createGraphqlFilters,
+      globalFilter,
+      filtersState,
+      fetchTracks,
+    ],
+  );
+
+  const handleBulkCategoryChange = useCallback(async () => {
+    const selectedIds = Object.keys(rowSelection);
+    if (selectedIds.length === 0) {
+      toast('Please select tracks to update', 'error');
+      return;
+    }
+
+    if (!selectedCategory) {
+      toast('Please select a category', 'error');
+      return;
+    }
+
+    try {
+      await Promise.all(
+        selectedIds.map((id) =>
+          updateTrack({
+            variables: {
+              input: {
+                id,
+                subCategory: parseInt(selectedCategory),
+              },
+            },
+          }),
+        ),
+      );
+      toast(`Updated category for ${selectedIds.length} tracks`, 'success');
+      setCategoryModalOpen(false);
+      setSelectedCategory('');
+      setRowSelection({});
+      // Refetch tracks to update the table
+      const filters = createGraphqlFilters(globalFilter, filtersState);
+      fetchTracks({ variables: { filters } });
+    } catch {
+      toast('Failed to update track categories', 'error');
+    }
+  }, [
+    rowSelection,
+    selectedCategory,
+    updateTrack,
+    createGraphqlFilters,
+    globalFilter,
+    filtersState,
+    fetchTracks,
+  ]);
+
+  const handleBulkAutoEnrich = useCallback(async () => {
+    const selectedIds = Object.keys(rowSelection);
+    if (selectedIds.length === 0) {
+      toast('Please select tracks to enrich', 'error');
+      return;
+    }
+
+    toast(
+      `Auto-enrich for ${selectedIds.length} tracks would be implemented here`,
+      'info',
+    );
+  }, [rowSelection]);
 
   const { filters, columns, actions, strategy } = useDataTableFilters({
     strategy: 'server',
@@ -315,7 +528,13 @@ export function TracksListPage() {
     onFiltersChange: handleFiltersChange,
     columnsConfig,
     options: {
-      // No external options needed for basic track filtering
+      subcategory:
+        categoriesData?.categories?.flatMap((category) =>
+          category.subcategories.map((subcategory) => ({
+            label: `${subcategory.name} (${category.name})`,
+            value: subcategory.id,
+          })),
+        ) || [],
     },
   });
 
@@ -367,6 +586,21 @@ export function TracksListPage() {
         header: 'Album',
         cell: (info) => info.getValue() || '—',
       }),
+      columnHelper.accessor('subcategory', {
+        header: 'Category',
+        cell: (info) => {
+          const subcategory = info.getValue();
+          if (!subcategory) return '—';
+          return (
+            <div className="track-category">
+              <div className="track-category__primary">{subcategory.name}</div>
+              <div className="track-category__secondary">
+                {subcategory.category.name}
+              </div>
+            </div>
+          );
+        },
+      }),
       columnHelper.accessor('duration', {
         header: 'Duration',
         cell: (info) => info.getValue().formatted,
@@ -392,11 +626,7 @@ export function TracksListPage() {
         cell: (info) => {
           const date = info.getValue();
           if (!date) return '—';
-          return new Date(date).toLocaleDateString('en-GB', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-          });
+          return format(new Date(date), 'dd/MM/yyyy');
         },
       }),
       columnHelper.display({
@@ -405,36 +635,55 @@ export function TracksListPage() {
         cell: ({ row }) => (
           <div className="track-actions">
             <Button
-              variant="secondary"
+              variant="outline"
               size="sm"
+              isIconOnly
               onClick={() => handleEnrich(row.original)}
+              title="Enrich track"
             >
-              Enrich
+              <EnrichIcon />
             </Button>
             <Button
-              variant="secondary"
+              variant="outline"
               size="sm"
+              isIconOnly
               onClick={() => handleEdit(row.original.id)}
+              title="Edit track"
             >
-              Edit
+              <EditIcon />
             </Button>
-            <Button
-              variant="secondary"
+            <Toggle
               size="sm"
-              onClick={() =>
-                handleToggleEnabled(row.original.id, !row.original.enabled)
+              pressed={row.original.enabled}
+              onPressedChange={(enabled: boolean) =>
+                handleToggleEnabled(row.original.id, enabled)
               }
-              className={
-                row.original.enabled ? 'button--destructive' : 'button--success'
-              }
+              title={row.original.enabled ? 'Disable track' : 'Enable track'}
+              variant="outline"
             >
-              {row.original.enabled ? 'Disable' : 'Enable'}
-            </Button>
+              Enabled
+            </Toggle>
+            <DeleteConfirmationPopover
+              entityType="Track"
+              entityName={`${row.original.title} by ${row.original.artist}`}
+              onConfirm={() => handleDelete(row.original.id)}
+              entityNameConfirmation
+            >
+              <Button
+                variant="outline"
+                size="sm"
+                isIconOnly
+                destructive
+                title="Delete track"
+              >
+                <DeleteIcon />
+              </Button>
+            </DeleteConfirmationPopover>
           </div>
         ),
       }),
     ],
-    [handleEnrich, handleEdit, handleToggleEnabled],
+    [handleEnrich, handleEdit, handleToggleEnabled, handleDelete],
   );
 
   const table = useReactTable({
@@ -452,7 +701,7 @@ export function TracksListPage() {
     const params = new URLSearchParams(searchParams);
     params.set('page', newPage.toString());
     router.push(`?${params.toString()}`);
-    
+
     // If lazy query has been triggered, refetch with new offset
     if (hasTriggeredLazyQuery) {
       const newOffset = (newPage - 1) * TRACKS_PER_PAGE;
@@ -482,17 +731,51 @@ export function TracksListPage() {
     );
   }
 
+  const selectedCount = Object.keys(rowSelection).length;
+
   return (
     <div>
+      {selectedCount > 0 && (
+        <div className="tracks-bulk-actions">
+          <div className="tracks-bulk-actions__content">
+            <span className="tracks-bulk-actions__count">
+              {selectedCount} track{selectedCount !== 1 ? 's' : ''} selected
+            </span>
+            <div className="tracks-bulk-actions__buttons">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCategoryModalOpen(true)}
+              >
+                Change Category
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleBulkAutoEnrich}
+              >
+                Auto Enrich
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setRowSelection({})}
+              >
+                Clear Selection
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
       <PageHeader
         heading="Tracks"
         subheading="Browse and manage your music tracks library"
         actions={
-          <Button 
+          <Button
             onClick={() => {
               const filters = createGraphqlFilters(globalFilter, filtersState);
               fetchTracks({ variables: { filters } });
-            }} 
+            }}
             variant="outline"
           >
             Refresh
@@ -503,16 +786,32 @@ export function TracksListPage() {
       <div className="page-content">
         <div className="tracks-filters">
           <div className="tracks-filters__search">
-            <Input
-              placeholder="Search tracks by title, artist, or ID..."
+            <Textarea
+              placeholder="Search tracks by title, artist, or ID... (separate multiple searches with new lines)"
               value={globalFilter}
               onChange={(e) => {
-                const value = (e.target as HTMLInputElement).value;
+                const value = (e.target as HTMLTextAreaElement).value;
                 setGlobalFilter(value);
                 debouncedSearch.maybeExecute(value);
               }}
-              after={loading ? <Loading size="xxs" /> : null}
+              rows={3}
             />
+            {loading && (
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  marginTop: '8px',
+                }}
+              >
+                <Loading size="xxs" />
+                <span
+                  style={{ marginLeft: '8px', fontSize: '14px', color: '#666' }}
+                >
+                  Searching...
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -540,6 +839,108 @@ export function TracksListPage() {
           />
         </div>
       </div>
+
+      <Dialog
+        open={categoryModalOpen}
+        onOpenChange={(open: boolean) => {
+          setCategoryModalOpen(open);
+          if (!open) {
+            setSelectedCategory('');
+          }
+        }}
+      >
+        <Dialog.Overlay />
+        <Dialog.Content>
+          <Dialog.Title>Change Category</Dialog.Title>
+          <Dialog.Description>
+            Select a new category for the selected tracks.
+          </Dialog.Description>
+          <div className="category-modal-content">
+            <Autocomplete
+              label="Category"
+              placeholder="Select a category..."
+              value={selectedCategory || undefined}
+              onChange={(value) => setSelectedCategory(value || '')}
+              options={
+                categoriesData?.categories?.flatMap((category) =>
+                  category.subcategories.map((subcategory) => ({
+                    label: subcategory.name,
+                    value: subcategory.id,
+                    category: category.name,
+                  })),
+                ) || []
+              }
+              renderOption={(option) => {
+                const categoryOption = categoriesData?.categories
+                  ?.flatMap((category) =>
+                    category.subcategories.map((subcategory) => ({
+                      label: subcategory.name,
+                      value: subcategory.id,
+                      category: category.name,
+                    })),
+                  )
+                  .find((s) => s.value === option.value);
+                return categoryOption ? (
+                  <div className="track-category">
+                    <div className="track-category__primary">
+                      {categoryOption.label}
+                    </div>
+                    <div className="track-category__secondary">
+                      {categoryOption.category}
+                    </div>
+                  </div>
+                ) : (
+                  option.label
+                );
+              }}
+              after={undefined}
+              clearable
+            />
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              gap: '0.5rem',
+              justifyContent: 'flex-end',
+              marginTop: '1rem',
+            }}
+          >
+            <Button
+              variant="outline"
+              onClick={() => {
+                setCategoryModalOpen(false);
+                setSelectedCategory('');
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleBulkCategoryChange}
+              disabled={!selectedCategory}
+            >
+              Update Category
+            </Button>
+          </div>
+        </Dialog.Content>
+      </Dialog>
+
+      <MusicBrainzSearchModal
+        isOpen={musicBrainzModalOpen}
+        onClose={() => {
+          setMusicBrainzModalOpen(false);
+          setCurrentTrackForEnrich(null);
+        }}
+        onSelect={handleMusicBrainzSelect}
+        initialValues={
+          currentTrackForEnrich
+            ? {
+                artist: currentTrackForEnrich.artist,
+                title: currentTrackForEnrich.title,
+                album: currentTrackForEnrich.album || undefined,
+              }
+            : undefined
+        }
+      />
     </div>
   );
 }

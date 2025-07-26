@@ -6,10 +6,18 @@ export const GET_NETWORKS = gql(`
 			id
 			name
 			code
-			networkType
 			baseUrl
-			logoSvgIcon
+			imagesUrl
+			logoSvg
 			logoSvgCircular
+			logoSvgColor
+			logoSvgIcon
+			networkType
+			tagline
+			cssUrl
+			playFormat
+			playUrl
+			shortId
 		}
 	}
 `);
@@ -20,8 +28,18 @@ export const GET_NETWORK = gql(`
 			id
 			name
 			code
-			networkType
+			baseUrl
+			imagesUrl
+			logoSvg
+			logoSvgCircular
+			logoSvgColor
 			logoSvgIcon
+			networkType
+			tagline
+			cssUrl
+			playFormat
+			playUrl
+			shortId
 		}
 	}
 `);

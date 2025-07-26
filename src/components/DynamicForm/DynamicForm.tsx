@@ -19,6 +19,7 @@ import { type FieldValues, type Path } from 'react-hook-form';
 import { type MediaEditorProps } from '@/components/MediaEditor';
 
 import {
+  CategorySelectorField,
   TextField,
   MultiSelectField,
   CheckboxField,
@@ -137,6 +138,13 @@ interface SeriesSelectorFieldConfig<T extends FieldValues>
   className?: string;
 }
 
+interface CategorySelectorFieldConfig<T extends FieldValues>
+  extends BaseField<T> {
+  component: 'categorySelector';
+  placeholder?: string;
+  className?: string;
+}
+
 interface EpisodeSelectorFieldConfig<T extends FieldValues>
   extends BaseField<T> {
   component: 'episodeSelector';
@@ -167,6 +175,7 @@ export type DynamicFormField<T extends FieldValues> =
   | DateFieldConfig<T>
   | TimeFieldConfig<T>
   | RadioGroupFieldConfig<T>
+  | CategorySelectorFieldConfig<T>
   | PresenterSelectorFieldConfig<T>
   | NetworkSelectorFieldConfig<T>
   | ShowSelectorFieldConfig<T>
@@ -269,6 +278,12 @@ export const DynamicForm = <T extends FieldValues>({
         const { ...rest } = field;
         return (
           <EpisodeSelectorField {...rest} key={name} name={name} label={label} />
+        );
+      }
+      case 'categorySelector': {
+        const { ...rest } = field;
+        return (
+          <CategorySelectorField {...rest} key={name} name={name} label={label} />
         );
       }
       case 'genreSelector': {

@@ -2,7 +2,14 @@
 
 import { useMutation, useQuery } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Tabs, Input, Textarea, Switch, Autocomplete } from '@soundwaves/components';
+import {
+  Button,
+  Tabs,
+  Input,
+  Textarea,
+  Switch,
+  Autocomplete,
+} from '@soundwaves/components';
 import React, { useState, useMemo, useCallback } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
@@ -66,9 +73,11 @@ export function GetTracksForm() {
   const [singleResults, setSingleResults] = useState<SearchResult[]>([]);
   const [bulkResults, setBulkResults] = useState<BulkSearchResult[]>([]);
   const [selectedResults, setSelectedResults] = useState<string[]>([]);
+  const [categorySearchTerm, setCategorySearchTerm] = useState<string>('');
 
   // Fetch categories and subcategories
-  const { data: categoriesData, loading: categoriesLoading } = useQuery(GET_CATEGORIES);
+  const { data: categoriesData, loading: categoriesLoading } =
+    useQuery(GET_CATEGORIES);
 
   const singleForm = useForm<SingleSearchForm>({
     resolver: zodResolver(singleSearchSchema),
@@ -89,24 +98,33 @@ export function GetTracksForm() {
   // Create autocomplete options from subcategories
   const subcategoryOptions = useMemo(() => {
     if (!categoriesData?.categories) return [];
-    
-    return categoriesData.categories.flatMap(category =>
-      category.subcategories.map(subcategory => ({
+
+    return categoriesData.categories.flatMap((category) =>
+      category.subcategories.map((subcategory) => ({
         value: subcategory.id,
         label: subcategory.name,
         category: category.name,
-      }))
+      })),
     );
   }, [categoriesData?.categories]);
 
-  // Search function for autocomplete
-  const handleCategorySearch = useCallback((searchText: string) => {
-    // Filter subcategories based on search text
-    return subcategoryOptions.filter(option => 
-      option.label.toLowerCase().includes(searchText.toLowerCase()) ||
-      option.category.toLowerCase().includes(searchText.toLowerCase())
-    );
-  }, [subcategoryOptions]);
+  // Filter subcategory options based on search term
+  const filteredSubcategoryOptions = useMemo(() => {
+    if (!categorySearchTerm.trim()) return subcategoryOptions;
+
+    const searchTerm = categorySearchTerm.toLowerCase();
+    return subcategoryOptions.filter((option) => {
+      return (
+        option.label.toLowerCase().includes(searchTerm) ||
+        option.category.toLowerCase().includes(searchTerm)
+      );
+    });
+  }, [subcategoryOptions, categorySearchTerm]);
+
+  // Handle category search
+  const handleCategorySearch = useCallback((searchTerm: string) => {
+    setCategorySearchTerm(searchTerm);
+  }, []);
 
   const [searchYouTube, { loading: singleSearchLoading }] =
     useMutation(SEARCH_YOUTUBE);
@@ -363,32 +381,52 @@ export function GetTracksForm() {
             </div>
 
             <div className="get-tracks-form__form-options">
-              <Switch
-                label="Auto Enrich"
-                {...singleForm.register('autoEnrich')}
+              <Controller
+                name="autoEnrich"
+                control={singleForm.control}
+                render={({ field }) => (
+                  <Switch
+                    ref={field.ref}
+                    onBlur={field.onBlur}
+                    disabled={field.disabled}
+                    label="Auto Enrich"
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                )}
               />
+
               <Controller
                 name="subCategory"
                 control={singleForm.control}
                 render={({ field, fieldState }) => (
                   <Autocomplete
                     label="Category"
-                    options={subcategoryOptions}
+                    options={filteredSubcategoryOptions}
                     value={field.value}
                     onChange={field.onChange}
                     onSearch={handleCategorySearch}
                     renderOption={(option) => {
-                      const subcategory = subcategoryOptions.find(s => s.value === option.value);
+                      const subcategory = subcategoryOptions.find(
+                        (s) => s.value === option.value,
+                      );
                       return subcategory ? (
                         <PrimarySecondary
                           primary={subcategory.label}
                           secondary={subcategory.category}
                         />
-                      ) : option.label;
+                      ) : (
+                        option.label
+                      );
                     }}
                     helperText={fieldState.error?.message}
                     destructive={!!fieldState.error}
                     disabled={categoriesLoading}
+                    onOpenChange={(open) => {
+                      if (!open) {
+                        setCategorySearchTerm('');
+                      }
+                    }}
                   />
                 )}
               />
@@ -417,9 +455,19 @@ export function GetTracksForm() {
             </div>
 
             <div className="get-tracks-form__form-options">
-              <Switch
-                label="Auto Enrich"
-                {...bulkForm.register('autoEnrich')}
+              <Controller
+                name="autoEnrich"
+                control={bulkForm.control}
+                render={({ field }) => (
+                  <Switch
+                    ref={field.ref}
+                    onBlur={field.onBlur}
+                    disabled={field.disabled}
+                    label="Auto Enrich"
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                )}
               />
               <Controller
                 name="subCategory"
@@ -427,22 +475,31 @@ export function GetTracksForm() {
                 render={({ field, fieldState }) => (
                   <Autocomplete
                     label="Category"
-                    options={subcategoryOptions}
+                    options={filteredSubcategoryOptions}
                     value={field.value}
                     onChange={field.onChange}
                     onSearch={handleCategorySearch}
                     renderOption={(option) => {
-                      const subcategory = subcategoryOptions.find(s => s.value === option.value);
+                      const subcategory = subcategoryOptions.find(
+                        (s) => s.value === option.value,
+                      );
                       return subcategory ? (
                         <PrimarySecondary
                           primary={subcategory.label}
                           secondary={subcategory.category}
                         />
-                      ) : option.label;
+                      ) : (
+                        option.label
+                      );
                     }}
                     helperText={fieldState.error?.message}
                     destructive={!!fieldState.error}
                     disabled={categoriesLoading}
+                    onOpenChange={(open) => {
+                      if (!open) {
+                        setCategorySearchTerm('');
+                      }
+                    }}
                   />
                 )}
               />

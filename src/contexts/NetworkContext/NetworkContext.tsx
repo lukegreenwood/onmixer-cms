@@ -5,13 +5,10 @@ import { useParams, usePathname } from 'next/navigation';
 import { createContext } from 'react';
 
 import { Network } from '@/graphql/__generated__/graphql';
-import { GET_NETWORK, GET_NETWORKS } from '@/graphql/queries/networks';
+import { GET_NETWORKS } from '@/graphql/queries/networks';
 
 interface NetworkContextType {
-  currentNetwork: Pick<
-    Network,
-    'id' | 'name' | 'code' | 'logoSvgIcon' | 'networkType'
-  > | null;
+  currentNetwork: Network | null;
   isNetworkRoute: boolean;
 }
 
@@ -28,17 +25,14 @@ export function NetworkProvider({ children }: { children: React.ReactNode }) {
 
   const { data: networksData } = useSuspenseQuery(GET_NETWORKS);
 
-  const { data } = useSuspenseQuery(GET_NETWORK, {
-    variables: { id: networkCode ?? '' },
-    skip: !networkCode,
-  });
-
-  const network = data?.network ?? networksData?.networks?.[0] ?? null;
+  const currentNetwork = networksData?.networks?.find(
+    n => n.code === networkCode
+  ) ?? null;
 
   return (
     <NetworkContext.Provider
       value={{
-        currentNetwork: network,
+        currentNetwork,
         isNetworkRoute,
       }}
     >

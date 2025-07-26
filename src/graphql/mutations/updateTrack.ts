@@ -15,6 +15,14 @@ export const UPDATE_TRACK = gql(`
           id
           name
         }
+        subcategory {
+          id
+          name
+          category {
+            id
+            name
+          }
+        }
         isrc
         label
         copyright

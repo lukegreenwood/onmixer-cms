@@ -12,6 +12,8 @@ export { ChevronUpIcon } from './ChevronUp';
 export { CopyIcon } from './Copy';
 export { DashboardIcon } from './Dashbaord';
 export { DeleteIcon } from './DeleteIcon';
+export { EditIcon } from './EditIcon';
+export { EnrichIcon } from './EnrichIcon';
 export { EpisodesIcon } from './Episodes';
 export { FeedIcon } from './Feed';
 export { FilterAddIcon } from './FilterAdd';

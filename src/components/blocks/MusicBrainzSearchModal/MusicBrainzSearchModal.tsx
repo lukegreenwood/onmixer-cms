@@ -166,9 +166,22 @@ export function MusicBrainzSearchModal({
         header: 'Title',
         cell: (info) => <div className="font-medium">{info.getValue()}</div>,
       }),
-      columnHelper.accessor('artist', {
-        header: 'Artist',
-        cell: (info) => info.getValue(),
+      columnHelper.accessor((row) => row.originalRecording.artists, {
+        header: 'Artists',
+        cell: (info) =>
+          info.getValue().reduce((acc, artist, index, array) => {
+            if (index === 0) {
+              return artist.name;
+            }
+
+            const prev = array[index - 1];
+
+            if (prev && prev.joinPhrase) {
+              return `${acc}${prev.joinPhrase}${artist.name}`;
+            }
+
+            return `${acc}, ${artist.name}`;
+          }, ''),
       }),
       columnHelper.accessor('album', {
         header: 'Album',

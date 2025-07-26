@@ -77,6 +77,7 @@ export const TrackEditPage = ({ id }: TrackEditPageProps) => {
           artist: formData.artist,
           album: formData.album || null,
           year: formData.year || null,
+          subCategory: formData.subCategory ? parseInt(formData.subCategory) : null,
           genre: formData.genreId || null,
           isrc: formData.isrc || null,
           label: formData.label || null,

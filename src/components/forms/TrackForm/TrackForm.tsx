@@ -20,6 +20,7 @@ const trackFormSchema = z.object({
   artist: z.string().min(1, 'Artist is required'),
   album: z.string().optional(),
   year: z.string().optional(),
+  subCategory: z.string().optional(),
   genreId: z.string().optional(),
   isrc: z.string().optional(),
   label: z.string().optional(),
@@ -63,6 +64,7 @@ export const TrackForm = forwardRef<TrackFormRef, TrackFormProps>(
         artist: trackData.artist,
         album: trackData.album || '',
         year: trackData.year || '',
+        subCategory: trackData.subcategory?.id || '',
         genreId: trackData.genre?.id || '',
         isrc: trackData.isrc || '',
         label: trackData.label || '',
@@ -113,6 +115,12 @@ export const TrackForm = forwardRef<TrackFormRef, TrackFormProps>(
         name: 'year' as const,
         label: 'Year',
         placeholder: 'Enter year',
+      },
+      {
+        component: 'categorySelector' as const,
+        name: 'subCategory' as const,
+        label: 'Category',
+        placeholder: 'Select a category...',
       },
       {
         component: 'genreSelector' as const,
@@ -193,9 +201,38 @@ export const TrackForm = forwardRef<TrackFormRef, TrackFormProps>(
         recording: SearchMusicBrainzQuery['searchMusicBrainz'][0],
         release: SearchMusicBrainzQuery['searchMusicBrainz'][0]['releases'][0],
       ) => {
+        // Create metadata array based on the mapping table
+        const metadata = [];
+
+        const artistsString = recording.artists.reduce(
+          (acc, artist, index, array) => {
+            metadata.push({ key: 'album_artist', value: artist.name });
+
+            if (artist.id) {
+              metadata.push({
+                key: 'mbz_artist_id',
+                value: recording.artistId,
+              });
+            }
+
+            if (index === 0) {
+              return artist.name;
+            }
+
+            const prev = array[index - 1];
+
+            if (prev && prev.joinPhrase) {
+              return `${acc}${prev.joinPhrase}${artist.name}`;
+            }
+
+            return `${acc}, ${artist.name}`;
+          },
+          '',
+        );
+
         // Map basic fields
         form.setValue('title', recording.title);
-        form.setValue('artist', recording.artist);
+        form.setValue('artist', artistsString);
         form.setValue('album', release.album);
         form.setValue('year', release.year?.toString() || '');
         form.setValue('isrc', recording.isrc || '');
@@ -203,16 +240,12 @@ export const TrackForm = forwardRef<TrackFormRef, TrackFormProps>(
 
         // Note: MusicBrainz doesn't provide genre data, so we don't update the genre field
 
-        // Create metadata array based on the mapping table
-        const metadata = [];
-
         // Add release date
         if (release.date) {
           metadata.push({ key: 'release_date', value: release.date });
         }
 
         // Add album artist (same as artist for most cases)
-        metadata.push({ key: 'album_artist', value: recording.artist });
 
         // Add artist sort order
         if (recording.artistSortOrder) {
@@ -237,9 +270,6 @@ export const TrackForm = forwardRef<TrackFormRef, TrackFormProps>(
         }
 
         // Add MusicBrainz IDs
-        if (recording.artistId) {
-          metadata.push({ key: 'mbz_artist_id', value: recording.artistId });
-        }
         if (recording.recordingId) {
           metadata.push({
             key: 'mbz_recording_id',
