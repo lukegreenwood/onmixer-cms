@@ -1,10 +1,10 @@
 'use client';
 
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@apollo/client';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@soundwaves/components';
-import { FormProvider, useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
+import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { ActionBar } from '@/components/blocks/ActionBar';
@@ -64,8 +64,10 @@ export const NetworkForm = ({ network, onSubmit }: NetworkFormProps) => {
       }
     : undefined;
 
-  const [createNetwork, { loading: createLoading }] = useMutation(CREATE_NETWORK);
-  const [updateNetwork, { loading: updateLoading }] = useMutation(UPDATE_NETWORK);
+  const [createNetwork, { loading: createLoading }] =
+    useMutation(CREATE_NETWORK);
+  const [updateNetwork, { loading: updateLoading }] =
+    useMutation(UPDATE_NETWORK);
 
   const defaultFormData: NetworkFormData = {
     name: '',
@@ -82,38 +84,50 @@ export const NetworkForm = ({ network, onSubmit }: NetworkFormProps) => {
     ...(network ? { values: formData } : { defaultValues: defaultFormData }),
   });
 
-  const handleSubmit = async (data: NetworkFormData) => {
-    try {
-      if (isEditing) {
-        const result = await updateNetwork({
-          variables: {
-            input: {
-              id: network.id,
-              ...data,
-            },
+  const handleSubmit = (data: NetworkFormData) => {
+    if (isEditing) {
+      updateNetwork({
+        variables: {
+          input: {
+            id: network.id,
+            ...data,
           },
-        });
-        if (result.data?.updateNetwork.success) {
-          toast('Network updated successfully', 'success');
-          router.push(`/networks/${network.code}`);
-        } else {
-          toast(result.data?.updateNetwork.message || 'Failed to update network', 'error');
-        }
-      } else {
-        const result = await createNetwork({
-          variables: {
-            input: data,
-          },
-        });
-        if (result.data?.createNetwork.success) {
-          toast('Network created successfully', 'success');
-          router.push(`/networks/${data.code}`);
-        } else {
-          toast(result.data?.createNetwork.message || 'Failed to create network', 'error');
-        }
-      }
-    } catch (error) {
-      toast(`Failed to ${isEditing ? 'update' : 'create'} network`, 'error');
+        },
+        onCompleted: (result) => {
+          if (result.updateNetwork.success) {
+            toast('Network updated successfully', 'success');
+            router.push(`/networks/${network.code}`);
+          } else {
+            toast(
+              result.updateNetwork.message || 'Failed to update network',
+              'error',
+            );
+          }
+        },
+        onError: () => {
+          toast('Failed to update network', 'error');
+        },
+      });
+    } else {
+      createNetwork({
+        variables: {
+          input: data,
+        },
+        onCompleted: (result) => {
+          if (result.createNetwork.success) {
+            toast('Network created successfully', 'success');
+            router.push(`/networks/${data.code}`);
+          } else {
+            toast(
+              result.createNetwork.message || 'Failed to create network',
+              'error',
+            );
+          }
+        },
+        onError: () => {
+          toast('Failed to create network', 'error');
+        },
+      });
     }
 
     if (onSubmit) {
@@ -186,61 +200,62 @@ export const NetworkForm = ({ network, onSubmit }: NetworkFormProps) => {
     },
   ];
 
-  return (
-    <FormProvider {...methods}>
-      <EntityEditForm
-        heading={isEditing ? `Edit Network: ${network?.name}` : 'Create Network'}
-        subheading={
-          isEditing
-            ? 'Update the network details below'
-            : 'Create a new network to organize your content'
-        }
-        onSubmit={methods.handleSubmit(handleSubmit)}
-      >
-        <DynamicForm fields={fields} />
-        
-        {/* SVG Upload Fields */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-          <SvgUploadField
-            name="logoSvg"
-            label="Logo SVG"
-            required
-            helperText="Upload the main logo SVG"
-          />
-          <SvgUploadField
-            name="logoSvgIcon"
-            label="Logo SVG Icon"
-            required
-            helperText="Upload the icon version of the logo SVG"
-          />
-          <SvgUploadField
-            name="logoSvgCircular"
-            label="Circular Logo SVG"
-            helperText="Upload a circular version of the logo (optional)"
-          />
-          <SvgUploadField
-            name="logoSvgColor"
-            label="Color Logo SVG"
-            helperText="Upload a color version of the logo (optional)"
-          />
-        </div>
+  const isDirty = methods.formState.isDirty;
 
-        <ActionBar>
-          <Button
-            variant="tertiary"
-            onClick={() => router.push(isEditing ? `/networks/${network.code}` : '/networks')}
-            type="button"
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            loading={createLoading || updateLoading}
-          >
-            {isEditing ? 'Update Network' : 'Create Network'}
-          </Button>
-        </ActionBar>
-      </EntityEditForm>
-    </FormProvider>
+  return (
+    <div className="page-content">
+      <FormProvider {...methods}>
+        <div className="network-form">
+          <EntityEditForm
+            startSection={[
+              <DynamicForm key="fields" fields={fields} />,
+              <div
+                key="svg-uploads"
+                className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6"
+              >
+                <SvgUploadField
+                  name="logoSvg"
+                  label="Logo SVG"
+                  required
+                  helperText="Upload the main logo SVG"
+                />
+                <SvgUploadField
+                  name="logoSvgIcon"
+                  label="Logo SVG Icon"
+                  required
+                  helperText="Upload the icon version of the logo SVG"
+                />
+                <SvgUploadField
+                  name="logoSvgCircular"
+                  label="Circular Logo SVG"
+                  helperText="Upload a circular version of the logo (optional)"
+                />
+                <SvgUploadField
+                  name="logoSvgColor"
+                  label="Color Logo SVG"
+                  helperText="Upload a color version of the logo (optional)"
+                />
+              </div>,
+            ]}
+            endSection={<div />}
+          />
+
+          <ActionBar unsavedChanges={isDirty}>
+            {isDirty && (
+              <Button variant="tertiary" onClick={() => methods.reset()}>
+                Discard
+              </Button>
+            )}
+            <Button
+              variant="primary"
+              onClick={() => methods.handleSubmit(handleSubmit)()}
+              disabled={createLoading || updateLoading}
+            >
+              {isEditing ? 'Update Network' : 'Create Network'}
+            </Button>
+          </ActionBar>
+        </div>
+      </FormProvider>
+    </div>
   );
 };

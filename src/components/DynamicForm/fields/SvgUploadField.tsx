@@ -1,8 +1,9 @@
 'use client';
 
+import { Button } from '@soundwaves/components';
 import { useState, useCallback } from 'react';
 import { useController, type FieldValues, type Path } from 'react-hook-form';
-import { Button } from '@soundwaves/components';
+
 
 interface SvgUploadFieldProps<T extends FieldValues> {
   name: Path<T>;

@@ -1,0 +1,1 @@
+export { ClockTemplateDetailPage } from './ClockTemplateDetailPage';

@@ -1,0 +1,1 @@
+export { RuleDetailPage } from './RuleDetailPage';

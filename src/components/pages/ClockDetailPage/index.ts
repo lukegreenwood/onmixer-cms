@@ -1,0 +1,1 @@
+export { ClockDetailPage } from './ClockDetailPage';

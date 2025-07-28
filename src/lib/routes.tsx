@@ -17,6 +17,7 @@ import {
   SeriesIcon,
   ShowsIcon,
   TrackIcon,
+  MusicIcon,
 } from '@/components';
 import { NetworkSelector } from '@/components/Navigation/NetworkSelector';
 
@@ -68,6 +69,16 @@ const navigationRoutes = {
   enrichTracks: '/tracks/enrich',
   jobsStatus: '/tracks/jobs',
   jobDetails: '/tracks/jobs/%s',
+  musicScheduling: '/music-scheduling',
+  musicClocks: '/music-scheduling/clocks',
+  musicClockCreate: '/music-scheduling/clocks/create',
+  musicClockEdit: '/music-scheduling/clocks/%s/edit',
+  musicClockView: '/music-scheduling/clocks/%s',
+  musicRules: '/music-scheduling/rules',
+  musicRuleCreate: '/music-scheduling/rules/create',
+  musicRuleEdit: '/music-scheduling/rules/%s/edit',
+  musicRuleView: '/music-scheduling/rules/%s',
+  musicAssignments: '/music-scheduling/assignments',
 } as const;
 
 export type RouteName = keyof typeof navigationRoutes;
@@ -157,6 +168,26 @@ export const navigationItems: Array<NavigationItem> = [
     icon: <PresentersIcon />,
     path: navigationRoutes.presenters,
     label: 'Presenters',
+  },
+  {
+    section: 'Broadcast',
+    icon: <MusicIcon />,
+    path: navigationRoutes.musicScheduling,
+    label: 'Music Scheduling',
+    items: [
+      {
+        path: navigationRoutes.musicClocks,
+        label: 'Clocks',
+      },
+      {
+        path: navigationRoutes.musicRules,
+        label: 'Rules',
+      },
+      {
+        path: navigationRoutes.musicAssignments,
+        label: 'Assignments',
+      },
+    ],
   },
 
   {

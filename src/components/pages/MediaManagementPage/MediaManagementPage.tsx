@@ -258,13 +258,13 @@ export const MediaManagementPage = () => {
 
   // Cleanup on unmount
   useEffect(() => {
+    const currentLoadingTimeout = loadingTimeoutRef.current;
     return () => {
       if (observerRef.current) {
         observerRef.current.disconnect();
       }
-      const timeout = loadingTimeoutRef.current;
-      if (timeout) {
-        clearTimeout(timeout);
+      if (currentLoadingTimeout) {
+        clearTimeout(currentLoadingTimeout);
       }
     };
   }, []);

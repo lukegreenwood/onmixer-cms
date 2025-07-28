@@ -38,6 +38,7 @@
       justify-content: space-between;
       padding: mixins.spacing(2);
       width: 100%;
+      text-align: start;
 
       &:hover:not(.searchable-list__item--empty) {
         background-color: palette.$gray-50;

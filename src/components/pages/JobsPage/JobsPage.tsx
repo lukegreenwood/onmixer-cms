@@ -3,7 +3,7 @@
 import { useQuery, useMutation } from '@apollo/client';
 import { Button } from '@soundwaves/components';
 import { useRouter } from 'next/navigation';
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useMemo, useState } from 'react';
 
 import { JobsTable } from '@/blocks/JobsTable/JobsTable';
 import { PageHeader } from '@/blocks/PageHeader/PageHeader';
@@ -28,13 +28,13 @@ export function JobsPage() {
   const [cancelJob] = useMutation(CANCEL_JOB);
   // const [enrichPendingJob] = useMutation(ENRICH_PENDING_JOB);
 
-  const jobs = data?.jobs || [];
+  const jobs = useMemo(() => data?.jobs || [], [data?.jobs]);
 
   // Auto-refresh every 5 seconds for active jobs
   useEffect(() => {
-    const hasActiveJobs = jobs.some((job) =>
-      [JobStatus.Pending, JobStatus.Processing].includes(job.status),
-    );
+    const hasActiveJobs = jobs.some((job) => {
+      return [JobStatus.Pending, JobStatus.Processing].includes(job.status);
+    });
 
     if (hasActiveJobs) {
       const interval = setInterval(() => {
@@ -43,6 +43,8 @@ export function JobsPage() {
 
       return () => clearInterval(interval);
     }
+    
+    return undefined;
   }, [jobs, refetch]);
 
   const handleCancel = async (jobId: string) => {
