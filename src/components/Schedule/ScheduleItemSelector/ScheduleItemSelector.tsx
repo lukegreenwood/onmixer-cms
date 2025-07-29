@@ -81,13 +81,13 @@ export const ScheduleItemSelector = ({ item }: ScheduleItemSelectorProps) => {
       trigger={
         <div className="primary-secondary-list">
           <PrimarySecondary
-            primary={format(item.start, 'HH:mm:ss')}
-            secondary={format(item.start, 'dd/MM/yyyy')}
+            primary={format(parseISO(item.start), 'HH:mm:ss')}
+            secondary={format(parseISO(item.start), 'dd/MM/yyyy')}
           />
           <p>-</p>
           <PrimarySecondary
-            primary={format(item.end, 'HH:mm:ss')}
-            secondary={format(item.end, 'dd/MM/yyyy')}
+            primary={format(parseISO(item.end), 'HH:mm:ss')}
+            secondary={format(parseISO(item.end), 'dd/MM/yyyy')}
           />
         </div>
       }

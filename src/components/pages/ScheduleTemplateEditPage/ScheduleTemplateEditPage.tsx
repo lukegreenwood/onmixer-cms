@@ -33,6 +33,7 @@ import {
 } from '@/graphql/__generated__/graphql';
 import { useNavigation } from '@/hooks';
 import { DeleteIcon } from '@/icons';
+import { convertLocalTimeToUTC, convertUTCTimeToLocal } from '@/lib/timezone';
 import { toast } from '@/lib/toast';
 
 const idNameSchema = z.object({
@@ -68,6 +69,7 @@ interface ScheduleTemplateEditPageProps {
   id: string;
 }
 
+
 const mapTemplateItem = (
   item: NonNullable<
     GetDefaultScheduleQuery['defaultSchedule']
@@ -75,6 +77,8 @@ const mapTemplateItem = (
 ) => ({
   ...item,
   databaseId: item.id,
+  start: convertUTCTimeToLocal(item.start),
+  end: convertUTCTimeToLocal(item.end),
   show: {
     id: item.show.id,
     name: item.show.shortName,
@@ -203,8 +207,8 @@ export function ScheduleTemplateEditPage({
         const itemsToUpsert = data.items.map((item) => ({
           id: item.databaseId || undefined, // If no databaseId, it's a new item
           defaultSchedule: id, // Required for all items
-          start: item.start,
-          end: item.end,
+          start: convertLocalTimeToUTC(item.start),
+          end: convertLocalTimeToUTC(item.end),
           endsNextDay: item.endsNextDay,
           episodeName: item.episodeName || undefined,
           episodeDesc: item.episodeDesc || undefined,

@@ -1,4 +1,4 @@
-import { gql } from '@/graphql/__generated__';
+import { gql } from '../__generated__';
 
 export const CREATE_MUSIC_CLOCK_TEMPLATE = gql(`
   mutation CreateMusicClockTemplate($input: CreateMusicClockTemplateInput!) {
@@ -19,15 +19,18 @@ export const CREATE_MUSIC_CLOCK_TEMPLATE = gql(`
 `);
 
 export const UPDATE_MUSIC_CLOCK_TEMPLATE = gql(`
-  mutation UpdateMusicClockTemplate($id: ID!, $input: UpdateMusicClockTemplateInput!) {
-    updateMusicClockTemplate(id: $id, input: $input) {
+  mutation UpdateMusicClockTemplate($input: UpdateMusicClockTemplateInput!) {
+    updateMusicClockTemplate(input: $input) {
       success
       message
       template {
         id
+        shortId
         name
         description
         isDefault
+        createdAt
+        updatedAt
       }
     }
   }
@@ -43,14 +46,10 @@ export const DELETE_MUSIC_CLOCK_TEMPLATE = gql(`
 `);
 
 export const SET_DEFAULT_MUSIC_CLOCK_TEMPLATE = gql(`
-  mutation SetDefaultMusicClockTemplate($id: ID!) {
-    setDefaultMusicClockTemplate(id: $id) {
+  mutation SetDefaultMusicClockTemplate($networkId: ID!, $templateId: ID!) {
+    setDefaultMusicClockTemplate(networkId: $networkId, templateId: $templateId) {
       success
       message
-      template {
-        id
-        isDefault
-      }
     }
   }
 `);
@@ -102,9 +101,9 @@ export const CREATE_WEEKLY_OVERRIDE = gql(`
   }
 `);
 
-export const DELETE_WEEKLY_OVERRIDE = gql(`
-  mutation DeleteWeeklyOverride($id: ID!) {
-    deleteWeeklyOverride(id: $id) {
+export const REMOVE_WEEKLY_OVERRIDE = gql(`
+  mutation RemoveWeeklyOverride($id: ID!) {
+    removeWeeklyOverride(id: $id) {
       success
       message
     }

@@ -8,7 +8,7 @@ import { useState, useCallback, useMemo } from 'react';
 import { ActionBar } from '@/components/blocks/ActionBar';
 import { Card } from '@/components/blocks/Card/Card';
 import { PageHeader } from '@/components/blocks/PageHeader';
-import { ClockIcon, EditIcon, SaveIcon } from '@/components/icons';
+import { SaveIcon } from '@/components/icons';
 import { ClockSelector } from '@/components/music-scheduling/templates/ClockSelector';
 import { TemplateGrid } from '@/components/music-scheduling/templates/TemplateGrid';
 import { 
@@ -161,9 +161,8 @@ export const ClockTemplateEditPage = ({
     return (
       <div className="clock-template-edit-page">
         <PageHeader
-          title="Template Not Found"
-          description="The requested template could not be found"
-          icon={<ClockIcon />}
+          heading="Template Not Found"
+          subheading="The requested template could not be found"
         />
         <div className="page-content">
           <Card>
@@ -187,15 +186,8 @@ export const ClockTemplateEditPage = ({
   return (
     <div className="clock-template-edit-page">
       <PageHeader
-        title={`Edit: ${template.name}`}
-        description="Configure clock assignments for each day and hour"
-        icon={<EditIcon />}
-        breadcrumbs={[
-          { label: 'Music Scheduling', href: `/networks/${networkCode}/music-scheduling` },
-          { label: 'Templates', href: `/networks/${networkCode}/music-scheduling/templates` },
-          { label: template.name, href: `/networks/${networkCode}/music-scheduling/templates/${templateId}` },
-          { label: 'Edit' },
-        ]}
+        heading={`Edit: ${template.name}`}
+        subheading="Configure clock assignments for each day and hour"
       />
 
       <div className="page-content">
@@ -239,7 +231,6 @@ export const ClockTemplateEditPage = ({
 
       <ActionBar 
         unsavedChanges={pendingChanges.length > 0}
-        loading={isLoading}
       >
         <div className="template-editor__stats">
           <span className="text-sm text-gray-600">

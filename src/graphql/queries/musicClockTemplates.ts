@@ -1,4 +1,4 @@
-import { gql } from '@/graphql/__generated__';
+import { gql } from '../__generated__';
 
 export const GET_MUSIC_CLOCK_TEMPLATES = gql(`
   query GetMusicClockTemplates($networkId: ID!) {
@@ -28,9 +28,12 @@ export const GET_MUSIC_CLOCK_TEMPLATE = gql(`
   query GetMusicClockTemplate($id: ID!) {
     musicClockTemplate(id: $id) {
       id
+      shortId
       name
       description
       isDefault
+      createdAt
+      updatedAt
       assignments {
         id
         dayOfWeek
@@ -40,9 +43,26 @@ export const GET_MUSIC_CLOCK_TEMPLATE = gql(`
           name
           duration
           items {
-            id
-            name
-            duration
+            ... on MusicSlot {
+              id
+              name
+              duration
+            }
+            ... on NoteBlock {
+              id
+              name
+              duration
+            }
+            ... on AdBreak {
+              id
+              name
+              duration
+            }
+            ... on StationIdent {
+              id
+              name
+              duration
+            }
           }
         }
       }
@@ -58,9 +78,26 @@ export const GET_AVAILABLE_CLOCKS = gql(`
       description
       duration
       items {
-        id
-        name
-        duration
+        ... on MusicSlot {
+          id
+          name
+          duration
+        }
+        ... on NoteBlock {
+          id
+          name
+          duration
+        }
+        ... on AdBreak {
+          id
+          name
+          duration
+        }
+        ... on StationIdent {
+          id
+          name
+          duration
+        }
       }
     }
   }

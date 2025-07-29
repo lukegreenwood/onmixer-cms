@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation } from '@apollo/client';
 import { Button, Loading } from '@soundwaves/components';
+import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 
@@ -25,13 +26,13 @@ import { GET_MUSIC_CLOCK_TEMPLATES } from '@/graphql/queries/musicClockTemplates
 import { useNetwork } from '@/hooks';
 import { toast } from '@/lib/toast';
 
-import type { ColumnDef } from '@tanstack/react-table';
+// import type { ColumnDef } from '@tanstack/react-table';
 
 interface MusicClockTemplate {
   id: string;
   shortId: string;
   name: string;
-  description?: string;
+  description?: string | null;
   isDefault: boolean;
   createdAt: string;
   updatedAt: string;
@@ -101,9 +102,17 @@ export const MusicClockTemplatesPage = ({ networkCode }: MusicClockTemplatesPage
   };
 
   const handleSetDefault = async (templateId: string) => {
+    if (!currentNetwork?.id) {
+      toast('Network not found', 'error');
+      return;
+    }
+
     try {
       const result = await setDefaultTemplate({
-        variables: { id: templateId },
+        variables: { 
+          networkId: currentNetwork.id, 
+          templateId 
+        },
       });
 
       if (result.data?.setDefaultMusicClockTemplate?.success) {
@@ -124,9 +133,10 @@ export const MusicClockTemplatesPage = ({ networkCode }: MusicClockTemplatesPage
     toast('Template duplication not yet implemented', 'info');
   };
 
-  const columns: ColumnDef<MusicClockTemplate>[] = [
-    {
-      accessorKey: 'name',
+  const columnHelper = createColumnHelper<MusicClockTemplate>();
+  
+  const columns = useMemo(() => [
+    columnHelper.accessor('name', {
       header: 'Template Name',
       cell: ({ row }) => (
         <div className="cell-content cell-content--with-icon">
@@ -148,33 +158,30 @@ export const MusicClockTemplatesPage = ({ networkCode }: MusicClockTemplatesPage
           </div>
         </div>
       ),
-    },
-    {
-      accessorKey: 'shortId',
+    }),
+    columnHelper.accessor('shortId', {
       header: 'ID',
       cell: ({ row }) => (
         <span className="font-mono text-sm">{row.original.shortId}</span>
       ),
-    },
-    {
-      accessorKey: 'assignments',
+    }),
+    columnHelper.accessor('assignments', {
       header: 'Assignments',
       cell: ({ row }) => (
         <span className="text-sm text-gray-600">
           {row.original.assignments.length} slot{row.original.assignments.length !== 1 ? 's' : ''}
         </span>
       ),
-    },
-    {
-      accessorKey: 'updatedAt',
+    }),
+    columnHelper.accessor('updatedAt', {
       header: 'Last Modified',
       cell: ({ row }) => (
         <span className="text-sm text-gray-500">
           {new Date(row.original.updatedAt).toLocaleDateString()}
         </span>
       ),
-    },
-    {
+    }),
+    columnHelper.display({
       id: 'actions',
       header: 'Actions',
       cell: ({ row }) => (
@@ -230,8 +237,14 @@ export const MusicClockTemplatesPage = ({ networkCode }: MusicClockTemplatesPage
           </Button>
         </div>
       ),
-    },
-  ];
+    }),
+  ], [handleEditTemplate, handleViewTemplate, handleDeleteTemplate, handleSetDefault, handleDuplicateTemplate, deleteLoading, setDefaultLoading]);
+
+  const table = useReactTable({
+    data: templates,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  });
 
   if (loading) {
     return (
@@ -244,9 +257,8 @@ export const MusicClockTemplatesPage = ({ networkCode }: MusicClockTemplatesPage
   return (
     <div className="music-clock-templates-page">
       <PageHeader
-        title="Clock Templates"
-        description="Manage reusable clock templates for broadcast scheduling"
-        icon={<ClockIcon />}
+        heading="Clock Templates"
+        subheading="Manage reusable clock templates for broadcast scheduling"
       />
 
       <div className="page-content">
@@ -270,19 +282,11 @@ export const MusicClockTemplatesPage = ({ networkCode }: MusicClockTemplatesPage
             </div>
 
             <DataTable
-              data={templates}
-              columns={columns}
-              selectedRows={selectedTemplates}
-              onSelectedRowsChange={setSelectedTemplates}
-              emptyState={{
-                title: 'No templates found',
-                description: 'Create your first clock template to get started',
-                action: (
-                  <Button variant="primary" onClick={handleCreateTemplate}>
-                    <AddIcon className="button-icon button-icon--sm" />
-                    Create Template
-                  </Button>
-                ),
+              table={table}
+              onRowClick={(template) => {
+                router.push(
+                  `/networks/${networkCode}/music-scheduling/templates/${template.id}`
+                );
               }}
             />
           </div>

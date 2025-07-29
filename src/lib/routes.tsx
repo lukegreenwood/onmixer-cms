@@ -79,6 +79,10 @@ const navigationRoutes = {
   musicRuleEdit: '/music-scheduling/rules/%s/edit',
   musicRuleView: '/music-scheduling/rules/%s',
   musicAssignments: '/music-scheduling/assignments',
+  musicClockTemplates: '/music-scheduling/templates',
+  musicClockTemplateCreate: '/music-scheduling/templates/create',
+  musicClockTemplateEdit: '/music-scheduling/templates/%s/edit',
+  musicClockTemplateView: '/music-scheduling/templates/%s',
 } as const;
 
 export type RouteName = keyof typeof navigationRoutes;
@@ -178,6 +182,10 @@ export const navigationItems: Array<NavigationItem> = [
       {
         path: navigationRoutes.musicClocks,
         label: 'Clocks',
+      },
+      {
+        path: navigationRoutes.musicClockTemplates,
+        label: 'Templates',
       },
       {
         path: navigationRoutes.musicRules,

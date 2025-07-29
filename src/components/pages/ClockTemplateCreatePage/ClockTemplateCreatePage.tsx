@@ -11,7 +11,7 @@ import { ActionBar } from '@/components/blocks/ActionBar';
 import { Card } from '@/components/blocks/Card/Card';
 import { EntityEditForm } from '@/components/blocks/EntityEditForm';
 import { PageHeader } from '@/components/blocks/PageHeader';
-import { ClockIcon } from '@/components/icons';
+// import { ClockIcon } from '@/components/icons';
 import { CREATE_MUSIC_CLOCK_TEMPLATE } from '@/graphql/mutations/musicClockTemplates';
 import { useNetwork } from '@/hooks';
 import { toast } from '@/lib/toast';
@@ -86,14 +86,8 @@ export const ClockTemplateCreatePage = ({ networkCode }: ClockTemplateCreatePage
     <FormProvider {...methods}>
       <div className="clock-template-create-page">
         <PageHeader
-          title="Create Clock Template"
-          description="Create a new reusable clock template for broadcast scheduling"
-          icon={<ClockIcon />}
-          breadcrumbs={[
-            { label: 'Music Scheduling', href: `/networks/${networkCode}/music-scheduling` },
-            { label: 'Templates', href: `/networks/${networkCode}/music-scheduling/templates` },
-            { label: 'Create Template' },
-          ]}
+          heading="Create Clock Template"
+          subheading="Create a new reusable clock template for broadcast scheduling"
         />
 
         <div className="page-content">
@@ -113,7 +107,6 @@ export const ClockTemplateCreatePage = ({ networkCode }: ClockTemplateCreatePage
                       label="Template Name"
                       {...methods.register('name')}
                       placeholder="Enter template name"
-                      error={methods.formState.errors.name?.message}
                       required
                     />
 
@@ -122,7 +115,6 @@ export const ClockTemplateCreatePage = ({ networkCode }: ClockTemplateCreatePage
                       {...methods.register('description')}
                       placeholder="Optional description of this template"
                       rows={3}
-                      error={methods.formState.errors.description?.message}
                     />
 
                     <div className="checkbox-field">

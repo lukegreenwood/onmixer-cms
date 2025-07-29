@@ -26,16 +26,17 @@ export const TimeField = <T extends FieldValues>({
     name,
   });
 
-  // Handle different input value types
+  // Handle different input value types - keep times as local time for user display
   const timeValue = (() => {
     if (!value) return '';
 
-    // If it's already a formatted time string (HH:mm:ss or HH:mm), return it
+    // If it's already a formatted time string (HH:mm:ss or HH:mm), return as-is
+    // We'll handle UTC conversion only on form submission
     if (typeof value === 'string' && /^\d{1,2}:\d{2}(:\d{2})?$/.test(value)) {
       return value;
     }
 
-    // If it's a Date object, format it
+    // If it's a Date object, format it in local timezone
     if (typeof value === 'object' && (value as unknown) instanceof Date) {
       return format(value as Date, 'HH:mm:ss');
     }
@@ -62,24 +63,15 @@ export const TimeField = <T extends FieldValues>({
       return;
     }
 
-    // For time-only fields, we might want to store just the time string
-    // or create a Date object with today's date but the specified time
-    const currentDate = new Date();
-
+    // Store the time as-is (local time) - conversion to UTC will happen on form submission
     try {
-      // Try parsing as HH:mm:ss first, then HH:mm
-      let parsedTime;
-      if (newTimeValue.includes(':')) {
-        const parts = newTimeValue.split(':');
-        if (parts.length === 3) {
-          parsedTime = parse(newTimeValue, 'HH:mm:ss', currentDate);
-        } else if (parts.length === 2) {
-          parsedTime = parse(newTimeValue, 'HH:mm', currentDate);
-        }
-      }
+      // Validate and format the time input
+      const timeFormat = newTimeValue.split(':').length === 3 ? 'HH:mm:ss' : 'HH:mm';
+      const today = new Date();
+      const parsedTime = parse(newTimeValue, timeFormat, today);
 
-      if (parsedTime && !isNaN(parsedTime.getTime())) {
-        // Store as time string for consistency
+      if (!isNaN(parsedTime.getTime())) {
+        // Store as formatted time string
         onChange(format(parsedTime, 'HH:mm:ss'));
       } else {
         // Fallback to storing the raw string

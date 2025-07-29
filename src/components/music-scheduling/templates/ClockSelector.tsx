@@ -8,7 +8,7 @@ import { ClockIcon, SearchIcon } from '@/components/icons';
 interface Clock {
   id: string;
   name: string;
-  description?: string;
+  description?: string | null;
   duration: number;
   items?: Array<{
     id: string;

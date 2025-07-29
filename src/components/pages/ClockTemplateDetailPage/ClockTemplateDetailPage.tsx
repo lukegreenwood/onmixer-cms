@@ -42,9 +42,8 @@ export const ClockTemplateDetailPage = ({
     return (
       <div className="clock-template-detail-page">
         <PageHeader
-          title="Template Not Found"
-          description="The requested template could not be found"
-          icon={<ClockIcon />}
+          heading="Template Not Found"
+          subheading="The requested template could not be found"
         />
         <div className="page-content">
           <Card>
@@ -88,14 +87,8 @@ export const ClockTemplateDetailPage = ({
   return (
     <div className="clock-template-detail-page">
       <PageHeader
-        title={template.name}
-        description={template.description || 'Clock template details'}
-        icon={<ClockIcon />}
-        breadcrumbs={[
-          { label: 'Music Scheduling', href: `/networks/${networkCode}/music-scheduling` },
-          { label: 'Templates', href: `/networks/${networkCode}/music-scheduling/templates` },
-          { label: template.name },
-        ]}
+        heading={template.name}
+        subheading={template.description || 'Clock template details'}
         actions={
           <Button variant="primary" onClick={handleEdit}>
             <EditIcon className="button-icon button-icon--sm" />
