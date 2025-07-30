@@ -155,43 +155,41 @@ export const AssignmentScheduler = () => {
             ))}
 
             {/* Time slots */}
-            {hours.map(hour => (
-              <div key={hour} className="contents">
-                <div className="grid-time-label">
-                  {formatHour(hour)}
-                </div>
-                {daysOfWeek.map(day => {
-                  const assignment = getAssignedClock(day, hour);
-                  const isSelected = isSlotSelected(day, hour);
-                  
-                  return (
-                    <button
-                      key={`${day}-${hour}`}
-                      onClick={() => handleSlotToggle(day, hour)}
-                      className={`time-slot ${
-                        isSelected
-                          ? 'time-slot--selected'
-                          : assignment
-                          ? 'time-slot--assigned'
-                          : 'time-slot--available'
-                      }`}
-                      title={assignment ? `Assigned: ${assignment.clock.name}` : 'Click to select'}
-                    >
-                      {assignment ? (
-                        <div className="time-slot__content">
-                          <ClockIcon className="time-slot__icon" />
-                          <span className="time-slot__name">{assignment.clock.name.slice(0, 8)}</span>
-                        </div>
-                      ) : (
-                        <div className="time-slot__placeholder">
-                          {isSelected ? '✓' : ''}
-                        </div>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            ))}
+            {hours.map(hour => [
+              <div key={`time-${hour}`} className="grid-time-label">
+                {formatHour(hour)}
+              </div>,
+              ...daysOfWeek.map(day => {
+                const assignment = getAssignedClock(day, hour);
+                const isSelected = isSlotSelected(day, hour);
+                
+                return (
+                  <button
+                    key={`${day}-${hour}`}
+                    onClick={() => handleSlotToggle(day, hour)}
+                    className={`time-slot ${
+                      isSelected
+                        ? 'time-slot--selected'
+                        : assignment
+                        ? 'time-slot--assigned'
+                        : 'time-slot--available'
+                    }`}
+                    title={assignment ? `Assigned: ${assignment.clock.name}` : 'Click to select'}
+                  >
+                    {assignment ? (
+                      <div className="time-slot__content">
+                        <ClockIcon className="time-slot__icon" />
+                        <span className="time-slot__name">{assignment.clock.name.slice(0, 8)}</span>
+                      </div>
+                    ) : (
+                      <div className="time-slot__placeholder">
+                        {isSelected ? '✓' : ''}
+                      </div>
+                    )}
+                  </button>
+                );
+              })
+            ]).flat()}
           </div>
         </div>
 

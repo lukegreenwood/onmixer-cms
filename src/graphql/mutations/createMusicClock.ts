@@ -7,46 +7,35 @@ export const CREATE_MUSIC_CLOCK = gql(`
       message
       clock {
         id
-        shortId
         name
         description
-        duration
-        isTemplate
+        color
+        targetRuntime
+        networkId
         items {
-          ... on MusicSlot {
+          id
+          itemType
+          itemId
+          noteContent
+          orderIndex
+          duration
+          name
+          # Resolved references
+          track {
             id
-            name
+            title
+            artist
             duration
-            categories
-            genres
-            musicPriority: priority
-            allowOverrun
-            orderIndex
           }
-          ... on NoteBlock {
+          subcategory {
             id
             name
-            duration
-            content
-            notePriority: priority
-            color
-            orderIndex
+            averageDuration
           }
-          ... on AdBreak {
+          genre {
             id
             name
-            duration
-            adType
-            isFixed
-            orderIndex
-          }
-          ... on StationIdent {
-            id
-            name
-            duration
-            identType
-            trackId
-            orderIndex
+            averageDuration
           }
         }
         network {

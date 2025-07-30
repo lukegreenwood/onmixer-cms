@@ -38,7 +38,8 @@ export const ClockTemplateEditPage = ({
 }: ClockTemplateEditPageProps) => {
   const router = useRouter();
   const { currentNetwork } = useNetwork();
-  const [selectedSlot, setSelectedSlot] = useState<SelectedSlot | null>(null);
+  const [selectedSlots, setSelectedSlots] = useState<SelectedSlot[]>([]);
+  const [lastSelectedSlot, setLastSelectedSlot] = useState<SelectedSlot | null>(null);
   const [pendingChanges, setPendingChanges] = useState<string[]>([]);
 
   // GraphQL queries
@@ -65,41 +66,104 @@ export const ClockTemplateEditPage = ({
   const template = templateData?.musicClockTemplate;
   const availableClocks = useMemo(() => clocksData?.musicClocks || [], [clocksData]);
 
-  const handleSlotClick = useCallback((dayOfWeek: number, hour: number) => {
-    setSelectedSlot({ dayOfWeek, hour });
-  }, []);
+  const handleSlotClick = useCallback((dayOfWeek: number, hour: number, event: React.MouseEvent) => {
+    const newSlot = { dayOfWeek, hour };
+    
+    if (event.shiftKey && lastSelectedSlot) {
+      // Handle shift-click for range selection
+      const slots: SelectedSlot[] = [];
+      
+      // Calculate range - we'll select a rectangular area
+      const minDay = Math.min(lastSelectedSlot.dayOfWeek, dayOfWeek);
+      const maxDay = Math.max(lastSelectedSlot.dayOfWeek, dayOfWeek);
+      const minHour = Math.min(lastSelectedSlot.hour, hour);
+      const maxHour = Math.max(lastSelectedSlot.hour, hour);
+      
+      for (let d = minDay; d <= maxDay; d++) {
+        for (let h = minHour; h <= maxHour; h++) {
+          slots.push({ dayOfWeek: d, hour: h });
+        }
+      }
+      
+      // If ctrl/cmd is also held, add to existing selection, otherwise replace
+      if (event.ctrlKey || event.metaKey) {
+        setSelectedSlots(prev => {
+          const newSlots = [...prev];
+          slots.forEach(slot => {
+            const exists = newSlots.some(s => s.dayOfWeek === slot.dayOfWeek && s.hour === slot.hour);
+            if (!exists) {
+              newSlots.push(slot);
+            }
+          });
+          return newSlots;
+        });
+      } else {
+        setSelectedSlots(slots);
+      }
+    } else if (event.ctrlKey || event.metaKey) {
+      // Handle ctrl/cmd-click for multi-selection
+      setSelectedSlots(prev => {
+        const exists = prev.some(slot => slot.dayOfWeek === dayOfWeek && slot.hour === hour);
+        if (exists) {
+          // Remove if already selected
+          return prev.filter(slot => !(slot.dayOfWeek === dayOfWeek && slot.hour === hour));
+        } else {
+          // Add to selection
+          return [...prev, newSlot];
+        }
+      });
+      setLastSelectedSlot(newSlot);
+    } else {
+      // Normal click - single selection
+      setSelectedSlots([newSlot]);
+      setLastSelectedSlot(newSlot);
+    }
+  }, [lastSelectedSlot]);
 
   const handleClockSelect = useCallback(async (clockId: string) => {
-    if (!selectedSlot || !template) {
-      toast('Please select a time slot first', 'error');
+    if (!selectedSlots.length || !template) {
+      toast('Please select at least one time slot first', 'error');
       return;
     }
 
     try {
-      const result = await assignClock({
-        variables: {
-          input: {
-            templateId: template.id,
-            clockId,
-            dayOfWeek: selectedSlot.dayOfWeek,
-            hour: selectedSlot.hour,
+      // Assign clock to all selected slots
+      const assignmentPromises = selectedSlots.map(slot => 
+        assignClock({
+          variables: {
+            input: {
+              templateId: template.id,
+              clockId,
+              dayOfWeek: slot.dayOfWeek,
+              hour: slot.hour,
+            },
           },
-        },
-      });
+        })
+      );
 
-      if (result.data?.assignClockToTemplate?.success) {
-        toast('Clock assigned successfully', 'success');
+      const results = await Promise.all(assignmentPromises);
+      const successCount = results.filter(result => result.data?.assignClockToTemplate?.success).length;
+      const failCount = results.length - successCount;
+
+      if (successCount > 0) {
+        toast(
+          `Clock assigned to ${successCount} slot${successCount !== 1 ? 's' : ''}${
+            failCount > 0 ? ` (${failCount} failed)` : ''
+          }`, 
+          failCount > 0 ? 'warning' : 'success'
+        );
         setPendingChanges(prev => [...prev, `assign-${Date.now()}`]);
         refetchTemplate();
-        setSelectedSlot(null);
+        setSelectedSlots([]);
+        setLastSelectedSlot(null);
       } else {
-        toast(result.data?.assignClockToTemplate?.message || 'Failed to assign clock', 'error');
+        toast('Failed to assign clock to any slots', 'error');
       }
     } catch (error) {
       console.error('Assign clock error:', error);
       toast('Failed to assign clock', 'error');
     }
-  }, [selectedSlot, template, assignClock, refetchTemplate]);
+  }, [selectedSlots, template, assignClock, refetchTemplate]);
 
   const handleRemoveClock = useCallback(async (assignmentId: string) => {
     if (!confirm('Are you sure you want to remove this assignment?')) {
@@ -197,10 +261,13 @@ export const ClockTemplateEditPage = ({
               <div className="template-editor__grid-header">
                 <h3 className="template-editor__grid-title">Weekly Schedule Grid</h3>
                 <p className="template-editor__grid-description">
-                  Click on any time slot to assign a clock. 
-                  {selectedSlot && (
+                  Click on any time slot to assign a clock. Use Shift+click for range selection, Ctrl/Cmd+click for multiple selection.
+                  {selectedSlots.length > 0 && (
                     <span className="selected-slot-info">
-                      {' '}Selected: {formatDayOfWeek(selectedSlot.dayOfWeek)} at {formatHour(selectedSlot.hour)}
+                      {' '}Selected: {selectedSlots.length} slot{selectedSlots.length !== 1 ? 's' : ''}
+                      {selectedSlots.length === 1 && (
+                        <span> ({formatDayOfWeek(selectedSlots[0].dayOfWeek)} at {formatHour(selectedSlots[0].hour)})</span>
+                      )}
                     </span>
                   )}
                 </p>
@@ -208,7 +275,7 @@ export const ClockTemplateEditPage = ({
               
               <TemplateGrid
                 assignments={template.assignments}
-                selectedSlot={selectedSlot}
+                selectedSlots={selectedSlots}
                 onSlotClick={handleSlotClick}
                 onRemoveClock={handleRemoveClock}
               />
@@ -220,9 +287,12 @@ export const ClockTemplateEditPage = ({
               <ClockSelector
                 clocks={availableClocks}
                 loading={clocksLoading}
-                selectedSlot={selectedSlot}
+                selectedSlots={selectedSlots}
                 onClockSelect={handleClockSelect}
-                onClose={() => setSelectedSlot(null)}
+                onClose={() => {
+                  setSelectedSlots([]);
+                  setLastSelectedSlot(null);
+                }}
               />
             </Card>
           </div>

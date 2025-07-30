@@ -7,7 +7,6 @@ export const CREATE_MUSIC_CLOCK_TEMPLATE = gql(`
       message
       template {
         id
-        shortId
         name
         description
         isDefault
@@ -25,7 +24,6 @@ export const UPDATE_MUSIC_CLOCK_TEMPLATE = gql(`
       message
       template {
         id
-        shortId
         name
         description
         isDefault

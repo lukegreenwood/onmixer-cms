@@ -4,7 +4,6 @@ export const GET_MUSIC_RULES = gql(`
   query GetMusicRules($networkId: ID, $filters: MusicRuleFilters) {
     musicRules(networkId: $networkId, filters: $filters) {
       id
-      shortId
       name
       description
       ruleType
@@ -38,7 +37,6 @@ export const GET_MUSIC_RULE = gql(`
   query GetMusicRule($id: ID!) {
     musicRule(id: $id) {
       id
-      shortId
       name
       description
       ruleType

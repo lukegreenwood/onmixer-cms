@@ -2,7 +2,11 @@
 
 import { useQuery, useMutation } from '@apollo/client';
 import { Button, Loading } from '@soundwaves/components';
-import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import {
+  createColumnHelper,
+  getCoreRowModel,
+  useReactTable,
+} from '@tanstack/react-table';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 
@@ -10,17 +14,17 @@ import { ActionBar } from '@/components/blocks/ActionBar';
 import { Card } from '@/components/blocks/Card/Card';
 import { DataTable } from '@/components/blocks/DataTable';
 import { PageHeader } from '@/components/blocks/PageHeader';
-import { 
-  AddIcon, 
-  ClockIcon, 
-  DeleteIcon, 
+import {
+  AddIcon,
+  ClockIcon,
+  DeleteIcon,
   EditIcon,
   StarIcon,
-  CopyIcon 
+  CopyIcon,
 } from '@/components/icons';
-import { 
+import {
   DELETE_MUSIC_CLOCK_TEMPLATE,
-  SET_DEFAULT_MUSIC_CLOCK_TEMPLATE 
+  SET_DEFAULT_MUSIC_CLOCK_TEMPLATE,
 } from '@/graphql/mutations/musicClockTemplates';
 import { GET_MUSIC_CLOCK_TEMPLATES } from '@/graphql/queries/musicClockTemplates';
 import { useNetwork } from '@/hooks';
@@ -52,7 +56,9 @@ interface MusicClockTemplatesPageProps {
   networkCode: string;
 }
 
-export const MusicClockTemplatesPage = ({ networkCode }: MusicClockTemplatesPageProps) => {
+export const MusicClockTemplatesPage = ({
+  networkCode,
+}: MusicClockTemplatesPageProps) => {
   const router = useRouter();
   const { currentNetwork } = useNetwork();
   const [selectedTemplates, setSelectedTemplates] = useState<string[]>([]);
@@ -62,8 +68,12 @@ export const MusicClockTemplatesPage = ({ networkCode }: MusicClockTemplatesPage
     skip: !currentNetwork?.id,
   });
 
-  const [deleteTemplate, { loading: deleteLoading }] = useMutation(DELETE_MUSIC_CLOCK_TEMPLATE);
-  const [setDefaultTemplate, { loading: setDefaultLoading }] = useMutation(SET_DEFAULT_MUSIC_CLOCK_TEMPLATE);
+  const [deleteTemplate, { loading: deleteLoading }] = useMutation(
+    DELETE_MUSIC_CLOCK_TEMPLATE,
+  );
+  const [setDefaultTemplate, { loading: setDefaultLoading }] = useMutation(
+    SET_DEFAULT_MUSIC_CLOCK_TEMPLATE,
+  );
 
   const templates = useMemo(() => data?.musicClockTemplates || [], [data]);
 
@@ -72,11 +82,15 @@ export const MusicClockTemplatesPage = ({ networkCode }: MusicClockTemplatesPage
   };
 
   const handleEditTemplate = (templateId: string) => {
-    router.push(`/networks/${networkCode}/music-scheduling/templates/${templateId}/edit`);
+    router.push(
+      `/networks/${networkCode}/music-scheduling/templates/${templateId}/edit`,
+    );
   };
 
   const handleViewTemplate = (templateId: string) => {
-    router.push(`/networks/${networkCode}/music-scheduling/templates/${templateId}`);
+    router.push(
+      `/networks/${networkCode}/music-scheduling/templates/${templateId}`,
+    );
   };
 
   const handleDeleteTemplate = async (templateId: string) => {
@@ -93,7 +107,11 @@ export const MusicClockTemplatesPage = ({ networkCode }: MusicClockTemplatesPage
         toast('Template deleted successfully', 'success');
         refetch();
       } else {
-        toast(result.data?.deleteMusicClockTemplate?.message || 'Failed to delete template', 'error');
+        toast(
+          result.data?.deleteMusicClockTemplate?.message ||
+            'Failed to delete template',
+          'error',
+        );
       }
     } catch (error) {
       console.error('Delete template error:', error);
@@ -109,9 +127,9 @@ export const MusicClockTemplatesPage = ({ networkCode }: MusicClockTemplatesPage
 
     try {
       const result = await setDefaultTemplate({
-        variables: { 
-          networkId: currentNetwork.id, 
-          templateId 
+        variables: {
+          networkId: currentNetwork.id,
+          templateId,
         },
       });
 
@@ -119,7 +137,11 @@ export const MusicClockTemplatesPage = ({ networkCode }: MusicClockTemplatesPage
         toast('Default template updated successfully', 'success');
         refetch();
       } else {
-        toast(result.data?.setDefaultMusicClockTemplate?.message || 'Failed to set default template', 'error');
+        toast(
+          result.data?.setDefaultMusicClockTemplate?.message ||
+            'Failed to set default template',
+          'error',
+        );
       }
     } catch (error) {
       console.error('Set default template error:', error);
@@ -134,111 +156,125 @@ export const MusicClockTemplatesPage = ({ networkCode }: MusicClockTemplatesPage
   };
 
   const columnHelper = createColumnHelper<MusicClockTemplate>();
-  
-  const columns = useMemo(() => [
-    columnHelper.accessor('name', {
-      header: 'Template Name',
-      cell: ({ row }) => (
-        <div className="cell-content cell-content--with-icon">
-          <ClockIcon className="cell-icon" />
-          <div>
-            <div className="cell-title">
-              {row.original.name}
-              {row.original.isDefault && (
-                <StarIcon 
-                  className="ml-2 text-yellow-500" 
-                  size={16} 
-                  title="Default Template" 
-                />
+
+  const columns = useMemo(
+    () => [
+      columnHelper.accessor('name', {
+        header: 'Template Name',
+        cell: ({ row }) => (
+          <div className="cell-content cell-content--with-icon">
+            <ClockIcon className="cell-icon" />
+            <div>
+              <div className="cell-title">
+                {row.original.name}
+                {row.original.isDefault && (
+                  <StarIcon
+                    className="ml-2 text-yellow-500"
+                    size={16}
+                    title="Default Template"
+                  />
+                )}
+              </div>
+              {row.original.description && (
+                <div className="cell-description">
+                  {row.original.description}
+                </div>
               )}
             </div>
-            {row.original.description && (
-              <div className="cell-description">{row.original.description}</div>
-            )}
           </div>
-        </div>
-      ),
-    }),
-    columnHelper.accessor('shortId', {
-      header: 'ID',
-      cell: ({ row }) => (
-        <span className="font-mono text-sm">{row.original.shortId}</span>
-      ),
-    }),
-    columnHelper.accessor('assignments', {
-      header: 'Assignments',
-      cell: ({ row }) => (
-        <span className="text-sm text-gray-600">
-          {row.original.assignments.length} slot{row.original.assignments.length !== 1 ? 's' : ''}
-        </span>
-      ),
-    }),
-    columnHelper.accessor('updatedAt', {
-      header: 'Last Modified',
-      cell: ({ row }) => (
-        <span className="text-sm text-gray-500">
-          {new Date(row.original.updatedAt).toLocaleDateString()}
-        </span>
-      ),
-    }),
-    columnHelper.display({
-      id: 'actions',
-      header: 'Actions',
-      cell: ({ row }) => (
-        <div className="table-actions">
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => handleViewTemplate(row.original.id)}
-            title="View Template"
-          >
-            View
-          </Button>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => handleEditTemplate(row.original.id)}
-            title="Edit Template"
-            isIconOnly
-          >
-            <EditIcon />
-          </Button>
-          {!row.original.isDefault && (
+        ),
+      }),
+      columnHelper.accessor('shortId', {
+        header: 'ID',
+        cell: ({ row }) => (
+          <span className="font-mono text-sm">{row.original.shortId}</span>
+        ),
+      }),
+      columnHelper.accessor('assignments', {
+        header: 'Assignments',
+        cell: ({ row }) => (
+          <span className="text-sm text-gray-600">
+            {row.original.assignments.length} slot
+            {row.original.assignments.length !== 1 ? 's' : ''}
+          </span>
+        ),
+      }),
+      columnHelper.accessor('updatedAt', {
+        header: 'Last Modified',
+        cell: ({ row }) => (
+          <span className="text-sm text-gray-500">
+            {new Date(row.original.updatedAt).toLocaleDateString()}
+          </span>
+        ),
+      }),
+      columnHelper.display({
+        id: 'actions',
+        header: 'Actions',
+        cell: ({ row }) => (
+          <div className="table-actions">
             <Button
               variant="secondary"
               size="sm"
-              onClick={() => handleSetDefault(row.original.id)}
-              title="Set as Default"
-              disabled={setDefaultLoading}
+              onClick={() => handleViewTemplate(row.original.id)}
+              title="View Template"
+            >
+              View
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => handleEditTemplate(row.original.id)}
+              title="Edit Template"
               isIconOnly
             >
-              <StarIcon />
+              <EditIcon />
             </Button>
-          )}
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => handleDuplicateTemplate(row.original.id)}
-            title="Duplicate Template"
-            isIconOnly
-          >
-            <CopyIcon />
-          </Button>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => handleDeleteTemplate(row.original.id)}
-            title="Delete Template"
-            disabled={deleteLoading || row.original.isDefault}
-            destructive
-            isIconOnly
-          >
-            <DeleteIcon />
-          </Button>
-        </div>
-      ),
-    }),
-  ], [handleEditTemplate, handleViewTemplate, handleDeleteTemplate, handleSetDefault, handleDuplicateTemplate, deleteLoading, setDefaultLoading]);
+            {!row.original.isDefault && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => handleSetDefault(row.original.id)}
+                title="Set as Default"
+                disabled={setDefaultLoading}
+                isIconOnly
+              >
+                <StarIcon />
+              </Button>
+            )}
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => handleDuplicateTemplate(row.original.id)}
+              title="Duplicate Template"
+              isIconOnly
+            >
+              <CopyIcon />
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => handleDeleteTemplate(row.original.id)}
+              title="Delete Template"
+              disabled={deleteLoading || row.original.isDefault}
+              destructive
+              isIconOnly
+            >
+              <DeleteIcon />
+            </Button>
+          </div>
+        ),
+      }),
+    ],
+    [
+      handleEditTemplate,
+      handleViewTemplate,
+      handleDeleteTemplate,
+      handleSetDefault,
+      handleDuplicateTemplate,
+      deleteLoading,
+      setDefaultLoading,
+    ],
+  );
 
   const table = useReactTable({
     data: templates,
@@ -271,12 +307,11 @@ export const MusicClockTemplatesPage = ({ networkCode }: MusicClockTemplatesPage
                   Create and manage clock templates for your broadcast schedule
                 </p>
               </div>
-              <Button 
-                variant="primary" 
+              <Button
+                variant="primary"
                 onClick={handleCreateTemplate}
-                className="button-icon"
+                before={<AddIcon />}
               >
-                <AddIcon className="button-icon button-icon--sm" />
                 Create Template
               </Button>
             </div>
@@ -285,7 +320,7 @@ export const MusicClockTemplatesPage = ({ networkCode }: MusicClockTemplatesPage
               table={table}
               onRowClick={(template) => {
                 router.push(
-                  `/networks/${networkCode}/music-scheduling/templates/${template.id}`
+                  `/networks/${networkCode}/music-scheduling/templates/${template.id}`,
                 );
               }}
             />
@@ -296,7 +331,8 @@ export const MusicClockTemplatesPage = ({ networkCode }: MusicClockTemplatesPage
       {selectedTemplates.length > 0 && (
         <ActionBar>
           <span className="text-sm text-gray-600">
-            {selectedTemplates.length} template{selectedTemplates.length !== 1 ? 's' : ''} selected
+            {selectedTemplates.length} template
+            {selectedTemplates.length !== 1 ? 's' : ''} selected
           </span>
           <div className="flex gap-2">
             <Button

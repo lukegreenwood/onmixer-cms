@@ -11,7 +11,7 @@ import { z } from 'zod';
 import { ActionBar } from '@/components/blocks/ActionBar';
 import { EntityEditForm } from '@/components/blocks/EntityEditForm';
 import { ClockIcon } from '@/components/icons';
-import { ClockItemType } from '@/graphql/__generated__/graphql';
+import { ClockItemType, MusicClockItemInput, AdType, IdentType, NotePriority } from '@/graphql/__generated__/graphql';
 import { CREATE_MUSIC_CLOCK } from '@/graphql/mutations/createMusicClock';
 import { UPDATE_MUSIC_CLOCK } from '@/graphql/mutations/updateMusicClock';
 import { useNetwork } from '@/hooks';
@@ -56,6 +56,24 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
     },
   });
 
+  // Helper function to convert GraphQL __typename to ClockItemType enum
+  const getClockItemType = (item: ClockItem): ClockItemType => {
+    if (item.type) return item.type as ClockItemType;
+    
+    switch (item.__typename) {
+      case 'MusicSlot':
+        return ClockItemType.MusicSlot;
+      case 'NoteBlock':
+        return ClockItemType.NoteBlock;
+      case 'AdBreak':
+        return ClockItemType.AdBreak;
+      case 'StationIdent':
+        return ClockItemType.StationIdent;
+      default:
+        return ClockItemType.MusicSlot;
+    }
+  };
+
   const handleSubmit = useCallback(
     (data: ClockFormData) => {
       if (!currentNetwork?.id) {
@@ -63,19 +81,57 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
         return;
       }
 
+      // Remove isTemplate from the input as it's not supported in CreateMusicClockInput
+      const { isTemplate: _isTemplate, ...clockData } = data;
+      
       const input = {
-        ...data,
+        ...clockData,
         networkId: currentNetwork.id,
-        items: clockItems.map((item, index) => ({
-          ...item,
-          orderIndex: index,
-          type: (item.type || item.__typename || 'MUSIC_SLOT') as ClockItemType,
-        })),
+        duration: Math.round(clockData.duration), // Ensure duration is an integer
+        items: clockItems.map((item, index) => {
+          const itemType = getClockItemType(item);
+          const clockItem: MusicClockItemInput = {
+            name: item.name,
+            duration: Math.round(item.duration || 0), // Ensure duration is an integer
+            orderIndex: index,
+            type: itemType,
+          };
+          
+          // Add type-specific data based on the item type
+          if (itemType === ClockItemType.MusicSlot) {
+            clockItem.musicSlot = {
+              categories: item.categories?.filter(Boolean) || [],
+              genres: item.genres?.filter(Boolean) || [],
+              priority: item.priority || item.musicPriority || 5,
+              allowOverrun: item.allowOverrun || false,
+            };
+          } else if (itemType === ClockItemType.NoteBlock) {
+            clockItem.noteBlock = {
+              content: item.content || '',
+              priority: (item.notePriority as NotePriority) || NotePriority.Medium,
+              color: item.color || undefined,
+            };
+          } else if (itemType === ClockItemType.AdBreak) {
+            clockItem.adBreak = {
+              adType: (item.adType as AdType) || AdType.LocalCommercial,
+              isFixed: item.isFixed || false,
+            };
+          } else if (itemType === ClockItemType.StationIdent) {
+            clockItem.stationIdent = {
+              identType: (item.identType as IdentType) || IdentType.StationId,
+              trackId: item.trackId || undefined,
+            };
+          }
+          
+          return clockItem;
+        }),
       };
 
       if (isEditing) {
+        // For updates, remove networkId as it's not supported in UpdateMusicClockInput
+        const { networkId: _networkId, ...updateInput } = input;
         updateClock({
-          variables: { input: { id: clock.id, ...input } },
+          variables: { input: { id: clock.id, ...updateInput } },
           onCompleted: (result) => {
             if (result.updateMusicClock.clock) {
               toast('Clock updated successfully', 'success');

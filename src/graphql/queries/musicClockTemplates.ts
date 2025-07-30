@@ -4,7 +4,6 @@ export const GET_MUSIC_CLOCK_TEMPLATES = gql(`
   query GetMusicClockTemplates($networkId: ID!) {
     musicClockTemplates(networkId: $networkId) {
       id
-      shortId
       name
       description
       isDefault
@@ -28,7 +27,6 @@ export const GET_MUSIC_CLOCK_TEMPLATE = gql(`
   query GetMusicClockTemplate($id: ID!) {
     musicClockTemplate(id: $id) {
       id
-      shortId
       name
       description
       isDefault

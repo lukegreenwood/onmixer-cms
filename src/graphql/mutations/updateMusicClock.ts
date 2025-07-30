@@ -7,7 +7,6 @@ export const UPDATE_MUSIC_CLOCK = gql(`
       message
       clock {
         id
-        shortId
         name
         description
         duration

@@ -4,7 +4,6 @@ export const GET_MUSIC_CLOCKS = gql(`
   query GetMusicClocks($networkId: ID!, $filters: MusicClockFilters) {
     musicClocks(networkId: $networkId, filters: $filters) {
       id
-      shortId
       name
       description
       duration
@@ -56,7 +55,6 @@ export const GET_MUSIC_CLOCK = gql(`
   query GetMusicClock($id: ID!) {
     musicClock(id: $id) {
       id
-      shortId
       name
       description
       duration

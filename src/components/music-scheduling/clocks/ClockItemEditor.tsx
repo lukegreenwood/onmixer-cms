@@ -212,12 +212,16 @@ const SortableClockItem = ({
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'MUSIC_SLOT':
+      case 'MusicSlot':
         return MusicIcon;
       case 'NOTE_BLOCK':
+      case 'NoteBlock':
         return NoteIcon;
       case 'AD_BREAK':
+      case 'AdBreak':
         return AdIcon;
       case 'STATION_IDENT':
+      case 'StationIdent':
         return RadioIcon;
       default:
         return ClockIcon;
@@ -227,12 +231,16 @@ const SortableClockItem = ({
   const getTypeLabel = (type: string) => {
     switch (type) {
       case 'MUSIC_SLOT':
+      case 'MusicSlot':
         return 'Music Slot';
       case 'NOTE_BLOCK':
+      case 'NoteBlock':
         return 'Note Block';
       case 'AD_BREAK':
+      case 'AdBreak':
         return 'Ad Break';
       case 'STATION_IDENT':
+      case 'StationIdent':
         return 'Station Ident';
       default:
         return 'Unknown';
@@ -859,12 +867,16 @@ export const ClockItemEditor = ({
                     const getTypeIcon = (type: string) => {
                       switch (type) {
                         case 'MUSIC_SLOT':
+                        case 'MusicSlot':
                           return MusicIcon;
                         case 'NOTE_BLOCK':
+                        case 'NoteBlock':
                           return NoteIcon;
                         case 'AD_BREAK':
+                        case 'AdBreak':
                           return AdIcon;
                         case 'STATION_IDENT':
+                        case 'StationIdent':
                           return RadioIcon;
                         default:
                           return ClockIcon;

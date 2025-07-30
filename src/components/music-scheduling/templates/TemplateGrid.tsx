@@ -15,14 +15,14 @@ interface TemplateGridProps {
       duration: number;
     };
   }>;
-  selectedSlot?: { dayOfWeek: number; hour: number } | null;
-  onSlotClick: (dayOfWeek: number, hour: number) => void;
+  selectedSlots?: Array<{ dayOfWeek: number; hour: number }>;
+  onSlotClick: (dayOfWeek: number, hour: number, event: React.MouseEvent) => void;
   onRemoveClock?: (assignmentId: string) => void;
 }
 
 export const TemplateGrid = ({
   assignments,
-  selectedSlot,
+  selectedSlots = [],
   onSlotClick,
   onRemoveClock,
 }: TemplateGridProps) => {
@@ -54,7 +54,7 @@ export const TemplateGrid = ({
   };
 
   const isSlotSelected = (dayOfWeek: number, hour: number) => {
-    return selectedSlot?.dayOfWeek === dayOfWeek && selectedSlot?.hour === hour;
+    return selectedSlots.some(slot => slot.dayOfWeek === dayOfWeek && slot.hour === hour);
   };
 
   return (
@@ -93,7 +93,7 @@ export const TemplateGrid = ({
                     } ${
                       isSelected ? 'template-grid__slot--selected' : ''
                     }`}
-                    onClick={() => onSlotClick(dayIndex, hour)}
+                    onClick={(e) => onSlotClick(dayIndex, hour, e)}
                   >
                     {assignment ? (
                       <div className="slot-assignment">

@@ -7,7 +7,6 @@ export const CREATE_MUSIC_RULE = gql(`
       message
       rule {
         id
-        shortId
         name
         description
         ruleType

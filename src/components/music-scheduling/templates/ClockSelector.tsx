@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Loading } from '@soundwaves/components';
+import { Button, CloseIcon, Loading } from '@soundwaves/components';
 import { useState } from 'react';
 
 import { ClockIcon, SearchIcon } from '@/components/icons';
@@ -20,7 +20,7 @@ interface Clock {
 interface ClockSelectorProps {
   clocks: Clock[];
   loading?: boolean;
-  selectedSlot: { dayOfWeek: number; hour: number } | null;
+  selectedSlots: Array<{ dayOfWeek: number; hour: number }>;
   onClockSelect: (clockId: string) => void;
   onClose?: () => void;
 }
@@ -28,14 +28,22 @@ interface ClockSelectorProps {
 export const ClockSelector = ({
   clocks,
   loading = false,
-  selectedSlot,
+  selectedSlots,
   onClockSelect,
   onClose,
 }: ClockSelectorProps) => {
   const [searchTerm, setSearchTerm] = useState('');
 
   const formatDayOfWeek = (day: number) => {
-    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const days = [
+      'Sunday',
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+    ];
     return days[day] || `Day ${day}`;
   };
 
@@ -49,9 +57,11 @@ export const ClockSelector = ({
     return `${minutes}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const filteredClocks = clocks.filter(clock =>
-    clock.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (clock.description && clock.description.toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredClocks = clocks.filter(
+    (clock) =>
+      clock.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (clock.description &&
+        clock.description.toLowerCase().includes(searchTerm.toLowerCase())),
   );
 
   if (loading) {
@@ -78,15 +88,18 @@ export const ClockSelector = ({
       <div className="clock-selector__header">
         <div className="clock-selector__title-section">
           <h3 className="clock-selector__title">Select Clock</h3>
-          {selectedSlot && (
+          {selectedSlots.length > 0 && (
             <p className="clock-selector__slot-info">
-              For {formatDayOfWeek(selectedSlot.dayOfWeek)} at {formatHour(selectedSlot.hour)}
+              For {selectedSlots.length} selected slot{selectedSlots.length !== 1 ? 's' : ''}
+              {selectedSlots.length === 1 && (
+                <span> ({formatDayOfWeek(selectedSlots[0].dayOfWeek)} at {formatHour(selectedSlots[0].hour)})</span>
+              )}
             </p>
           )}
         </div>
         {onClose && (
           <Button variant="tertiary" size="sm" onClick={onClose} isIconOnly>
-            ×
+            <CloseIcon />
           </Button>
         )}
       </div>
@@ -120,18 +133,21 @@ export const ClockSelector = ({
                   <div className="clock-item__info">
                     <div className="clock-item__name">{clock.name}</div>
                     {clock.description && (
-                      <div className="clock-item__description">{clock.description}</div>
+                      <div className="clock-item__description">
+                        {clock.description}
+                      </div>
                     )}
                   </div>
                   <div className="clock-item__duration">
                     {formatDuration(clock.duration)}
                   </div>
                 </div>
-                
+
                 {clock.items && clock.items.length > 0 && (
                   <div className="clock-item__items">
                     <div className="clock-item__items-count">
-                      {clock.items.length} item{clock.items.length !== 1 ? 's' : ''}
+                      {clock.items.length} item
+                      {clock.items.length !== 1 ? 's' : ''}
                     </div>
                   </div>
                 )}
@@ -145,10 +161,9 @@ export const ClockSelector = ({
               {searchTerm ? 'No clocks found' : 'No clocks available'}
             </h4>
             <p className="clock-selector__empty-description">
-              {searchTerm 
+              {searchTerm
                 ? `No clocks match "${searchTerm}"`
-                : 'Create some clock templates first to assign them to time slots'
-              }
+                : 'Create some clock templates first to assign them to time slots'}
             </p>
             {searchTerm && (
               <Button variant="secondary" onClick={() => setSearchTerm('')}>
