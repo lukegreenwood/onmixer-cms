@@ -1,6 +1,13 @@
 'use client';
 
-import type { MusicClock } from '../types';
+import {
+  isTrackClockItem,
+  isSubcategoryClockItem,
+  isGenreClockItem,
+  isNoteClockItem,
+} from '../utils';
+
+import type { MusicClock, MusicClockItem } from '../types';
 
 interface ClockPreviewProps {
   clock: MusicClock;
@@ -13,42 +20,43 @@ export const ClockPreview = ({ clock }: ClockPreviewProps) => {
     return `${minutes}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const getItemTypeColor = (type: string) => {
-    switch (type) {
-      case 'MUSIC_SLOT':
-      case 'MusicSlot':
-        return 'status-badge--music';
-      case 'NOTE_BLOCK':
-      case 'NoteBlock':
-        return 'status-badge--note';
-      case 'AD_BREAK':
-      case 'AdBreak':
-        return 'status-badge--ad';
-      case 'STATION_IDENT':
-      case 'StationIdent':
-        return 'status-badge--ident';
-      default:
-        return 'status-badge--default';
+  const getItemTypeColor = (item: MusicClockItem) => {
+    if (isTrackClockItem(item)) {
+      return 'status-badge--music';
+    } else if (isSubcategoryClockItem(item)) {
+      return 'status-badge--music';
+    } else if (isGenreClockItem(item)) {
+      return 'status-badge--music';
+    } else if (isNoteClockItem(item)) {
+      return 'status-badge--note';
     }
+    return 'status-badge--default';
   };
 
-  const getItemIcon = (type: string) => {
-    switch (type) {
-      case 'MUSIC_SLOT':
-      case 'MusicSlot':
-        return '🎵';
-      case 'NOTE_BLOCK':
-      case 'NoteBlock':
-        return '📝';
-      case 'AD_BREAK':
-      case 'AdBreak':
-        return '📺';
-      case 'STATION_IDENT':
-      case 'StationIdent':
-        return '📻';
-      default:
-        return '❓';
+  const getItemIcon = (item: MusicClockItem) => {
+    if (isTrackClockItem(item)) {
+      return '🎵';
+    } else if (isSubcategoryClockItem(item)) {
+      return '🎵';
+    } else if (isGenreClockItem(item)) {
+      return '🎵';
+    } else if (isNoteClockItem(item)) {
+      return '📝';
     }
+    return '❓';
+  };
+
+  const getItemTypeName = (item: MusicClockItem) => {
+    if (isTrackClockItem(item)) {
+      return 'Track';
+    } else if (isSubcategoryClockItem(item)) {
+      return 'Subcategory';
+    } else if (isGenreClockItem(item)) {
+      return 'Genre';
+    } else if (isNoteClockItem(item)) {
+      return 'Note';
+    }
+    return 'Unknown';
   };
 
   let cumulativeTime = 0;
@@ -66,7 +74,7 @@ export const ClockPreview = ({ clock }: ClockPreviewProps) => {
             </div>
             <div className="clock-preview__duration">
               <div className="duration-label">Target Duration</div>
-              <div className="duration-value">{formatDuration(clock.duration)}</div>
+              <div className="duration-value">{formatDuration(clock.targetRuntime)}</div>
             </div>
           </div>
         </div>
@@ -95,47 +103,40 @@ export const ClockPreview = ({ clock }: ClockPreviewProps) => {
 
                       <div className="timeline-item__content">
                         <div className="timeline-item__header">
-                          <span className="timeline-item__icon">{getItemIcon(item.type || item.__typename || 'MUSIC_SLOT')}</span>
+                          <span className="timeline-item__icon">{getItemIcon(item)}</span>
                           <div className="timeline-item__info">
                             <div className="timeline-item__name">{item.name}</div>
-                            <div className={`status-badge ${getItemTypeColor(item.type || item.__typename || 'MUSIC_SLOT')}`}>
-                              {(item.type || item.__typename)?.replace('_', ' ')}
+                            <div className={`status-badge ${getItemTypeColor(item)}`}>
+                              {getItemTypeName(item)}
                             </div>
                           </div>
                         </div>
 
                         {/* Type-specific details */}
-                        {(item.type === 'MUSIC_SLOT' || item.__typename === 'MusicSlot') && (
+                        {isTrackClockItem(item) && (
                           <div className="timeline-item__details">
-                            {item.categories && item.categories.length > 0 && (
-                              <span>Categories: {item.categories.join(', ')} • </span>
-                            )}
-                            {item.genres && item.genres.length > 0 && (
-                              <span>Genres: {item.genres.join(', ')} • </span>
-                            )}
-                            Priority: {item.priority || item.musicPriority || 5}
+                            Track: {item.track?.title || 'Unknown'} by {item.track?.artist || 'Unknown'}
+                          </div>
+                        )}
+                        
+                        {isSubcategoryClockItem(item) && (
+                          <div className="timeline-item__details">
+                            Subcategory: {item.subcategory?.name || 'Unknown'}
+                          </div>
+                        )}
+                        
+                        {isGenreClockItem(item) && (
+                          <div className="timeline-item__details">
+                            Genre: {item.genre?.name || 'Unknown'}
                           </div>
                         )}
 
-                        {(item.type === 'NOTE_BLOCK' || item.__typename === 'NoteBlock') && item.content && (
+                        {isNoteClockItem(item) && item.content && (
                           <div className="timeline-item__details">
                             {item.content}
                           </div>
                         )}
 
-                        {(item.type === 'AD_BREAK' || item.__typename === 'AdBreak') && (
-                          <div className="timeline-item__details">
-                            {item.adType?.replace('_', ' ')}
-                            {item.isFixed && ' • Fixed Duration'}
-                          </div>
-                        )}
-
-                        {(item.type === 'STATION_IDENT' || item.__typename === 'StationIdent') && (
-                          <div className="timeline-item__details">
-                            {item.identType?.replace('_', ' ')}
-                            {item.trackId && ` • Track: ${item.trackId}`}
-                          </div>
-                        )}
                       </div>
 
                       <div className="timeline-item__time timeline-item__time--duration">
@@ -165,14 +166,14 @@ export const ClockPreview = ({ clock }: ClockPreviewProps) => {
             </div>
             <div className="summary-row">
               <span className="summary-label">Target Duration:</span>
-              <span className="summary-value">{formatDuration(clock.duration)}</span>
+              <span className="summary-value">{formatDuration(clock.targetRuntime)}</span>
             </div>
             <div className="summary-row summary-row--total">
               <span className="summary-label">Difference:</span>
               <span className={`summary-value ${
-                cumulativeTime > clock.duration ? 'summary-value--over' : 'summary-value--under'
+                cumulativeTime > clock.targetRuntime ? 'summary-value--over' : 'summary-value--under'
               }`}>
-                {cumulativeTime > clock.duration ? '+' : ''}{formatDuration(Math.abs(cumulativeTime - clock.duration))}
+                {cumulativeTime > clock.targetRuntime ? '+' : ''}{formatDuration(Math.abs(cumulativeTime - clock.targetRuntime))}
               </span>
             </div>
           </div>

@@ -1,0 +1,28 @@
+{
+  "possibleTypes": {
+    "ClockItemInterface": [
+      "GenreClockItem",
+      "NoteClockItem",
+      "SubcategoryClockItem",
+      "TrackClockItem"
+    ],
+    "ItemList": [
+      "DefaultScheduleList",
+      "EpisodeList",
+      "GenreList",
+      "HistoryList",
+      "MediaList",
+      "PresenterList",
+      "ScheduleList",
+      "SeriesList",
+      "ShowList",
+      "TrackList"
+    ],
+    "MusicClockItem": [
+      "GenreClockItem",
+      "NoteClockItem",
+      "SubcategoryClockItem",
+      "TrackClockItem"
+    ]
+  }
+}

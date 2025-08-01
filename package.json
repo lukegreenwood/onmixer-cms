@@ -45,6 +45,7 @@
     "@eslint/eslintrc": "^3",
     "@graphql-codegen/cli": "^5.0.5",
     "@graphql-codegen/client-preset": "^4.8.0",
+    "@graphql-codegen/fragment-matcher": "^5.1.0",
     "@graphql-typed-document-node/core": "^3.2.0",
     "@types/invariant": "^2.2.37",
     "@types/lodash.uniqby": "^4.7.9",

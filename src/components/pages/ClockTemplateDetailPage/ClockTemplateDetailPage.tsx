@@ -156,8 +156,8 @@ export const ClockTemplateDetailPage = ({
                                     {assignment.clock.name}
                                   </div>
                                   <div className="assignment-item__duration">
-                                    {Math.floor(assignment.clock.duration / 60)}:
-                                    {(assignment.clock.duration % 60).toString().padStart(2, '0')}
+                                    {Math.floor(assignment.clock.targetRuntime / 60)}:
+                                    {(assignment.clock.targetRuntime % 60).toString().padStart(2, '0')}
                                   </div>
                                 </div>
                               </div>

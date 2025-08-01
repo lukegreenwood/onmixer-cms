@@ -9,7 +9,7 @@ interface Clock {
   id: string;
   name: string;
   description?: string | null;
-  duration: number;
+  targetRuntime: number;
   items?: Array<{
     id: string;
     name: string;
@@ -139,18 +139,15 @@ export const ClockSelector = ({
                     )}
                   </div>
                   <div className="clock-item__duration">
-                    {formatDuration(clock.duration)}
+                    {formatDuration(clock.targetRuntime)}
                   </div>
                 </div>
 
-                {clock.items && clock.items.length > 0 && (
-                  <div className="clock-item__items">
-                    <div className="clock-item__items-count">
-                      {clock.items.length} item
-                      {clock.items.length !== 1 ? 's' : ''}
-                    </div>
+                <div className="clock-item__items">
+                  <div className="clock-item__items-count">
+                    {clock.items?.length || 0} item{(clock.items?.length || 0) !== 1 ? 's' : ''}
                   </div>
-                )}
+                </div>
               </div>
             ))}
           </div>

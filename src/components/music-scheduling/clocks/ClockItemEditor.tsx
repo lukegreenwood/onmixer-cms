@@ -34,16 +34,27 @@ import {
   ClockIcon,
   MusicIcon,
   NoteIcon,
-  AdIcon,
-  RadioIcon,
 } from '@/components/icons';
 import { GET_CATEGORIES } from '@/graphql/queries/categories';
 
-import type { ClockItem } from '../types';
+import {
+  isTrackClockItem,
+  isSubcategoryClockItem,
+  isGenreClockItem,
+  isNoteClockItem,
+} from '../utils';
+
+import type { 
+  MusicClockItem,
+  TrackClockItem,
+  SubcategoryClockItem,
+  GenreClockItem,
+  NoteClockItem,
+} from '../types';
 
 interface ClockItemEditorProps {
-  items: ClockItem[];
-  onItemsChange: (items: ClockItem[]) => void;
+  items: MusicClockItem[];
+  onItemsChange: (items: MusicClockItem[]) => void;
 }
 
 // Schema for individual clock item
@@ -51,23 +62,15 @@ const clockItemSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   duration: z.number().min(1, 'Duration must be at least 1 second'),
   orderIndex: z.number().min(0),
-  type: z.string(),
-  // Music Slot fields
-  categories: z.array(z.string()).optional(),
-  genre: z.string().optional(),
-  priority: z.number().optional(),
-  musicPriority: z.number().optional(),
-  allowOverrun: z.boolean().optional(),
-  // Note Block fields
-  content: z.string().optional(),
-  notePriority: z.string().optional(),
-  color: z.string().optional(),
-  // Ad Break fields
-  adType: z.string().optional(),
-  isFixed: z.boolean().optional(),
-  // Station Ident fields
-  identType: z.string().optional(),
+  // Track fields
   trackId: z.string().optional(),
+  // Subcategory fields
+  subcategoryId: z.string().optional(),
+  // Genre fields
+  genreId: z.string().optional(),
+  // Note fields
+  content: z.string().optional(),
+  color: z.string().optional(),
 });
 
 type ClockItemFormData = z.infer<typeof clockItemSchema>;
@@ -185,8 +188,8 @@ const SortableClockItem = ({
   onEdit,
   onRemove,
 }: {
-  item: ClockItem;
-  onEdit: (item: ClockItem) => void;
+  item: MusicClockItem;
+  onEdit: (item: MusicClockItem) => void;
   onRemove: () => void;
 }) => {
   const {
@@ -209,45 +212,33 @@ const SortableClockItem = ({
     return `${minutes}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'MUSIC_SLOT':
-      case 'MusicSlot':
-        return MusicIcon;
-      case 'NOTE_BLOCK':
-      case 'NoteBlock':
-        return NoteIcon;
-      case 'AD_BREAK':
-      case 'AdBreak':
-        return AdIcon;
-      case 'STATION_IDENT':
-      case 'StationIdent':
-        return RadioIcon;
-      default:
-        return ClockIcon;
+  const getTypeIcon = (item: MusicClockItem) => {
+    if (isTrackClockItem(item)) {
+      return MusicIcon;
+    } else if (isSubcategoryClockItem(item)) {
+      return MusicIcon;
+    } else if (isGenreClockItem(item)) {
+      return MusicIcon;
+    } else if (isNoteClockItem(item)) {
+      return NoteIcon;
     }
+    return ClockIcon;
   };
 
-  const getTypeLabel = (type: string) => {
-    switch (type) {
-      case 'MUSIC_SLOT':
-      case 'MusicSlot':
-        return 'Music Slot';
-      case 'NOTE_BLOCK':
-      case 'NoteBlock':
-        return 'Note Block';
-      case 'AD_BREAK':
-      case 'AdBreak':
-        return 'Ad Break';
-      case 'STATION_IDENT':
-      case 'StationIdent':
-        return 'Station Ident';
-      default:
-        return 'Unknown';
+  const getTypeLabel = (item: MusicClockItem) => {
+    if (isTrackClockItem(item)) {
+      return 'Track';
+    } else if (isSubcategoryClockItem(item)) {
+      return 'Subcategory';
+    } else if (isGenreClockItem(item)) {
+      return 'Genre';
+    } else if (isNoteClockItem(item)) {
+      return 'Note';
     }
+    return 'Unknown';
   };
 
-  const TypeIcon = getTypeIcon(item.type || item.__typename || 'MUSIC_SLOT');
+  const TypeIcon = getTypeIcon(item);
 
   return (
     <div
@@ -264,40 +255,29 @@ const SortableClockItem = ({
           <div className="clock-item__type">
             <TypeIcon size={16} />
             <span className="clock-item__type-label">
-              {getTypeLabel(item.type || item.__typename || 'MUSIC_SLOT')}
+              {getTypeLabel(item)}
             </span>
-            {item.isFromCategory && (
-              <span className="clock-item__category-badge">Category</span>
-            )}
           </div>
           <div className="clock-item__name">
-            {item.isFromCategory ? (
-              <span className="clock-item__name-readonly">
-                {item.name || 'Unnamed Item'}
-              </span>
-            ) : (
-              <Input
-                value={item.name || ''}
-                onChange={(e) =>
-                  onEdit({
-                    ...item,
-                    name: (e.target as HTMLInputElement).value,
-                  })
-                }
-                placeholder="Item name"
-              />
-            )}
+            <Input
+              value={item.name || ''}
+              onChange={(e) =>
+                onEdit({
+                  ...item,
+                  name: (e.target as HTMLInputElement).value,
+                })
+              }
+              placeholder="Item name"
+            />
             <span className="clock-item__duration">
               ({formatDuration(item.duration || 0)})
             </span>
           </div>
         </div>
         <div className="clock-item__actions">
-          {!item.isFromCategory && (
-            <Button variant="secondary" size="sm" onClick={() => onEdit(item)}>
-              Edit
-            </Button>
-          )}
+          <Button variant="secondary" size="sm" onClick={() => onEdit(item)}>
+            Edit
+          </Button>
           <Button
             variant="secondary"
             size="sm"
@@ -319,26 +299,19 @@ const ClockItemForm = ({
   onSave,
   onCancel,
 }: {
-  item: ClockItem;
-  onSave: (item: ClockItem) => void;
+  item: MusicClockItem;
+  onSave: (item: MusicClockItem) => void;
   onCancel: () => void;
 }) => {
   const defaultValues: ClockItemFormData = {
     name: item.name || '',
     duration: item.duration || 0,
     orderIndex: item.orderIndex || 0,
-    type: item.type || item.__typename || 'MUSIC_SLOT',
-    categories: item.categories || [],
-    genre: item.genre || '',
-    priority: item.priority || item.musicPriority || 5,
-    allowOverrun: item.allowOverrun || false,
-    content: item.content || '',
-    notePriority: item.notePriority || 'MEDIUM',
-    color: item.color || '#3B82F6',
-    adType: item.adType || 'LOCAL_COMMERCIAL',
-    isFixed: item.isFixed || false,
-    identType: item.identType || 'STATION_ID',
-    trackId: item.trackId || '',
+    trackId: isTrackClockItem(item) ? item.trackId : '',
+    subcategoryId: isSubcategoryClockItem(item) ? item.subcategoryId : '',
+    genreId: isGenreClockItem(item) ? item.genreId : '',
+    content: isNoteClockItem(item) ? item.content : '',
+    color: isNoteClockItem(item) ? (item.color || '#3B82F6') : '#3B82F6',
   };
 
   const methods = useForm<ClockItemFormData>({
@@ -347,136 +320,112 @@ const ClockItemForm = ({
   });
 
   const handleSubmit = (data: ClockItemFormData) => {
-    const updatedItem: ClockItem = {
-      ...item,
-      ...data,
-    };
+    // Create updated item based on current item type
+    let updatedItem: MusicClockItem;
+    
+    if (isTrackClockItem(item)) {
+      updatedItem = {
+        ...item,
+        name: data.name,
+        duration: data.duration,
+        orderIndex: data.orderIndex,
+        trackId: data.trackId || item.trackId,
+      };
+    } else if (isSubcategoryClockItem(item)) {
+      updatedItem = {
+        ...item,
+        name: data.name,
+        duration: data.duration,
+        orderIndex: data.orderIndex,
+        subcategoryId: data.subcategoryId || item.subcategoryId,
+      };
+    } else if (isGenreClockItem(item)) {
+      updatedItem = {
+        ...item,
+        name: data.name,
+        duration: data.duration,
+        orderIndex: data.orderIndex,
+        genreId: data.genreId || item.genreId,
+      };
+    } else if (isNoteClockItem(item)) {
+      updatedItem = {
+        ...item,
+        name: data.name,
+        duration: data.duration,
+        orderIndex: data.orderIndex,
+        content: data.content || item.content,
+        color: data.color || item.color,
+      };
+    } else {
+      // Fallback
+      updatedItem = item;
+    }
+    
     onSave(updatedItem);
   };
 
   const getTypeSpecificFields = () => {
-    const type = methods.watch('type');
-
-    switch (type) {
-      case 'MUSIC_SLOT':
-        return [
-          {
-            component: 'categorySelector' as const,
-            name: 'categories' as const,
-            label: 'Categories',
-            placeholder: 'Select categories',
-          },
-          {
-            component: 'genreSelector' as const,
-            name: 'genre' as const,
-            label: 'Genre',
-            placeholder: 'Select genre',
-          },
-          {
-            component: 'text' as const,
-            name: 'priority' as const,
-            label: 'Priority',
-            type: 'number',
-            min: 1,
-            max: 10,
-          },
-          {
-            component: 'checkbox' as const,
-            name: 'allowOverrun' as const,
-            label: 'Allow Overrun',
-          },
-        ];
-
-      case 'NOTE_BLOCK':
-        return [
-          {
-            component: 'textarea' as const,
-            name: 'content' as const,
-            label: 'Content',
-            placeholder: 'Enter note content',
-            rows: 3,
-          },
-          {
-            component: 'radioGroup' as const,
-            name: 'notePriority' as const,
-            label: 'Priority',
-            options: [
-              { label: 'Low', value: 'LOW' },
-              { label: 'Medium', value: 'MEDIUM' },
-              { label: 'High', value: 'HIGH' },
-            ],
-          },
-          {
-            component: 'text' as const,
-            name: 'color' as const,
-            label: 'Color',
-            type: 'color',
-          },
-        ];
-
-      case 'AD_BREAK':
-        return [
-          {
-            component: 'radioGroup' as const,
-            name: 'adType' as const,
-            label: 'Ad Type',
-            options: [
-              { label: 'Local Commercial', value: 'LOCAL_COMMERCIAL' },
-              { label: 'National Commercial', value: 'NATIONAL_COMMERCIAL' },
-              { label: 'Promo', value: 'PROMO' },
-              { label: 'PSA', value: 'PSA' },
-            ],
-          },
-          {
-            component: 'checkbox' as const,
-            name: 'isFixed' as const,
-            label: 'Fixed Duration',
-          },
-        ];
-
-      case 'STATION_IDENT':
-        return [
-          {
-            component: 'radioGroup' as const,
-            name: 'identType' as const,
-            label: 'Ident Type',
-            options: [
-              { label: 'Station ID', value: 'STATION_ID' },
-              { label: 'Jingle', value: 'JINGLE' },
-              { label: 'Sweeper', value: 'SWEEPER' },
-              { label: 'Liner', value: 'LINER' },
-            ],
-          },
-          {
-            component: 'text' as const,
-            name: 'trackId' as const,
-            label: 'Track ID',
-            placeholder: 'Optional specific track',
-          },
-        ];
-
-      default:
-        return [];
+    if (isTrackClockItem(item)) {
+      return [
+        {
+          component: 'text' as const,
+          name: 'trackId' as const,
+          label: 'Track ID',
+          placeholder: 'Track identifier',
+        },
+      ];
+    } else if (isSubcategoryClockItem(item)) {
+      return [
+        {
+          component: 'text' as const,
+          name: 'subcategoryId' as const,
+          label: 'Subcategory ID',
+          placeholder: 'Subcategory identifier',
+        },
+      ];
+    } else if (isGenreClockItem(item)) {
+      return [
+        {
+          component: 'text' as const,
+          name: 'genreId' as const,
+          label: 'Genre ID',
+          placeholder: 'Genre identifier',
+        },
+      ];
+    } else if (isNoteClockItem(item)) {
+      return [
+        {
+          component: 'textarea' as const,
+          name: 'content' as const,
+          label: 'Content',
+          placeholder: 'Enter note content',
+          rows: 3,
+        },
+        {
+          component: 'text' as const,
+          name: 'color' as const,
+          label: 'Color',
+          type: 'color',
+        },
+      ];
     }
+    
+    return [];
   };
 
   const baseFields = [
     {
-      component: 'radioGroup' as const,
-      name: 'type' as const,
-      label: 'Type',
-      options: [
-        { label: 'Music Slot', value: 'MUSIC_SLOT' },
-        { label: 'Note Block', value: 'NOTE_BLOCK' },
-        { label: 'Ad Break', value: 'AD_BREAK' },
-        { label: 'Station Ident', value: 'STATION_IDENT' },
-      ],
+      component: 'text' as const,
+      name: 'name' as const,
+      label: 'Name',
+      placeholder: 'Item name',
     },
     {
       component: 'text' as const,
       name: 'duration' as const,
-      label: 'Duration',
-      placeholder: 'mm:ss',
+      label: 'Duration (seconds)',
+      type: 'number',
+      min: 1,
     },
     {
       component: 'text' as const,
@@ -516,7 +465,7 @@ export const ClockItemEditor = ({
   items,
   onItemsChange,
 }: ClockItemEditorProps) => {
-  const [editingItem, setEditingItem] = useState<ClockItem | null>(null);
+  const [editingItem, setEditingItem] = useState<MusicClockItem | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
@@ -548,18 +497,20 @@ export const ClockItemEditor = ({
         .find((sub) => sub.id === subcategoryId);
 
       if (subcategory) {
-        const newItem: ClockItem = {
+        const newItem: SubcategoryClockItem = {
           id: `item-${Date.now()}`,
+          clockId: '',
           name: subcategory.name,
           duration: subcategory.averageDuration?.raw || 180,
           orderIndex: items.length,
-          type: 'MUSIC_SLOT',
-          categories: [subcategoryId], // Keep as array for backend compatibility but use single value
-          category: subcategoryId, // Add single category field
-          genres: [],
-          priority: 5,
-          allowOverrun: false,
-          isFromCategory: true, // Flag to indicate this came from category drag
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          subcategoryId: subcategoryId,
+          subcategory: {
+            id: subcategoryId,
+            name: subcategory.name,
+          },
+          averageDuration: subcategory.averageDuration?.raw || 180,
         };
         onItemsChange([...items, newItem]);
       }
@@ -570,41 +521,69 @@ export const ClockItemEditor = ({
     if (active.id.toString().startsWith('type-')) {
       const type = active.id.toString().replace('type-', '');
       const defaultDurations = {
-        MUSIC_SLOT: 210, // 3:30
-        NOTE_BLOCK: 30,
-        AD_BREAK: 120,
-        STATION_IDENT: 15,
+        TRACK: 210, // 3:30
+        SUBCATEGORY: 210,
+        GENRE: 210,
+        NOTE: 30,
       };
 
-      const newItem: ClockItem = {
+      let newItem: MusicClockItem;
+      const baseItem = {
         id: `item-${Date.now()}`,
+        clockId: '',
         name: `New ${type.replace('_', ' ')}`,
-        duration:
-          defaultDurations[type as keyof typeof defaultDurations] || 180,
+        duration: defaultDurations[type as keyof typeof defaultDurations] || 180,
         orderIndex: items.length,
-        type,
-        // Type-specific defaults
-        ...(type === 'MUSIC_SLOT' && {
-          categories: [],
-          genre: '',
-          priority: 5,
-          allowOverrun: false,
-          isFromCategory: false, // This is editable unlike category-based ones
-        }),
-        ...(type === 'NOTE_BLOCK' && {
-          content: '',
-          notePriority: 'MEDIUM',
-          color: '#3B82F6',
-        }),
-        ...(type === 'AD_BREAK' && {
-          adType: 'LOCAL_COMMERCIAL',
-          isFixed: true,
-        }),
-        ...(type === 'STATION_IDENT' && {
-          identType: 'STATION_ID',
-          trackId: '',
-        }),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
+      
+      switch (type) {
+        case 'TRACK':
+          newItem = {
+            ...baseItem,
+            trackId: '',
+            track: {
+              id: '',
+              title: '',
+              artist: '',
+              duration: {
+                formatted: `${Math.floor(baseItem.duration / 60)}:${(baseItem.duration % 60).toString().padStart(2, '0')}`,
+              },
+            },
+          } as TrackClockItem;
+          break;
+        case 'SUBCATEGORY':
+          newItem = {
+            ...baseItem,
+            subcategoryId: '',
+            subcategory: {
+              id: '',
+              name: '',
+            },
+            averageDuration: baseItem.duration,
+          } as SubcategoryClockItem;
+          break;
+        case 'GENRE':
+          newItem = {
+            ...baseItem,
+            genreId: '',
+            genre: {
+              id: '',
+              name: '',
+            },
+            averageDuration: baseItem.duration,
+          } as GenreClockItem;
+          break;
+        case 'NOTE':
+        default:
+          newItem = {
+            ...baseItem,
+            content: '',
+            color: '#3B82F6',
+          } as NoteClockItem;
+          break;
+      }
       onItemsChange([...items, newItem]);
       return;
     }
@@ -619,11 +598,11 @@ export const ClockItemEditor = ({
     }
   };
 
-  const handleEditItem = (item: ClockItem) => {
+  const handleEditItem = (item: MusicClockItem) => {
     setEditingItem(item);
   };
 
-  const handleSaveItem = (updatedItem: ClockItem) => {
+  const handleSaveItem = (updatedItem: MusicClockItem) => {
     const newItems = items.map((item) =>
       item.id === updatedItem.id ? updatedItem : item,
     );
@@ -658,32 +637,32 @@ export const ClockItemEditor = ({
 
   const typeBlocks = [
     {
-      type: 'MUSIC_SLOT',
+      type: 'TRACK',
       icon: MusicIcon,
-      label: 'Music Item',
-      description: 'Configurable music slot',
+      label: 'Track',
+      description: 'Specific music track',
       duration: '3:30',
     },
     {
-      type: 'NOTE_BLOCK',
+      type: 'SUBCATEGORY',
+      icon: MusicIcon,
+      label: 'Subcategory',
+      description: 'Music from subcategory',
+      duration: '3:30',
+    },
+    {
+      type: 'GENRE',
+      icon: MusicIcon,
+      label: 'Genre',
+      description: 'Music from genre',
+      duration: '3:30',
+    },
+    {
+      type: 'NOTE',
       icon: NoteIcon,
-      label: 'Note Block',
-      description: 'Add notes and announcements',
+      label: 'Note',
+      description: 'Text note or announcement',
       duration: '0:30',
-    },
-    {
-      type: 'AD_BREAK',
-      icon: AdIcon,
-      label: 'Ad Break',
-      description: 'Commercial breaks and promos',
-      duration: '2:00',
-    },
-    {
-      type: 'STATION_IDENT',
-      icon: RadioIcon,
-      label: 'Station Ident',
-      description: 'Station identification and jingles',
-      duration: '0:15',
     },
   ];
 
@@ -864,28 +843,31 @@ export const ClockItemEditor = ({
                 (() => {
                   const item = items.find((item) => item.id === activeId);
                   if (item) {
-                    const getTypeIcon = (type: string) => {
-                      switch (type) {
-                        case 'MUSIC_SLOT':
-                        case 'MusicSlot':
-                          return MusicIcon;
-                        case 'NOTE_BLOCK':
-                        case 'NoteBlock':
-                          return NoteIcon;
-                        case 'AD_BREAK':
-                        case 'AdBreak':
-                          return AdIcon;
-                        case 'STATION_IDENT':
-                        case 'StationIdent':
-                          return RadioIcon;
-                        default:
-                          return ClockIcon;
+                    const getItemTypeIcon = (item: MusicClockItem) => {
+                      if (isTrackClockItem(item)) {
+                        return MusicIcon;
+                      } else if (isSubcategoryClockItem(item)) {
+                        return MusicIcon;
+                      } else if (isGenreClockItem(item)) {
+                        return MusicIcon;
+                      } else if (isNoteClockItem(item)) {
+                        return NoteIcon;
                       }
+                      return ClockIcon;
                     };
-
-                    const TypeIcon = getTypeIcon(
-                      item.type || item.__typename || 'MUSIC_SLOT',
-                    );
+                    const getItemTypeLabel = (item: MusicClockItem) => {
+                      if (isTrackClockItem(item)) {
+                        return 'Track';
+                      } else if (isSubcategoryClockItem(item)) {
+                        return 'Subcategory';
+                      } else if (isGenreClockItem(item)) {
+                        return 'Genre';
+                      } else if (isNoteClockItem(item)) {
+                        return 'Note';
+                      }
+                      return 'Unknown';
+                    };
+                    const TypeIcon = getItemTypeIcon(item);
                     const formatDuration = (seconds: number) => {
                       const minutes = Math.floor(seconds / 60);
                       const secs = seconds % 60;
@@ -901,6 +883,9 @@ export const ClockItemEditor = ({
                           <div className="clock-item__content">
                             <div className="clock-item__type">
                               <TypeIcon size={16} />
+                              <span className="clock-item__type-label">
+                                {getItemTypeLabel(item)}
+                              </span>
                             </div>
                             <div className="clock-item__name">
                               <span>{item.name || 'Unnamed Item'}</span>

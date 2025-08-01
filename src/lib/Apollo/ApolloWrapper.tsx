@@ -9,6 +9,8 @@ import {
 } from '@apollo/client-integration-nextjs';
 import { setVerbosity } from 'ts-invariant';
 
+import introspectionResult from '@/graphql/__generated__/introspection.json';
+
 setVerbosity('debug');
 
 const errorLink = onError(({ graphQLErrors, networkError }) => {
@@ -28,6 +30,7 @@ const client = () => {
 
   return new ApolloClient({
     cache: new InMemoryCache({
+      possibleTypes: introspectionResult.possibleTypes,
       typePolicies: {
         Query: {
           fields: {

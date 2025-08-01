@@ -34,7 +34,7 @@ import { toast } from '@/lib/toast';
 
 interface MusicClockTemplate {
   id: string;
-  shortId: string;
+  shortId?: string;
   name: string;
   description?: string | null;
   isDefault: boolean;
@@ -47,7 +47,7 @@ interface MusicClockTemplate {
     clock: {
       id: string;
       name: string;
-      duration: number;
+      targetRuntime: number;
     };
   }>;
 }

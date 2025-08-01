@@ -1,31 +1,6 @@
 import { gql } from '../__generated__';
 
-export const UPDATE_MUSIC_CLOCK = gql(`
-  mutation UpdateMusicClock($input: UpdateMusicClockInput!) {
-    updateMusicClock(input: $input) {
-      success
-      message
-      clock {
-        id
-        name
-        description
-        color
-        targetRuntime
-        networkId
-        items {
-          ...TrackClockItemFragment
-          ...SubcategoryClockItemFragment
-          ...GenreClockItemFragment
-          ...NoteClockItemFragment
-        }
-        network {
-          id
-          name
-        }
-      }
-    }
-  }
-  
+export const TRACK_CLOCK_ITEM_FRAGMENT = gql(`
   fragment TrackClockItemFragment on TrackClockItem {
     id
     clockId
@@ -45,7 +20,9 @@ export const UPDATE_MUSIC_CLOCK = gql(`
       album
     }
   }
-  
+`);
+
+export const SUBCATEGORY_CLOCK_ITEM_FRAGMENT = gql(`
   fragment SubcategoryClockItemFragment on SubcategoryClockItem {
     id
     clockId
@@ -61,7 +38,9 @@ export const UPDATE_MUSIC_CLOCK = gql(`
     }
     averageDuration
   }
-  
+`);
+
+export const GENRE_CLOCK_ITEM_FRAGMENT = gql(`
   fragment GenreClockItemFragment on GenreClockItem {
     id
     clockId
@@ -77,7 +56,9 @@ export const UPDATE_MUSIC_CLOCK = gql(`
     }
     averageDuration
   }
-  
+`);
+
+export const NOTE_CLOCK_ITEM_FRAGMENT = gql(`
   fragment NoteClockItemFragment on NoteClockItem {
     id
     clockId

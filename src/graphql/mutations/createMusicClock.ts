@@ -13,30 +13,10 @@ export const CREATE_MUSIC_CLOCK = gql(`
         targetRuntime
         networkId
         items {
-          id
-          itemType
-          itemId
-          noteContent
-          orderIndex
-          duration
-          name
-          # Resolved references
-          track {
-            id
-            title
-            artist
-            duration
-          }
-          subcategory {
-            id
-            name
-            averageDuration
-          }
-          genre {
-            id
-            name
-            averageDuration
-          }
+          ...TrackClockItemFragment
+          ...SubcategoryClockItemFragment
+          ...GenreClockItemFragment
+          ...NoteClockItemFragment
         }
         network {
           id
@@ -44,5 +24,69 @@ export const CREATE_MUSIC_CLOCK = gql(`
         }
       }
     }
+  }
+  
+  fragment TrackClockItemFragment on TrackClockItem {
+    id
+    clockId
+    orderIndex
+    duration
+    name
+    createdAt
+    updatedAt
+    trackId
+    track {
+      id
+      title
+      artist
+      duration {
+        formatted
+      }
+      album
+    }
+  }
+  
+  fragment SubcategoryClockItemFragment on SubcategoryClockItem {
+    id
+    clockId
+    orderIndex
+    duration
+    name
+    createdAt
+    updatedAt
+    subcategoryId
+    subcategory {
+      id
+      name
+    }
+    averageDuration
+  }
+  
+  fragment GenreClockItemFragment on GenreClockItem {
+    id
+    clockId
+    orderIndex
+    duration
+    name
+    createdAt
+    updatedAt
+    genreId
+    genre {
+      id
+      name
+    }
+    averageDuration
+  }
+  
+  fragment NoteClockItemFragment on NoteClockItem {
+    id
+    clockId
+    orderIndex
+    duration
+    name
+    createdAt
+    updatedAt
+    content
+    color
   }
 `);

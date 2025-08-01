@@ -40,8 +40,8 @@ export const ClockList = () => {
         </span>
       ),
     }),
-    columnHelper.accessor('duration', {
-      header: 'Duration',
+    columnHelper.accessor('targetRuntime', {
+      header: 'Target Runtime',
       cell: (props) => {
         const duration = props.getValue();
         const minutes = Math.floor(duration / 60);
@@ -61,13 +61,13 @@ export const ClockList = () => {
         </span>
       ),
     }),
-    columnHelper.accessor('isTemplate', {
-      header: 'Type',
+    columnHelper.accessor('networkId', {
+      header: 'Scope',
       cell: (props) => (
         <span className={`status-badge ${
-          props.getValue() ? 'status-badge--template' : 'status-badge--active'
+          props.getValue() ? 'status-badge--info' : 'status-badge--success'
         }`}>
-          {props.getValue() ? 'Template' : 'Active'}
+          {props.getValue() ? 'Network' : 'Global'}
         </span>
       ),
     }),

@@ -10,11 +10,24 @@ const config: CodegenConfig = {
       plugins: [],
       presetConfig: {
         gqlTagName: 'gql',
+        fragmentMasking: false,
       },
       config: {
         scalars: {
           DateTime: 'string',
+          Date: 'string',
+          DayOfWeek: 'string',
+          JSON: 'any',
+          Upload: 'File',
         },
+        useTypeImports: true,
+        strictScalars: false,
+      },
+    },
+    './src/graphql/__generated__/introspection.json': {
+      plugins: ['fragment-matcher'],
+      config: {
+        apolloClientVersion: 3,
       },
     },
   },

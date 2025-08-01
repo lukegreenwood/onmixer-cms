@@ -8,7 +8,7 @@ export const ASSIGN_MUSIC_CLOCK = gql(`
         clock {
           id
           name
-          duration
+          targetRuntime
         }
         dayOfWeek
         hour

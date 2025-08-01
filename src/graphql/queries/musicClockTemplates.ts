@@ -16,7 +16,7 @@ export const GET_MUSIC_CLOCK_TEMPLATES = gql(`
         clock {
           id
           name
-          duration
+          targetRuntime
         }
       }
     }
@@ -39,32 +39,80 @@ export const GET_MUSIC_CLOCK_TEMPLATE = gql(`
         clock {
           id
           name
-          duration
+          targetRuntime
           items {
-            ... on MusicSlot {
-              id
-              name
-              duration
-            }
-            ... on NoteBlock {
-              id
-              name
-              duration
-            }
-            ... on AdBreak {
-              id
-              name
-              duration
-            }
-            ... on StationIdent {
-              id
-              name
-              duration
-            }
+            ...TrackClockItemFragment
+            ...SubcategoryClockItemFragment
+            ...GenreClockItemFragment
+            ...NoteClockItemFragment
           }
         }
       }
     }
+  }
+  
+  fragment TrackClockItemFragment on TrackClockItem {
+    id
+    clockId
+    orderIndex
+    duration
+    name
+    createdAt
+    updatedAt
+    trackId
+    track {
+      id
+      title
+      artist
+      duration {
+        formatted
+      }
+      album
+    }
+  }
+  
+  fragment SubcategoryClockItemFragment on SubcategoryClockItem {
+    id
+    clockId
+    orderIndex
+    duration
+    name
+    createdAt
+    updatedAt
+    subcategoryId
+    subcategory {
+      id
+      name
+    }
+    averageDuration
+  }
+  
+  fragment GenreClockItemFragment on GenreClockItem {
+    id
+    clockId
+    orderIndex
+    duration
+    name
+    createdAt
+    updatedAt
+    genreId
+    genre {
+      id
+      name
+    }
+    averageDuration
+  }
+  
+  fragment NoteClockItemFragment on NoteClockItem {
+    id
+    clockId
+    orderIndex
+    duration
+    name
+    createdAt
+    updatedAt
+    content
+    color
   }
 `);
 
@@ -74,30 +122,78 @@ export const GET_AVAILABLE_CLOCKS = gql(`
       id
       name
       description
-      duration
+      targetRuntime
       items {
-        ... on MusicSlot {
-          id
-          name
-          duration
-        }
-        ... on NoteBlock {
-          id
-          name
-          duration
-        }
-        ... on AdBreak {
-          id
-          name
-          duration
-        }
-        ... on StationIdent {
-          id
-          name
-          duration
-        }
+        ...TrackClockItemFragment
+        ...SubcategoryClockItemFragment
+        ...GenreClockItemFragment
+        ...NoteClockItemFragment
       }
     }
+  }
+  
+  fragment TrackClockItemFragment on TrackClockItem {
+    id
+    clockId
+    orderIndex
+    duration
+    name
+    createdAt
+    updatedAt
+    trackId
+    track {
+      id
+      title
+      artist
+      duration {
+        formatted
+      }
+      album
+    }
+  }
+  
+  fragment SubcategoryClockItemFragment on SubcategoryClockItem {
+    id
+    clockId
+    orderIndex
+    duration
+    name
+    createdAt
+    updatedAt
+    subcategoryId
+    subcategory {
+      id
+      name
+    }
+    averageDuration
+  }
+  
+  fragment GenreClockItemFragment on GenreClockItem {
+    id
+    clockId
+    orderIndex
+    duration
+    name
+    createdAt
+    updatedAt
+    genreId
+    genre {
+      id
+      name
+    }
+    averageDuration
+  }
+  
+  fragment NoteClockItemFragment on NoteClockItem {
+    id
+    clockId
+    orderIndex
+    duration
+    name
+    createdAt
+    updatedAt
+    content
+    color
   }
 `);
 
@@ -113,7 +209,7 @@ export const GET_WEEKLY_SCHEDULE = gql(`
         clock {
           id
           name
-          duration
+          targetRuntime
         }
       }
     }
@@ -129,7 +225,7 @@ export const GET_WEEKLY_SCHEDULE = gql(`
       clock {
         id
         name
-        duration
+        targetRuntime
       }
     }
   }

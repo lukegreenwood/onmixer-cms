@@ -4,17 +4,12 @@ import { useMemo } from 'react';
 
 import { ClockIcon } from '@/components/icons';
 
+import { formatDuration } from '../utils';
+
+import type { TemplateAssignment } from '../types';
+
 interface TemplateGridProps {
-  assignments: Array<{
-    id: string;
-    dayOfWeek: number;
-    hour: number;
-    clock: {
-      id: string;
-      name: string;
-      duration: number;
-    };
-  }>;
+  assignments: TemplateAssignment[];
   selectedSlots?: Array<{ dayOfWeek: number; hour: number }>;
   onSlotClick: (dayOfWeek: number, hour: number, event: React.MouseEvent) => void;
   onRemoveClock?: (assignmentId: string) => void;
@@ -26,12 +21,13 @@ export const TemplateGrid = ({
   onSlotClick,
   onRemoveClock,
 }: TemplateGridProps) => {
-  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  // Updated for Monday-first layout to match UI mockups
+  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
   // Create a lookup map for assignments
   const assignmentMap = useMemo(() => {
-    const map = new Map<string, typeof assignments[0]>();
+    const map = new Map<string, TemplateAssignment>();
     assignments.forEach(assignment => {
       const key = `${assignment.dayOfWeek}-${assignment.hour}`;
       map.set(key, assignment);
@@ -41,12 +37,6 @@ export const TemplateGrid = ({
 
   const formatHour = (hour: number) => {
     return `${hour.toString().padStart(2, '0')}:00`;
-  };
-
-  const formatDuration = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${minutes}:${secs.toString().padStart(2, '0')}`;
   };
 
   const getSlotKey = (dayOfWeek: number, hour: number) => {
@@ -93,13 +83,20 @@ export const TemplateGrid = ({
                     } ${
                       isSelected ? 'template-grid__slot--selected' : ''
                     }`}
+                    style={{
+                      backgroundColor: assignment?.clock?.color || undefined,
+                    }}
                     onClick={(e) => onSlotClick(dayIndex, hour, e)}
                   >
                     {assignment ? (
                       <div className="slot-assignment">
                         <div className="slot-assignment__header">
+                          <div 
+                            className="clock-color-indicator"
+                            style={{ backgroundColor: assignment.clock?.color }}
+                          />
                           <div className="slot-assignment__name">
-                            {assignment.clock.name}
+                            {assignment.clock?.name}
                           </div>
                           {onRemoveClock && (
                             <button
@@ -114,9 +111,11 @@ export const TemplateGrid = ({
                             </button>
                           )}
                         </div>
-                        <div className="slot-assignment__duration">
-                          {formatDuration(assignment.clock.duration)}
-                        </div>
+                        {assignment.clock?.targetRuntime && (
+                          <div className="slot-assignment__duration">
+                            {formatDuration(assignment.clock.targetRuntime)}
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <div className="slot-empty">

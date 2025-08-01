@@ -6,40 +6,14 @@ export const GET_MUSIC_CLOCKS = gql(`
       id
       name
       description
-      duration
-      isTemplate
+      color
+      targetRuntime
+      networkId
       items {
-        ... on MusicSlot {
-          id
-          name
-          duration
-          categories
-          genres
-          musicPriority: priority
-          allowOverrun
-        }
-        ... on NoteBlock {
-          id
-          name
-          duration
-          content
-          notePriority: priority
-          color
-        }
-        ... on AdBreak {
-          id
-          name
-          duration
-          adType
-          isFixed
-        }
-        ... on StationIdent {
-          id
-          name
-          duration
-          identType
-          trackId
-        }
+        ...TrackClockItemFragment
+        ...SubcategoryClockItemFragment
+        ...GenreClockItemFragment
+        ...NoteClockItemFragment
       }
       network {
         id
@@ -49,6 +23,70 @@ export const GET_MUSIC_CLOCKS = gql(`
       updatedAt
     }
   }
+  
+  fragment TrackClockItemFragment on TrackClockItem {
+    id
+    clockId
+    orderIndex
+    duration
+    name
+    createdAt
+    updatedAt
+    trackId
+    track {
+      id
+      title
+      artist
+      duration {
+        formatted
+      }
+      album
+    }
+  }
+  
+  fragment SubcategoryClockItemFragment on SubcategoryClockItem {
+    id
+    clockId
+    orderIndex
+    duration
+    name
+    createdAt
+    updatedAt
+    subcategoryId
+    subcategory {
+      id
+      name
+    }
+    averageDuration
+  }
+  
+  fragment GenreClockItemFragment on GenreClockItem {
+    id
+    clockId
+    orderIndex
+    duration
+    name
+    createdAt
+    updatedAt
+    genreId
+    genre {
+      id
+      name
+    }
+    averageDuration
+  }
+  
+  fragment NoteClockItemFragment on NoteClockItem {
+    id
+    clockId
+    orderIndex
+    duration
+    name
+    createdAt
+    updatedAt
+    content
+    color
+  }
 `);
 
 export const GET_MUSIC_CLOCK = gql(`
@@ -57,44 +95,14 @@ export const GET_MUSIC_CLOCK = gql(`
       id
       name
       description
-      duration
-      isTemplate
+      color
+      targetRuntime
+      networkId
       items {
-        ... on MusicSlot {
-          id
-          name
-          duration
-          categories
-          genres
-          musicPriority: priority
-          allowOverrun
-          orderIndex
-        }
-        ... on NoteBlock {
-          id
-          name
-          duration
-          content
-          notePriority: priority
-          color
-          orderIndex
-        }
-        ... on AdBreak {
-          id
-          name
-          duration
-          adType
-          isFixed
-          orderIndex
-        }
-        ... on StationIdent {
-          id
-          name
-          duration
-          identType
-          trackId
-          orderIndex
-        }
+        ...TrackClockItemFragment
+        ...SubcategoryClockItemFragment
+        ...GenreClockItemFragment
+        ...NoteClockItemFragment
       }
       network {
         id
@@ -103,5 +111,69 @@ export const GET_MUSIC_CLOCK = gql(`
       createdAt
       updatedAt
     }
+  }
+  
+  fragment TrackClockItemFragment on TrackClockItem {
+    id
+    clockId
+    orderIndex
+    duration
+    name
+    createdAt
+    updatedAt
+    trackId
+    track {
+      id
+      title
+      artist
+      duration {
+        formatted
+      }
+      album
+    }
+  }
+  
+  fragment SubcategoryClockItemFragment on SubcategoryClockItem {
+    id
+    clockId
+    orderIndex
+    duration
+    name
+    createdAt
+    updatedAt
+    subcategoryId
+    subcategory {
+      id
+      name
+    }
+    averageDuration
+  }
+  
+  fragment GenreClockItemFragment on GenreClockItem {
+    id
+    clockId
+    orderIndex
+    duration
+    name
+    createdAt
+    updatedAt
+    genreId
+    genre {
+      id
+      name
+    }
+    averageDuration
+  }
+  
+  fragment NoteClockItemFragment on NoteClockItem {
+    id
+    clockId
+    orderIndex
+    duration
+    name
+    createdAt
+    updatedAt
+    content
+    color
   }
 `);

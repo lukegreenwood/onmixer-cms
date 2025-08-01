@@ -77,7 +77,7 @@ export const RuleEditor = ({ ruleId: _ruleId, rule }: RuleEditorProps) => {
     defaultValues: {
       name: rule?.name || '',
       description: rule?.description || '',
-      ruleType: (rule?.ruleType || RuleType.ArtistSeparation) as RuleType,
+      ruleType: (rule?.ruleType || RuleType.PrimaryArtistSeparation) as RuleType,
       breakable: (rule?.breakable || RuleBreakable.Unbreakable) as RuleBreakable,
       value: rule?.value || 30,
       unit: (rule?.unit || RuleUnit.Minutes) as RuleUnit,
@@ -175,11 +175,15 @@ export const RuleEditor = ({ ruleId: _ruleId, rule }: RuleEditorProps) => {
                     {...methods.register('ruleType')}
                     className="form-select"
                   >
-                    <option value={RuleType.ArtistSeparation}>Artist Separation</option>
+                    <option value={RuleType.PrimaryArtistSeparation}>Primary Artist Separation</option>
+                    <option value={RuleType.SecondaryArtistSeparation}>Secondary Artist Separation</option>
+                    <option value={RuleType.RelatedArtistSeparation}>Related Artist Separation</option>
                     <option value={RuleType.TitleSeparation}>Title Separation</option>
-                    <option value={RuleType.TempoSeparation}>Tempo Separation</option>
-                    <option value={RuleType.CategorySeparation}>Category Separation</option>
-                    <option value={RuleType.GenreSeparation}>Genre Separation</option>
+                    <option value={RuleType.AudioItemSeparation}>Audio Item Separation</option>
+                    <option value={RuleType.GenreFlow}>Genre Flow</option>
+                    <option value={RuleType.GenreAdjacent}>Genre Adjacent</option>
+                    <option value={RuleType.TempoFlow}>Tempo Flow</option>
+                    <option value={RuleType.TempoAdjacent}>Tempo Adjacent</option>
                   </select>
                 </div>
 
@@ -191,7 +195,6 @@ export const RuleEditor = ({ ruleId: _ruleId, rule }: RuleEditorProps) => {
                   >
                     <option value={RuleBreakable.Unbreakable}>Unbreakable</option>
                     <option value={RuleBreakable.Breakable}>Breakable</option>
-                    <option value={RuleBreakable.Warning}>Warning Only</option>
                   </select>
                 </div>
               </div>
