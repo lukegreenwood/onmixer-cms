@@ -8,6 +8,7 @@ import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useMemo, useState } from 'react';
 
+import { NetworkBadge } from '@/components';
 import { NetworksIcon, ShowsIcon, SeriesIcon } from '@/components/icons';
 import {
   GetNetworksQuery,
@@ -48,22 +49,7 @@ const tableColumns = [
   }),
   columnHelper.accessor('network', {
     header: 'Network',
-    cell: (props) => (
-      <Tag
-        color="blue"
-        size="md"
-        before={
-          <div
-            className="network-icon network-icon--sm"
-            dangerouslySetInnerHTML={{
-              __html: props.getValue().logoSvgIcon,
-            }}
-          />
-        }
-      >
-        {props.getValue().name}
-      </Tag>
-    ),
+    cell: (props) => <NetworkBadge network={props.getValue()} />,
   }),
   columnHelper.display({
     id: 'status',

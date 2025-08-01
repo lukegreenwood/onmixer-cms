@@ -1,12 +1,13 @@
 'use client';
 
 import { useSuspenseQuery } from '@apollo/client';
-import { Alert, Badge, Tag } from '@soundwaves/components';
+import { Alert, Badge } from '@soundwaves/components';
 import { createColumnHelper } from '@tanstack/react-table';
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useMemo, useState } from 'react';
 
+import { NetworkBadge } from '@/components';
 import { NetworksIcon, PresentersIcon, ShowsIcon } from '@/components/icons';
 import {
   GetNetworksQuery,
@@ -78,23 +79,9 @@ const tableColumns = [
   columnHelper.accessor('networks', {
     header: 'Networks',
     cell: (props) =>
-      props.getValue().map((network) => (
-        <Tag
-          key={network.id}
-          color="blue"
-          size="md"
-          before={
-            <div
-              className="network-icon network-icon--sm"
-              dangerouslySetInnerHTML={{
-                __html: network.logoSvgIcon,
-              }}
-            />
-          }
-        >
-          {network.name}
-        </Tag>
-      )),
+      props
+        .getValue()
+        .map((network) => <NetworkBadge key={network.id} network={network} />),
   }),
   columnHelper.accessor('hidden', {
     header: 'Status',

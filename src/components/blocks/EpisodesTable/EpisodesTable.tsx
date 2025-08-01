@@ -9,6 +9,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useMemo, useState } from 'react';
 
 import { Copyable, DataTable } from '@/components';
+import { NetworkBadge } from '@/components';
 import {
   GetNetworksQuery,
   GetPresentersQuery,
@@ -121,23 +122,9 @@ const tableColumns = [
   columnHelper.accessor('networks', {
     header: 'Networks',
     cell: (props) =>
-      props.getValue().map((network) => (
-        <Badge
-          key={network.id}
-          color="blue"
-          size="md"
-          before={
-            <div
-              className="network-icon network-icon--sm"
-              dangerouslySetInnerHTML={{
-                __html: network.logoSvgIcon,
-              }}
-            />
-          }
-        >
-          {network.name}
-        </Badge>
-      )),
+      props
+        .getValue()
+        .map((network) => <NetworkBadge key={network.id} network={network} />),
   }),
   columnHelper.accessor('broadcasts', {
     header: 'Broadcasts',

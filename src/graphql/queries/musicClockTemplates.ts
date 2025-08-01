@@ -24,177 +24,177 @@ export const GET_MUSIC_CLOCK_TEMPLATES = gql(`
 `);
 
 export const GET_MUSIC_CLOCK_TEMPLATE = gql(`
-  query GetMusicClockTemplate($id: ID!) {
-    musicClockTemplate(id: $id) {
-      id
-      name
-      description
-      isDefault
-      createdAt
-      updatedAt
-      assignments {
-        id
-        dayOfWeek
-        hour
-        clock {
-          id
-          name
-          targetRuntime
-          items {
-            ...TrackClockItemFragment
-            ...SubcategoryClockItemFragment
-            ...GenreClockItemFragment
-            ...NoteClockItemFragment
-          }
-        }
-      }
-    }
-  }
+  query GetMusicClockTemplate($id: ID!) {}
+  #   musicClockTemplate(id: $id) {
+  #     id
+  #     name
+  #     description
+  #     isDefault
+  #     createdAt
+  #     updatedAt
+  #     assignments {
+  #       id
+  #       dayOfWeek
+  #       hour
+  #       clock {
+  #         id
+  #         name
+  #         targetRuntime
+  #         items {
+  #           ...TrackClockItemFragment
+  #           ...SubcategoryClockItemFragment
+  #           ...GenreClockItemFragment
+  #           ...NoteClockItemFragment
+  #         }
+  #       }
+  #     }
+  #   }
+  # }
   
-  fragment TrackClockItemFragment on TrackClockItem {
-    id
-    clockId
-    orderIndex
-    duration
-    name
-    createdAt
-    updatedAt
-    trackId
-    track {
-      id
-      title
-      artist
-      duration {
-        formatted
-      }
-      album
-    }
-  }
+  # fragment TrackClockItemFragment on TrackClockItem {
+  #   id
+  #   clockId
+  #   orderIndex
+  #   duration
+  #   name
+  #   createdAt
+  #   updatedAt
+  #   trackId
+  #   track {
+  #     id
+  #     title
+  #     artist
+  #     duration {
+  #       formatted
+  #     }
+  #     album
+  #   }
+  # }
   
-  fragment SubcategoryClockItemFragment on SubcategoryClockItem {
-    id
-    clockId
-    orderIndex
-    duration
-    name
-    createdAt
-    updatedAt
-    subcategoryId
-    subcategory {
-      id
-      name
-    }
-    averageDuration
-  }
+  # fragment SubcategoryClockItemFragment on SubcategoryClockItem {
+  #   id
+  #   clockId
+  #   orderIndex
+  #   duration
+  #   name
+  #   createdAt
+  #   updatedAt
+  #   subcategoryId
+  #   subcategory {
+  #     id
+  #     name
+  #   }
+  #   averageDuration
+  # }
   
-  fragment GenreClockItemFragment on GenreClockItem {
-    id
-    clockId
-    orderIndex
-    duration
-    name
-    createdAt
-    updatedAt
-    genreId
-    genre {
-      id
-      name
-    }
-    averageDuration
-  }
+  # fragment GenreClockItemFragment on GenreClockItem {
+  #   id
+  #   clockId
+  #   orderIndex
+  #   duration
+  #   name
+  #   createdAt
+  #   updatedAt
+  #   genreId
+  #   genre {
+  #     id
+  #     name
+  #   }
+  #   averageDuration
+  # }
   
-  fragment NoteClockItemFragment on NoteClockItem {
-    id
-    clockId
-    orderIndex
-    duration
-    name
-    createdAt
-    updatedAt
-    content
-    color
-  }
+  # fragment NoteClockItemFragment on NoteClockItem {
+  #   id
+  #   clockId
+  #   orderIndex
+  #   duration
+  #   name
+  #   createdAt
+  #   updatedAt
+  #   content
+  #   color
+  # }
 `);
 
 export const GET_AVAILABLE_CLOCKS = gql(`
   query GetAvailableClocks($networkId: ID!) {
-    musicClocks(networkId: $networkId, filters: { isTemplate: true }) {
-      id
-      name
-      description
-      targetRuntime
-      items {
-        ...TrackClockItemFragment
-        ...SubcategoryClockItemFragment
-        ...GenreClockItemFragment
-        ...NoteClockItemFragment
-      }
-    }
+    # musicClocks(networkId: $networkId, filters: { isTemplate: true }) {
+    #   id
+    #   name
+    #   description
+    #   targetRuntime
+    #   items {
+    #     ...TrackClockItemFragment
+    #     ...SubcategoryClockItemFragment
+    #     ...GenreClockItemFragment
+    #     ...NoteClockItemFragment
+    #   }
+    # }
   }
   
-  fragment TrackClockItemFragment on TrackClockItem {
-    id
-    clockId
-    orderIndex
-    duration
-    name
-    createdAt
-    updatedAt
-    trackId
-    track {
-      id
-      title
-      artist
-      duration {
-        formatted
-      }
-      album
-    }
-  }
+  # fragment TrackClockItemFragment on TrackClockItem {
+  #   id
+  #   clockId
+  #   orderIndex
+  #   duration
+  #   name
+  #   createdAt
+  #   updatedAt
+  #   trackId
+  #   track {
+  #     id
+  #     title
+  #     artist
+  #     duration {
+  #       formatted
+  #     }
+  #     album
+  #   }
+  # }
   
-  fragment SubcategoryClockItemFragment on SubcategoryClockItem {
-    id
-    clockId
-    orderIndex
-    duration
-    name
-    createdAt
-    updatedAt
-    subcategoryId
-    subcategory {
-      id
-      name
-    }
-    averageDuration
-  }
+  # fragment SubcategoryClockItemFragment on SubcategoryClockItem {
+  #   id
+  #   clockId
+  #   orderIndex
+  #   duration
+  #   name
+  #   createdAt
+  #   updatedAt
+  #   subcategoryId
+  #   subcategory {
+  #     id
+  #     name
+  #   }
+  #   averageDuration
+  # }
   
-  fragment GenreClockItemFragment on GenreClockItem {
-    id
-    clockId
-    orderIndex
-    duration
-    name
-    createdAt
-    updatedAt
-    genreId
-    genre {
-      id
-      name
-    }
-    averageDuration
-  }
+  # fragment GenreClockItemFragment on GenreClockItem {
+  #   id
+  #   clockId
+  #   orderIndex
+  #   duration
+  #   name
+  #   createdAt
+  #   updatedAt
+  #   genreId
+  #   genre {
+  #     id
+  #     name
+  #   }
+  #   averageDuration
+  # }
   
-  fragment NoteClockItemFragment on NoteClockItem {
-    id
-    clockId
-    orderIndex
-    duration
-    name
-    createdAt
-    updatedAt
-    content
-    color
-  }
+  # fragment NoteClockItemFragment on NoteClockItem {
+  #   id
+  #   clockId
+  #   orderIndex
+  #   duration
+  #   name
+  #   createdAt
+  #   updatedAt
+  #   content
+  #   color
+  # }
 `);
 
 export const GET_WEEKLY_SCHEDULE = gql(`

@@ -5,14 +5,14 @@ import { Button } from '@soundwaves/components';
 import { createColumnHelper } from '@tanstack/react-table';
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
 
-import { Card } from '@/components/blocks/Card';
-import { DataTable } from '@/components/blocks/DataTable';
-import { AddIcon, EditIcon, ClockIcon } from '@/components/icons';
+import { Card, DataTable, NetworkBadge } from '@/components';
 import { GetMusicClocksQuery } from '@/graphql/__generated__/graphql';
 import { GET_MUSIC_CLOCKS } from '@/graphql/queries/musicClocks';
 import { useNavigation, useNetwork } from '@/hooks';
+import { AddIcon, EditIcon, ClockIcon } from '@/icons';
 
-const columnHelper = createColumnHelper<GetMusicClocksQuery['musicClocks'][number]>();
+const columnHelper =
+  createColumnHelper<GetMusicClocksQuery['musicClocks'][number]>();
 
 export const ClockList = () => {
   const { currentNetwork } = useNetwork();
@@ -56,20 +56,12 @@ export const ClockList = () => {
     columnHelper.accessor('items', {
       header: 'Items',
       cell: (props) => (
-        <span className="cell-meta">
-          {props.getValue()?.length || 0} items
-        </span>
+        <span className="cell-meta">{props.getValue()?.length || 0} items</span>
       ),
     }),
-    columnHelper.accessor('networkId', {
-      header: 'Scope',
-      cell: (props) => (
-        <span className={`status-badge ${
-          props.getValue() ? 'status-badge--info' : 'status-badge--success'
-        }`}>
-          {props.getValue() ? 'Network' : 'Global'}
-        </span>
-      ),
+    columnHelper.accessor('network', {
+      header: 'Network',
+      cell: (props) => <NetworkBadge network={props.getValue()} />,
     }),
     columnHelper.display({
       id: 'actions',
@@ -80,7 +72,9 @@ export const ClockList = () => {
             variant="secondary"
             size="sm"
             onClick={() =>
-              push(getNetworkRoutePath('musicClockEdit', [props.row.original.id]))
+              push(
+                getNetworkRoutePath('musicClockEdit', [props.row.original.id]),
+              )
             }
           >
             <EditIcon className="icon" />
@@ -96,7 +90,9 @@ export const ClockList = () => {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  const handleRowClick = (clock: GetMusicClocksQuery['musicClocks'][number]) => {
+  const handleRowClick = (
+    clock: GetMusicClocksQuery['musicClocks'][number],
+  ) => {
     push(getNetworkRoutePath('musicClockView', [clock.id]));
   };
 
@@ -106,13 +102,13 @@ export const ClockList = () => {
         <div className="clock-list__header">
           <div className="clock-list__title">
             <h2 className="clock-list__heading">Music Clocks</h2>
-            <p className="clock-list__description">Manage hourly programming templates</p>
+            <p className="clock-list__description">
+              Manage hourly programming templates
+            </p>
           </div>
           <Button
             variant="primary"
-            onClick={() =>
-              push(getNetworkRoutePath('musicClockCreate'))
-            }
+            onClick={() => push(getNetworkRoutePath('musicClockCreate'))}
           >
             <AddIcon className="button-icon" />
             Create Clock

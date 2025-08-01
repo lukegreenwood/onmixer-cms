@@ -1,6 +1,8 @@
 {
   "possibleTypes": {
     "ClockItemInterface": [
+      "AdBreakClockItem",
+      "CommandClockItem",
       "GenreClockItem",
       "NoteClockItem",
       "SubcategoryClockItem",
@@ -19,6 +21,8 @@
       "TrackList"
     ],
     "MusicClockItem": [
+      "AdBreakClockItem",
+      "CommandClockItem",
       "GenreClockItem",
       "NoteClockItem",
       "SubcategoryClockItem",

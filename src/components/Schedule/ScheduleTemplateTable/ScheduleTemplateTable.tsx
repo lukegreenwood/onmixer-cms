@@ -9,7 +9,7 @@ import {
 } from '@tanstack/react-table';
 import { useState, useCallback, useMemo } from 'react';
 
-import { DataTable, Pagination, Copyable } from '@/components';
+import { DataTable, Pagination, Copyable, NetworkBadge } from '@/components';
 import {
   DELETE_SCHEDULE_TEMPLATE,
   DUPLICATE_SCHEDULE_TEMPLATE,
@@ -163,21 +163,7 @@ export const ScheduleTemplateTable = () => {
         cell: (props) => (
           <div className="template-networks">
             {props.getValue()?.map((network) => (
-              <Badge
-                key={network.id}
-                color="blue"
-                size="sm"
-                before={
-                  <div
-                    className="network-icon network-icon--sm"
-                    dangerouslySetInnerHTML={{
-                      __html: network.logoSvgIcon || '',
-                    }}
-                  />
-                }
-              >
-                {network.name}
-              </Badge>
+              <NetworkBadge key={network.id} network={network} />
             ))}
           </div>
         ),
