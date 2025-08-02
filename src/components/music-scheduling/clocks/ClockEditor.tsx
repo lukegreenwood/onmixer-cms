@@ -11,6 +11,7 @@ import { z } from 'zod';
 import { ActionBar } from '@/components/blocks/ActionBar';
 import { EntityEditForm } from '@/components/blocks/EntityEditForm';
 import { ClockIcon } from '@/components/icons';
+import { GetMusicClockQuery } from '@/graphql/__generated__/graphql';
 import { CREATE_MUSIC_CLOCK } from '@/graphql/mutations/createMusicClock';
 import { UPDATE_MUSIC_CLOCK } from '@/graphql/mutations/updateMusicClock';
 import { useNetwork } from '@/hooks';
@@ -30,10 +31,7 @@ import {
 
 import { ClockItemEditor } from './ClockItemEditor';
 
-import type {
-  MusicClock,
-  MusicClockItem,
-} from '../types';
+import type { MusicClockItem } from '../types';
 
 const clockFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -44,8 +42,9 @@ const clockFormSchema = z.object({
 
 type ClockFormData = z.infer<typeof clockFormSchema>;
 
+type MusicClock = NonNullable<GetMusicClockQuery['musicClock']>;
 interface ClockEditorProps {
-  clock?: MusicClock;
+  clock: MusicClock;
 }
 
 export const ClockEditor = ({ clock }: ClockEditorProps) => {
@@ -53,8 +52,8 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
   const router = useRouter();
   const isEditing = !!clock;
 
-  const [clockItems, setClockItems] = useState<MusicClockItem[]>(
-    clock?.items || [],
+  const [clockItems, setClockItems] = useState<MusicClock['items']>(
+    clock.items || [],
   );
 
   const [createClock, { loading: createLoading }] =
@@ -71,7 +70,6 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
       targetRuntime: clock?.targetRuntime || 3600,
     },
   });
-
 
   // Helper function to convert clock items for GraphQL input
   const convertClockItemsForInput = (items: MusicClockItem[]) => {
@@ -126,50 +124,50 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
         return;
       }
 
-      const input = {
-        ...data,
-        networkId: currentNetwork.id,
-        targetRuntime: Math.round(data.targetRuntime), // Ensure target runtime is an integer
-        items: convertClockItemsForInput(clockItems),
-      };
+      // const input = {
+      //   ...data,
+      //   networkId: currentNetwork.id,
+      //   targetRuntime: Math.round(data.targetRuntime), // Ensure target runtime is an integer
+      //   items: convertClockItemsForInput(clockItems),
+      // };
 
-      if (isEditing) {
-        // For updates, remove networkId as it's not supported in UpdateMusicClockInput
-        const { networkId: _networkId, ...updateInput } = input;
-        updateClock({
-          variables: { input: { id: clock.id, ...updateInput } },
-          onCompleted: (result) => {
-            if (result.updateMusicClock.clock) {
-              toast('Clock updated successfully', 'success');
-              router.push(
-                `/networks/${currentNetwork?.code}/music-scheduling/clocks`,
-              );
-            } else {
-              toast('Failed to update clock', 'error');
-            }
-          },
-          onError: () => {
-            toast('Failed to update clock', 'error');
-          },
-        });
-      } else {
-        createClock({
-          variables: { input },
-          onCompleted: (result) => {
-            if (result.createMusicClock.clock) {
-              toast('Clock created successfully', 'success');
-              router.push(
-                `/networks/${currentNetwork?.code}/music-scheduling/clocks`,
-              );
-            } else {
-              toast('Failed to create clock', 'error');
-            }
-          },
-          onError: () => {
-            toast('Failed to create clock', 'error');
-          },
-        });
-      }
+      // if (isEditing) {
+      //   // For updates, remove networkId as it's not supported in UpdateMusicClockInput
+      //   const { networkId: _networkId, ...updateInput } = input;
+      //   updateClock({
+      //     variables: { input: { id: clock.id, ...updateInput } },
+      //     onCompleted: (result) => {
+      //       if (result.updateMusicClock.clock) {
+      //         toast('Clock updated successfully', 'success');
+      //         router.push(
+      //           `/networks/${currentNetwork?.code}/music-scheduling/clocks`,
+      //         );
+      //       } else {
+      //         toast('Failed to update clock', 'error');
+      //       }
+      //     },
+      //     onError: () => {
+      //       toast('Failed to update clock', 'error');
+      //     },
+      //   });
+      // } else {
+      //   createClock({
+      //     variables: { input },
+      //     onCompleted: (result) => {
+      //       if (result.createMusicClock.clock) {
+      //         toast('Clock created successfully', 'success');
+      //         router.push(
+      //           `/networks/${currentNetwork?.code}/music-scheduling/clocks`,
+      //         );
+      //       } else {
+      //         toast('Failed to create clock', 'error');
+      //       }
+      //     },
+      //     onError: () => {
+      //       toast('Failed to create clock', 'error');
+      //     },
+      //   });
+      // }
     },
     [
       clockItems,
@@ -178,13 +176,13 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
       clock?.id,
       isEditing,
       createClock,
-      updateClock,
+      // updateClock,
       router,
     ],
   );
 
   const handleItemsChange = useCallback((newItems: MusicClockItem[]) => {
-    setClockItems(newItems);
+    // setClockItems(newItems);
   }, []);
 
   const totalDuration = calculateClockRuntime(clockItems);

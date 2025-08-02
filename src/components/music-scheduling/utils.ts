@@ -1,4 +1,12 @@
-import { MusicClockItem, TrackClockItem, SubcategoryClockItem, GenreClockItem, NoteClockItem } from './types';
+import { GetMusicClockQuery } from '@/graphql/__generated__/graphql';
+
+import {
+  MusicClockItem,
+  TrackClockItem,
+  SubcategoryClockItem,
+  GenreClockItem,
+  NoteClockItem,
+} from './types';
 
 /**
  * Duration formatting utilities
@@ -7,9 +15,11 @@ export const formatDuration = (seconds: number): string => {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
   const secs = seconds % 60;
-  
+
   if (hours > 0) {
-    return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return `${hours}:${minutes.toString().padStart(2, '0')}:${secs
+      .toString()
+      .padStart(2, '0')}`;
   }
   return `${minutes}:${secs.toString().padStart(2, '0')}`;
 };
@@ -28,26 +38,36 @@ export const parseDuration = (timeString: string): number => {
 /**
  * Clock runtime calculations
  */
-export const calculateClockRuntime = (items: MusicClockItem[]): number => {
+export const calculateClockRuntime = (
+  items: NonNullable<GetMusicClockQuery['musicClock']>['items'],
+): number => {
   return items.reduce((total, item) => total + item.duration, 0);
 };
 
 /**
  * Type guard functions for clock items
  */
-export const isTrackClockItem = (item: MusicClockItem): item is TrackClockItem => {
+export const isTrackClockItem = (
+  item: MusicClockItem,
+): item is TrackClockItem => {
   return 'trackId' in item && 'track' in item;
 };
 
-export const isSubcategoryClockItem = (item: MusicClockItem): item is SubcategoryClockItem => {
+export const isSubcategoryClockItem = (
+  item: MusicClockItem,
+): item is SubcategoryClockItem => {
   return 'subcategoryId' in item && 'subcategory' in item;
 };
 
-export const isGenreClockItem = (item: MusicClockItem): item is GenreClockItem => {
+export const isGenreClockItem = (
+  item: MusicClockItem,
+): item is GenreClockItem => {
   return 'genreId' in item && 'genre' in item;
 };
 
-export const isNoteClockItem = (item: MusicClockItem): item is NoteClockItem => {
+export const isNoteClockItem = (
+  item: MusicClockItem,
+): item is NoteClockItem => {
   return 'content' in item;
 };
 
@@ -86,7 +106,7 @@ export const calculateRuntimeDifference = (target: number, actual: number) => {
     isOver: diff > 0,
     isUnder: diff < 0,
     isPerfect: diff === 0,
-    percentage: ((Math.abs(diff) / target) * 100).toFixed(1)
+    percentage: ((Math.abs(diff) / target) * 100).toFixed(1),
   };
 };
 
@@ -103,10 +123,10 @@ export const getWeekCommencing = (date: Date): string => {
 
 export const formatWeekCommencing = (weekCommencing: string): string => {
   const date = new Date(weekCommencing);
-  return date.toLocaleDateString('en-US', { 
-    month: 'short', 
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
     day: 'numeric',
-    year: 'numeric'
+    year: 'numeric',
   });
 };
 
@@ -116,7 +136,7 @@ export const formatWeekCommencing = (weekCommencing: string): string => {
 export const formatRuleName = (ruleType: string): string => {
   return ruleType
     .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ');
 };
 
@@ -135,10 +155,29 @@ export const isValidHexColor = (color: string): boolean => {
 /**
  * Day of week utilities
  */
-export const DAYS_OF_WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-export const DAYS_OF_WEEK_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+export const DAYS_OF_WEEK = [
+  'Sunday',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+];
+export const DAYS_OF_WEEK_SHORT = [
+  'Sun',
+  'Mon',
+  'Tue',
+  'Wed',
+  'Thu',
+  'Fri',
+  'Sat',
+];
 
-export const getDayName = (dayOfWeek: number, short: boolean = false): string => {
+export const getDayName = (
+  dayOfWeek: number,
+  short: boolean = false,
+): string => {
   const days = short ? DAYS_OF_WEEK_SHORT : DAYS_OF_WEEK;
   return days[dayOfWeek] || 'Unknown';
 };
@@ -151,5 +190,7 @@ export const formatHour = (hour: number): string => {
 };
 
 export const formatTime = (hour: number, minute: number = 0): string => {
-  return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+  return `${hour.toString().padStart(2, '0')}:${minute
+    .toString()
+    .padStart(2, '0')}`;
 };

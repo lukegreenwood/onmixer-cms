@@ -5,7 +5,7 @@ import { Button } from '@soundwaves/components';
 import { createColumnHelper } from '@tanstack/react-table';
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';
 
-import { Card, DataTable, NetworkBadge } from '@/components';
+import { DataTable, NetworkBadge, PageHeader } from '@/components';
 import { GetMusicClocksQuery } from '@/graphql/__generated__/graphql';
 import { GET_MUSIC_CLOCKS } from '@/graphql/queries/musicClocks';
 import { useNavigation, useNetwork } from '@/hooks';
@@ -71,13 +71,15 @@ export const ClockList = () => {
           <Button
             variant="secondary"
             size="sm"
-            onClick={() =>
-              push(
-                getNetworkRoutePath('musicClockEdit', [props.row.original.id]),
-              )
-            }
+            href={getNetworkRoutePath('musicClockEdit', [
+              props.row.original.id,
+            ])}
+            isIconOnly
+            asChild
           >
-            <EditIcon className="icon" />
+            <a>
+              <EditIcon className="icon" />
+            </a>
           </Button>
         </div>
       ),
@@ -97,30 +99,28 @@ export const ClockList = () => {
   };
 
   return (
-    <div className="clock-list">
-      <Card>
-        <div className="clock-list__header">
-          <div className="clock-list__title">
-            <h2 className="clock-list__heading">Music Clocks</h2>
-            <p className="clock-list__description">
-              Manage hourly programming templates
-            </p>
-          </div>
+    <>
+      <PageHeader
+        heading="Music Clocks"
+        subheading="Manage hourly programming templates"
+        actions={
           <Button
             variant="primary"
-            onClick={() => push(getNetworkRoutePath('musicClockCreate'))}
+            href={getNetworkRoutePath('musicClockCreate')}
+            before={<AddIcon />}
+            asChild
           >
-            <AddIcon className="button-icon" />
-            Create Clock
+            <a> Create Clock</a>
           </Button>
-        </div>
-
+        }
+      />
+      <div className="page-content">
         <DataTable
           table={table}
           onRowClick={handleRowClick}
           excludeRowClickColumns={['actions']}
         />
-      </Card>
-    </div>
+      </div>
+    </>
   );
 };
