@@ -4,6 +4,9 @@
       "AdBreakClockItem",
       "CommandClockItem",
       "GenreClockItem",
+      "LibraryAdBreakClockItem",
+      "LibraryCommandClockItem",
+      "LibraryNoteClockItem",
       "NoteClockItem",
       "SubcategoryClockItem",
       "TrackClockItem"
@@ -24,9 +27,22 @@
       "AdBreakClockItem",
       "CommandClockItem",
       "GenreClockItem",
+      "LibraryAdBreakClockItem",
+      "LibraryCommandClockItem",
+      "LibraryNoteClockItem",
       "NoteClockItem",
       "SubcategoryClockItem",
       "TrackClockItem"
+    ],
+    "MusicClockLibraryItem": [
+      "MusicClockLibraryAdBreak",
+      "MusicClockLibraryCommand",
+      "MusicClockLibraryNote"
+    ],
+    "MusicClockLibraryItemInterface": [
+      "MusicClockLibraryAdBreak",
+      "MusicClockLibraryCommand",
+      "MusicClockLibraryNote"
     ]
   }
 }

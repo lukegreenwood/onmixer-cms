@@ -2,17 +2,14 @@
 
 import { useMutation } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Input, Textarea } from '@soundwaves/components';
-import { useRouter } from 'next/navigation';
+import { Button, Dialog, Input, Textarea, Badge } from '@soundwaves/components';
 import { useState, useCallback } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import { ActionBar } from '@/components/blocks/ActionBar';
-import { EntityEditForm } from '@/components/blocks/EntityEditForm';
-import { ClockIcon } from '@/components/icons';
+import { FloatingBar } from '@/components/common';
+import { ClockIcon, EditIcon } from '@/components/icons';
 import { GetMusicClockQuery } from '@/graphql/__generated__/graphql';
-import { CREATE_MUSIC_CLOCK } from '@/graphql/mutations/createMusicClock';
 import { UPDATE_MUSIC_CLOCK } from '@/graphql/mutations/updateMusicClock';
 import { useNetwork } from '@/hooks';
 import { toast } from '@/lib/toast';
@@ -23,15 +20,10 @@ import {
   formatDuration,
   getDefaultClockColor,
   isValidHexColor,
-  isTrackClockItem,
-  isSubcategoryClockItem,
-  isGenreClockItem,
-  isNoteClockItem,
 } from '../utils';
 
-import { ClockItemEditor } from './ClockItemEditor';
-
-import type { MusicClockItem } from '../types';
+import { ClockGrid } from './ClockGrid';
+import { ClockItemLibrary } from './ClockItemLibrary';
 
 const clockFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -43,21 +35,19 @@ const clockFormSchema = z.object({
 type ClockFormData = z.infer<typeof clockFormSchema>;
 
 type MusicClock = NonNullable<GetMusicClockQuery['musicClock']>;
+type ClockItem = MusicClock['items'][number];
+
 interface ClockEditorProps {
   clock: MusicClock;
 }
 
 export const ClockEditor = ({ clock }: ClockEditorProps) => {
   const { currentNetwork } = useNetwork();
-  const router = useRouter();
   const isEditing = !!clock;
 
-  const [clockItems, setClockItems] = useState<MusicClock['items']>(
-    clock.items || [],
-  );
+  const [clockItems, setClockItems] = useState<ClockItem[]>(clock?.items || []);
+  const [isClockDialogOpen, setIsClockDialogOpen] = useState(false);
 
-  const [createClock, { loading: createLoading }] =
-    useMutation(CREATE_MUSIC_CLOCK);
   const [updateClock, { loading: updateLoading }] =
     useMutation(UPDATE_MUSIC_CLOCK);
 
@@ -71,249 +61,220 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
     },
   });
 
-  // Helper function to convert clock items for GraphQL input
-  const convertClockItemsForInput = (items: MusicClockItem[]) => {
-    return items.map((item, index) => {
-      // Base input structure required by GraphQL schema
-      const baseInput = {
-        name: item.name,
-        orderIndex: index,
-      };
+  const handleAddItem = useCallback(
+    (_itemType: string, data: Record<string, unknown>) => {
+      const newItem: ClockItem = {
+        id: `temp-${Date.now()}`,
+        orderIndex: clockItems.length,
+        duration: data.duration || 0,
+        ...data,
+      } as ClockItem;
 
-      if (isTrackClockItem(item)) {
-        return {
-          ...baseInput,
-          trackItem: {
-            trackId: item.trackId,
-          },
-        };
-      } else if (isSubcategoryClockItem(item)) {
-        return {
-          ...baseInput,
-          subcategoryItem: {
-            subcategoryId: item.subcategoryId,
-            duration: Math.round(item.duration || 0),
-          },
-        };
-      } else if (isGenreClockItem(item)) {
-        return {
-          ...baseInput,
-          genreItem: {
-            genreId: item.genreId,
-            duration: Math.round(item.duration || 0),
-          },
-        };
-      } else if (isNoteClockItem(item)) {
-        return {
-          ...baseInput,
-          noteItem: {
-            content: item.content,
-            color: item.color || null,
-          },
-        };
-      }
+      setClockItems((prev) => [...prev, newItem]);
+    },
+    [clockItems.length],
+  );
 
-      return baseInput;
-    });
-  };
+  const handleItemEdit = useCallback((item: ClockItem) => {
+    // TODO: Implement item edit dialog
+    console.log('Edit item:', item);
+  }, []);
 
-  const handleSubmit = useCallback(
+  const handleItemDelete = useCallback((itemId: string) => {
+    setClockItems((prev) => prev.filter((item) => item.id !== itemId));
+  }, []);
+
+  const handleItemReorder = useCallback(
+    (fromIndex: number, toIndex: number) => {
+      setClockItems((prev) => {
+        const newItems = [...prev];
+        const [movedItem] = newItems.splice(fromIndex, 1);
+        newItems.splice(toIndex, 0, movedItem);
+        return newItems.map((item, index) => ({
+          ...item,
+          orderIndex: index,
+        }));
+      });
+    },
+    [],
+  );
+
+  const handleClockSubmit = useCallback(
     (data: ClockFormData) => {
       if (!currentNetwork?.id) {
         toast('Network not found', 'error');
         return;
       }
 
-      // const input = {
-      //   ...data,
-      //   networkId: currentNetwork.id,
-      //   targetRuntime: Math.round(data.targetRuntime), // Ensure target runtime is an integer
-      //   items: convertClockItemsForInput(clockItems),
-      // };
+      // Update clock metadata - items are saved individually
+      const input = {
+        ...data,
+        targetRuntime: Math.round(data.targetRuntime),
+      };
 
-      // if (isEditing) {
-      //   // For updates, remove networkId as it's not supported in UpdateMusicClockInput
-      //   const { networkId: _networkId, ...updateInput } = input;
-      //   updateClock({
-      //     variables: { input: { id: clock.id, ...updateInput } },
-      //     onCompleted: (result) => {
-      //       if (result.updateMusicClock.clock) {
-      //         toast('Clock updated successfully', 'success');
-      //         router.push(
-      //           `/networks/${currentNetwork?.code}/music-scheduling/clocks`,
-      //         );
-      //       } else {
-      //         toast('Failed to update clock', 'error');
-      //       }
-      //     },
-      //     onError: () => {
-      //       toast('Failed to update clock', 'error');
-      //     },
-      //   });
-      // } else {
-      //   createClock({
-      //     variables: { input },
-      //     onCompleted: (result) => {
-      //       if (result.createMusicClock.clock) {
-      //         toast('Clock created successfully', 'success');
-      //         router.push(
-      //           `/networks/${currentNetwork?.code}/music-scheduling/clocks`,
-      //         );
-      //       } else {
-      //         toast('Failed to create clock', 'error');
-      //       }
-      //     },
-      //     onError: () => {
-      //       toast('Failed to create clock', 'error');
-      //     },
-      //   });
-      // }
+      if (isEditing) {
+        updateClock({
+          variables: { input: { id: clock.id, ...input } },
+          onCompleted: (result) => {
+            if (result.updateMusicClock.clock) {
+              toast('Clock updated successfully', 'success');
+              setIsClockDialogOpen(false);
+            } else {
+              toast('Failed to update clock', 'error');
+            }
+          },
+          onError: () => {
+            toast('Failed to update clock', 'error');
+          },
+        });
+      }
     },
-    [
-      clockItems,
-      currentNetwork?.id,
-      currentNetwork?.code,
-      clock?.id,
-      isEditing,
-      createClock,
-      // updateClock,
-      router,
-    ],
+    [currentNetwork?.id, clock?.id, isEditing, updateClock],
   );
-
-  const handleItemsChange = useCallback((newItems: MusicClockItem[]) => {
-    // setClockItems(newItems);
-  }, []);
 
   const totalDuration = calculateClockRuntime(clockItems);
   const targetRuntime = methods.watch('targetRuntime') || 3600;
   const runtimeDiff = calculateRuntimeDifference(targetRuntime, totalDuration);
 
-  const isDirty =
-    methods.formState.isDirty ||
-    clockItems.length !== (clock?.items?.length || 0);
-
   return (
     <FormProvider {...methods}>
       <div className="clock-editor">
-        <EntityEditForm
-          startSection={[
-            <div key="basic-info" className="clock-editor__form">
-              <div className="clock-editor__header">
-                <div className="icon-text">
-                  <ClockIcon className="icon" />
-                  <h3 className="font-semibold">
-                    {isEditing
-                      ? `Edit Clock: ${clock.name}`
-                      : 'Create New Clock'}
-                  </h3>
-                </div>
-              </div>
+        {/* Left Sidebar - Library */}
+        <div className="clock-editor__sidebar">
+          <ClockItemLibrary onAddItem={handleAddItem} />
+        </div>
 
-              <Input
-                label="Clock Name"
-                {...methods.register('name')}
-                placeholder="Enter clock name"
-              />
+        {/* Main Content Area */}
+        <div className="clock-editor__main">
+          {/* Header with clock info and edit button */}
+          <div className="clock-editor__header">
+            <div className="clock-editor__header-info">
+              <ClockIcon className="clock-editor__icon" />
+              <h1 className="clock-editor__title">
+                {clock?.name || 'Untitled Clock'}
+              </h1>
+              <Badge
+                className="clock-editor__badge"
+                color="gray"
+                size="sm"
+                style={{
+                  backgroundColor: clock?.color || '#FF6B6B',
+                  color: '#fff',
+                }}
+              >
+                {formatDuration(targetRuntime)} target
+              </Badge>
+            </div>
+            <Dialog
+              open={isClockDialogOpen}
+              onOpenChange={setIsClockDialogOpen}
+            >
+              <Dialog.Trigger asChild>
+                <Button variant="secondary" size="sm">
+                  <EditIcon size={16} />
+                  Edit Clock
+                </Button>
+              </Dialog.Trigger>
+              <Dialog.Overlay />
+              <Dialog.Content className="max-w-md">
+                <Dialog.Title>Edit Clock Properties</Dialog.Title>
+                <div className="p-4 space-y-4">
+                  <Input
+                    label="Clock Name"
+                    {...methods.register('name')}
+                    placeholder="Enter clock name"
+                  />
 
-              <Textarea
-                label="Description"
-                {...methods.register('description')}
-                placeholder="Optional description"
-                rows={2}
-              />
+                  <Textarea
+                    label="Description"
+                    {...methods.register('description')}
+                    placeholder="Optional description"
+                    rows={2}
+                  />
 
-              <div className="form-grid-2">
-                <div className="form-field">
-                  <label className="form-label">Color</label>
-                  <div className="color-picker-field">
-                    <input
-                      type="color"
-                      {...methods.register('color')}
-                      className="color-picker-input"
-                    />
-                    <Input
-                      {...methods.register('color')}
-                      placeholder="#FF6B6B"
-                      className="color-hex-input"
-                    />
-                  </div>
-                </div>
-                <Input
-                  type="number"
-                  label="Target Runtime (seconds)"
-                  {...methods.register('targetRuntime', {
-                    valueAsNumber: true,
-                  })}
-                  placeholder="3600"
-                />
-              </div>
-
-              <div className="card card--compact">
-                <div className="clock-editor__duration-info">
-                  <div className="runtime-display">
-                    <div className="runtime-target">
-                      Target: {formatDuration(targetRuntime)}
-                    </div>
-                    <div
-                      className={`runtime-actual ${
-                        runtimeDiff.isPerfect
-                          ? 'runtime-perfect'
-                          : runtimeDiff.isOver
-                          ? 'runtime-overage'
-                          : 'runtime-underage'
-                      }`}
-                    >
-                      Actual: {formatDuration(totalDuration)}
-                    </div>
-                    {!runtimeDiff.isPerfect && (
-                      <div
-                        className={`runtime-difference ${
-                          runtimeDiff.isOver
-                            ? 'runtime-overage'
-                            : 'runtime-underage'
-                        }`}
-                      >
-                        ({runtimeDiff.isOver ? '+' : '-'}
-                        {formatDuration(runtimeDiff.difference)},{' '}
-                        {runtimeDiff.percentage}%)
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Color
+                      </label>
+                      <div className="flex gap-2">
+                        <input
+                          type="color"
+                          {...methods.register('color')}
+                          className="w-12 h-10 rounded border border-gray-300"
+                        />
+                        <Input
+                          {...methods.register('color')}
+                          placeholder="#FF6B6B"
+                          className="flex-1"
+                        />
                       </div>
-                    )}
+                    </div>
+                    <Input
+                      type="number"
+                      label="Target Runtime (seconds)"
+                      {...methods.register('targetRuntime', {
+                        valueAsNumber: true,
+                      })}
+                      placeholder="3600"
+                    />
+                  </div>
+
+                  <div className="flex gap-2 pt-4">
+                    <Button
+                      variant="secondary"
+                      onClick={() => setIsClockDialogOpen(false)}
+                      className="flex-1"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="primary"
+                      onClick={() => methods.handleSubmit(handleClockSubmit)()}
+                      disabled={updateLoading}
+                      className="flex-1"
+                    >
+                      Save Changes
+                    </Button>
                   </div>
                 </div>
-              </div>
-            </div>,
+              </Dialog.Content>
+            </Dialog>
+          </div>
 
-            <div key="clock-items" className="clock-editor__items">
-              <div className="clock-editor__items-header">
-                <h4 className="clock-editor__items-title">Clock Items</h4>
-              </div>
+          {/* Clock Items Grid */}
+          <div className="clock-editor__content">
+            <ClockGrid
+              items={clockItems}
+              onItemEdit={handleItemEdit}
+              onItemDelete={handleItemDelete}
+              onItemReorder={handleItemReorder}
+              onItemAdd={handleAddItem}
+            />
+          </div>
+        </div>
 
-              <div className="clock-editor__items-list">
-                <ClockItemEditor
-                  items={clockItems}
-                  onItemsChange={handleItemsChange}
-                />
-              </div>
-            </div>,
-          ]}
-          endSection={<div />}
-        />
-
-        <ActionBar unsavedChanges={isDirty}>
-          {isDirty && (
-            <Button variant="tertiary" onClick={() => methods.reset()}>
-              Discard
-            </Button>
+        {/* Floating Duration Bar */}
+        <FloatingBar
+          className={
+            runtimeDiff.isOver
+              ? 'floating-bar__overtime'
+              : runtimeDiff.isUnder
+              ? 'floating-bar__undertime'
+              : ''
+          }
+        >
+          <span className="floating-bar__label">Duration:</span>
+          <span className="floating-bar__duration">
+            {formatDuration(totalDuration)}
+          </span>
+          {!runtimeDiff.isPerfect && (
+            <span className="floating-bar__label">
+              ({runtimeDiff.isOver ? '+' : '-'}
+              {formatDuration(runtimeDiff.difference)})
+            </span>
           )}
-          <Button
-            variant="primary"
-            onClick={() => methods.handleSubmit(handleSubmit)()}
-            disabled={createLoading || updateLoading}
-          >
-            {isEditing ? 'Update Clock' : 'Create Clock'}
-          </Button>
-        </ActionBar>
+        </FloatingBar>
       </div>
     </FormProvider>
   );

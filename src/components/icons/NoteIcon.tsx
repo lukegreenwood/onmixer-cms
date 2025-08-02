@@ -1,18 +1,15 @@
 import { IconProps } from './types';
 
-export const NoteIcon = ({ className, ...props }: IconProps) => (
+export const NoteIcon = ({ className, size = 24, ...props }: IconProps) => (
   <svg
     className={className}
-    fill="none"
-    stroke="currentColor"
-    viewBox="0 0 24 24"
+    fill="currentColor"
+    viewBox="0 -960 960 960"
     xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
     {...props}
   >
-    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
-    <polyline points="14,2 14,8 20,8" />
-    <line x1="16" y1="13" x2="8" y2="13" />
-    <line x1="16" y1="17" x2="8" y2="17" />
-    <polyline points="10,9 9,9 8,9" />
+    <path d="M200-200h360v-160q0-17 11.5-28.5T600-400h160v-360H200v560Zm0 80q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v367q0 16-6 30.5T817-337L623-143q-11 11-25.5 17t-30.5 6H200Zm240-280H320q-17 0-28.5-11.5T280-440q0-17 11.5-28.5T320-480h120q17 0 28.5 11.5T480-440q0 17-11.5 28.5T440-400Zm200-160H320q-17 0-28.5-11.5T280-600q0-17 11.5-28.5T320-640h320q17 0 28.5 11.5T680-600q0 17-11.5 28.5T640-560ZM200-200v-560 560Z" />
   </svg>
 );

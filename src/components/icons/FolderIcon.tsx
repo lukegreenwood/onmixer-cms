@@ -1,6 +1,6 @@
 import type { IconProps } from './types';
 
-export const AdIcon = ({ size = 24, ...props }: IconProps) => (
+export const FolderIcon = ({ size = 24, ...props }: IconProps) => (
   <svg
     width={size}
     height={size}
@@ -12,8 +12,6 @@ export const AdIcon = ({ size = 24, ...props }: IconProps) => (
     strokeLinejoin="round"
     {...props}
   >
-    <circle cx="12" cy="12" r="10" />
-    <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8" />
-    <path d="M12 18V6" />
+    <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" />
   </svg>
 );

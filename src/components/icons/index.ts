@@ -40,9 +40,20 @@ export { EllipsisVerticalIcon } from './EllipsisVertical';
 export { ReplaceIcon } from './ReplaceIcon';
 export { ClockIcon } from './ClockIcon';
 export { MusicIcon } from './MusicIcon';
-export { NoteIcon } from './NoteIcon';
-export { AdIcon } from './AdIcon';
 export { RadioIcon } from './RadioIcon';
 export { DragIcon } from './DragIcon';
 export { StarIcon } from './StarIcon';
 export { SaveIcon } from './SaveIcon';
+
+export { CommandIcon } from './CommandIcon';
+export { GenreIcon } from './GenreIcon';
+export { CategoryIcon } from './CategoryIcon';
+export { NoteIcon } from './NoteIcon';
+export { AdIcon } from './AdIcon';
+export { FolderIcon } from './FolderIcon';
+
+export { OptionsIcon } from './OptionsIcon';
+export { AudioIcon } from './AudioIcon';
+export { GripVerticalIcon } from './GripVerticalIcon';
+export { MoreHorizontalIcon } from './MoreHorizontalIcon';
+export { PlusIcon } from './PlusIcon';

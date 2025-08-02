@@ -1,6 +1,6 @@
 import type { IconProps } from './types';
 
-export const AdIcon = ({ size = 24, ...props }: IconProps) => (
+export const AudioIcon = ({ size = 24, className = '' }: IconProps) => (
   <svg
     width={size}
     height={size}
@@ -10,10 +10,10 @@ export const AdIcon = ({ size = 24, ...props }: IconProps) => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    {...props}
+    className={className}
   >
-    <circle cx="12" cy="12" r="10" />
-    <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8" />
-    <path d="M12 18V6" />
+    <path d="M9 18V5l12-2v13" />
+    <circle cx="6" cy="18" r="3" />
+    <circle cx="18" cy="16" r="3" />
   </svg>
 );

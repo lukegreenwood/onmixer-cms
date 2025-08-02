@@ -1,0 +1,476 @@
+@use '../theme/palette';
+@use '../theme/sizing';
+@use '../utils/mixins';
+
+.clock-editor {
+  display: flex !important;
+  flex-direction: row !important; // Force row direction
+  height: calc(100vh - 120px) !important; // Account for nav and any headers
+  gap: 0;
+  position: relative;
+  background: palette.$white-900;
+  min-height: 600px;
+  width: 100% !important;
+  overflow: hidden;
+  
+  // Ensure this component takes full space regardless of parent
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+
+  &__sidebar {
+    width: 280px;
+    min-width: 280px; // Prevent shrinking
+    max-width: 280px; // Prevent growing
+    flex-shrink: 0;
+    flex-grow: 0;
+    background: palette.$gray-50;
+    border-right: 1px solid palette.$gray-200;
+    overflow: hidden;
+    height: 100%;
+  }
+
+  &__main {
+    flex: 1;
+    flex-grow: 1;
+    flex-shrink: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    min-width: 0;
+    width: calc(100% - 280px);
+    height: 100%;
+    overflow: hidden;
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: mixins.spacing(4) mixins.spacing(6);
+    background: palette.$white-900;
+    border-bottom: 1px solid palette.$gray-200;
+    min-height: 80px;
+
+    &-info {
+      display: flex;
+      align-items: center;
+      gap: mixins.spacing(3);
+
+      .clock-editor__icon {
+        width: 32px;
+        height: 32px;
+        color: palette.$purple-500;
+      }
+
+      .clock-editor__title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: palette.$gray-900;
+        margin: 0;
+      }
+
+      .clock-editor__badge {
+        margin-left: mixins.spacing(2);
+      }
+    }
+  }
+
+  &__content {
+    flex: 1;
+    flex-grow: 1;
+    background: palette.$white-900;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 80px); // Account for header height
+  }
+}
+
+// Floating bar for current duration
+.floating-bar {
+  position: fixed;
+  bottom: mixins.spacing(6);
+  right: mixins.spacing(6);
+  background: palette.$gray-800;
+  color: palette.$white-900;
+  padding: mixins.spacing(3) mixins.spacing(5);
+  border-radius: sizing.$radius-lg;
+  box-shadow: 0 10px 25px -5px rgba(#000, 0.1), 0 4px 6px -2px rgba(#000, 0.05);
+  display: flex;
+  align-items: center;
+  gap: mixins.spacing(2);
+  z-index: 50;
+
+  &__label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    opacity: 0.9;
+  }
+
+  &__duration {
+    font-size: 1.25rem;
+    font-weight: 700;
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+
+  &__overtime {
+    color: palette.$red-400;
+  }
+
+  &__undertime {
+    color: palette.$green-400;
+  }
+}
+
+// Clock item library
+.clock-item-library {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  
+  &__header {
+    padding: mixins.spacing(4);
+    border-bottom: 1px solid palette.$gray-200;
+    display: flex;
+    align-items: center;
+    gap: mixins.spacing(3);
+    background: palette.$white-900;
+    min-height: 60px;
+
+    h3 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 600;
+      color: palette.$gray-900;
+    }
+  }
+
+  &__back {
+    background: none;
+    border: none;
+    color: palette.$gray-600;
+    cursor: pointer;
+    font-size: 0.875rem;
+    padding: mixins.spacing(1);
+    border-radius: sizing.$radius-md;
+    
+    &:hover {
+      background: palette.$gray-100;
+      color: palette.$gray-900;
+    }
+  }
+
+  &__search {
+    padding: mixins.spacing(3) mixins.spacing(4);
+    border-bottom: 1px solid palette.$gray-200;
+    background: palette.$white-900;
+  }
+
+  &__items {
+    padding: mixins.spacing(1) 0;
+    flex: 1;
+    overflow-y: auto;
+    
+    &--scrollable {
+      flex: 1;
+      overflow-y: auto;
+    }
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: mixins.spacing(3);
+    padding: mixins.spacing(2) mixins.spacing(4);
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+    position: relative;
+    border-bottom: 1px solid palette.$gray-100;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:hover {
+      background: palette.$blue-50;
+    }
+
+    &[draggable="true"], &--draggable {
+      cursor: grab;
+
+      &:hover {
+        background: palette.$blue-100;
+      }
+
+      &:active {
+        cursor: grabbing;
+        background: palette.$blue-200;
+      }
+    }
+  }
+
+  &__item-icon {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: palette.$gray-600;
+    flex-shrink: 0;
+  }
+
+  &__item-content {
+    flex: 1;
+  }
+
+  &__item-title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: palette.$gray-900;
+    line-height: 1.25;
+  }
+
+  &__item-description {
+    font-size: 0.75rem;
+    color: palette.$gray-500;
+    line-height: 1.25;
+    margin-top: 2px;
+  }
+
+  &__item-drag {
+    margin-left: auto;
+    opacity: 0;
+    color: palette.$gray-400;
+    transition: opacity 0.15s ease;
+    width: 16px;
+    height: 16px;
+  }
+
+  &__item:hover &__item-drag {
+    opacity: 1;
+  }
+}
+
+// Clock grid
+.clock-grid {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  &__header {
+    display: grid;
+    grid-template-columns: 100px 180px 1fr 180px 80px 80px 60px;
+    gap: mixins.spacing(2);
+    padding: mixins.spacing(3) mixins.spacing(4);
+    background: palette.$gray-50;
+    border-bottom: 1px solid palette.$gray-200;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: palette.$gray-600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  &__column {
+    padding: mixins.spacing(1);
+  }
+
+  &__body {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  &__row {
+    display: grid;
+    grid-template-columns: 100px 180px 1fr 180px 80px 80px 60px;
+    gap: mixins.spacing(2);
+    padding: mixins.spacing(3) mixins.spacing(4);
+    border-bottom: 1px solid palette.$gray-100;
+    transition: background-color 0.15s ease;
+    min-height: 48px;
+
+    &:hover {
+      background: palette.$gray-50;
+    }
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &--dragging {
+      opacity: 0.5;
+      background: palette.$blue-50;
+    }
+  }
+
+  &__cell {
+    display: flex;
+    align-items: center;
+    font-size: 0.875rem;
+    color: palette.$gray-900;
+    min-height: 42px;
+
+    &--air-time {
+      gap: mixins.spacing(2);
+      color: palette.$gray-600;
+      font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+    }
+
+    &--type {
+      .badge {
+        max-width: 100%;
+      }
+    }
+
+    &--title {
+      font-weight: 500;
+    }
+
+    &--artist {
+      color: palette.$gray-600;
+    }
+
+    &--duration {
+      font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+      color: palette.$gray-600;
+    }
+
+    &--item-id {
+      font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+      font-size: 0.75rem;
+      color: palette.$gray-500;
+    }
+
+    &--actions {
+      justify-content: flex-end;
+    }
+  }
+
+  &__drag-handle {
+    color: palette.$gray-400;
+    cursor: grab;
+
+    &:hover {
+      color: palette.$gray-600;
+    }
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+}
+
+// Dialog overrides for library dialogs
+.category-list,
+.track-list,
+.genre-list {
+  display: flex;
+  flex-direction: column;
+  gap: mixins.spacing(1);
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.category-item,
+.track-item,
+.genre-item {
+  display: flex;
+  align-items: center;
+  gap: mixins.spacing(3);
+  padding: mixins.spacing(3);
+  border-radius: sizing.$radius-md;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: palette.$gray-50;
+  }
+
+  span {
+    font-size: 0.875rem;
+    color: palette.$gray-900;
+  }
+}
+
+.search-input {
+  position: relative;
+
+  &__icon {
+    position: absolute;
+    left: mixins.spacing(3);
+    top: 50%;
+    transform: translateY(-50%);
+    color: palette.$gray-400;
+    pointer-events: none;
+  }
+
+  &__field {
+    padding-left: mixins.spacing(10);
+  }
+}
+
+// Badge color CSS variables for subcategories
+:root {
+  --subcategory-a-list-color: #{palette.$green-500};
+  --subcategory-b-list-color: #{palette.$yellow-500};
+  --subcategory-c-list-color: #{palette.$red-500};
+  --subcategory-2024-color: #{palette.$blue-500};
+  --subcategory-2025-color: #{palette.$purple-500};
+}
+
+// Responsive design - only on very large screens
+@include mixins.mq('xl') {
+  .clock-editor {
+    &__sidebar {
+      width: 320px;
+    }
+  }
+
+  .clock-grid {
+    &__header,
+    &__row {
+      grid-template-columns: 120px 200px 1fr 200px 100px 100px 80px;
+    }
+  }
+}
+
+// Only stack on very small mobile screens (below sm breakpoint)
+@media (max-width: 639px) {
+  .clock-editor {
+    flex-direction: column;
+    height: auto;
+    
+    &__sidebar {
+      width: 100%;
+      height: 250px;
+      border-right: none;
+      border-bottom: 1px solid palette.$gray-200;
+    }
+  }
+
+  .clock-grid {
+    &__header,
+    &__row {
+      grid-template-columns: 60px 100px 1fr 100px 50px 50px 30px;
+      padding: mixins.spacing(2);
+      font-size: 0.7rem;
+    }
+    
+    &__cell {
+      font-size: 0.75rem;
+      min-height: 36px;
+    }
+  }
+
+  .clock-editor__header {
+    padding: mixins.spacing(3);
+    
+    &-info {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: mixins.spacing(2);
+    }
+  }
+}

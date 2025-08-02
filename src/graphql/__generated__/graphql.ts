@@ -354,6 +354,16 @@ export type CreateMusicClockInput = {
   targetRuntime?: InputMaybe<Scalars['Int']['input']>;
 };
 
+export type CreateMusicClockLibraryItemInput = {
+  command?: InputMaybe<Scalars['String']['input']>;
+  content?: InputMaybe<Scalars['String']['input']>;
+  duration: Scalars['Int']['input'];
+  itemType: MusicClockLibraryItemType;
+  label?: InputMaybe<Scalars['String']['input']>;
+  networkId: Scalars['ID']['input'];
+  scheduledStartTime?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type CreateMusicClockTemplateInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   isDefault?: InputMaybe<Scalars['Boolean']['input']>;
@@ -593,6 +603,12 @@ export type DeleteMediaInput = {
 
 export type DeleteMediaObjectInput = {
   id: Scalars['ID']['input'];
+};
+
+export type DeleteMutationOutput = {
+  __typename?: 'DeleteMutationOutput';
+  message?: Maybe<Scalars['String']['output']>;
+  success: Scalars['Boolean']['output'];
 };
 
 export type DeleteNetworkInput = {
@@ -1092,6 +1108,39 @@ export enum JobType {
   MusicScheduling = 'MUSIC_SCHEDULING'
 }
 
+export type LibraryAdBreakClockItem = ClockItemInterface & {
+  __typename?: 'LibraryAdBreakClockItem';
+  adBreak: MusicClockLibraryAdBreak;
+  clockId: Scalars['ID']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  duration: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  orderIndex: Scalars['Int']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type LibraryCommandClockItem = ClockItemInterface & {
+  __typename?: 'LibraryCommandClockItem';
+  clockId: Scalars['ID']['output'];
+  command: MusicClockLibraryCommand;
+  createdAt: Scalars['DateTime']['output'];
+  duration: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  orderIndex: Scalars['Int']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type LibraryNoteClockItem = ClockItemInterface & {
+  __typename?: 'LibraryNoteClockItem';
+  clockId: Scalars['ID']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  duration: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  note: MusicClockLibraryNote;
+  orderIndex: Scalars['Int']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
 export enum ListType {
   Ordered = 'ORDERED',
   Unordered = 'UNORDERED'
@@ -1451,7 +1500,7 @@ export type MusicClockFilters = {
   search?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type MusicClockItem = AdBreakClockItem | CommandClockItem | GenreClockItem | NoteClockItem | SubcategoryClockItem | TrackClockItem;
+export type MusicClockItem = AdBreakClockItem | CommandClockItem | GenreClockItem | LibraryAdBreakClockItem | LibraryCommandClockItem | LibraryNoteClockItem | NoteClockItem | SubcategoryClockItem | TrackClockItem;
 
 export type MusicClockItemInput = {
   command?: InputMaybe<Scalars['String']['input']>;
@@ -1465,14 +1514,84 @@ export type MusicClockItemInput = {
   type: MusicClockItemType;
 };
 
+export type MusicClockItemLibraryList = {
+  __typename?: 'MusicClockItemLibraryList';
+  items: Array<MusicClockLibraryItem>;
+  total: Scalars['Int']['output'];
+};
+
+export type MusicClockItemMutationOutput = {
+  __typename?: 'MusicClockItemMutationOutput';
+  item?: Maybe<MusicClockItem>;
+  message?: Maybe<Scalars['String']['output']>;
+  success: Scalars['Boolean']['output'];
+};
+
 export enum MusicClockItemType {
   AdBreak = 'AD_BREAK',
   Command = 'COMMAND',
   Genre = 'GENRE',
+  LibraryAdBreak = 'LIBRARY_AD_BREAK',
+  LibraryCommand = 'LIBRARY_COMMAND',
+  LibraryNote = 'LIBRARY_NOTE',
   Note = 'NOTE',
   Subcategory = 'SUBCATEGORY',
   Track = 'TRACK'
 }
+
+export type MusicClockLibraryAdBreak = MusicClockLibraryItemInterface & {
+  __typename?: 'MusicClockLibraryAdBreak';
+  createdAt: Scalars['DateTime']['output'];
+  duration: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  network: Network;
+  scheduledStartTime: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type MusicClockLibraryCommand = MusicClockLibraryItemInterface & {
+  __typename?: 'MusicClockLibraryCommand';
+  command: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  duration: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  network: Network;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type MusicClockLibraryItem = MusicClockLibraryAdBreak | MusicClockLibraryCommand | MusicClockLibraryNote;
+
+export type MusicClockLibraryItemInterface = {
+  createdAt: Scalars['DateTime']['output'];
+  duration: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  network: Network;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type MusicClockLibraryItemMutationOutput = {
+  __typename?: 'MusicClockLibraryItemMutationOutput';
+  item?: Maybe<MusicClockLibraryItem>;
+  message?: Maybe<Scalars['String']['output']>;
+  success: Scalars['Boolean']['output'];
+};
+
+export enum MusicClockLibraryItemType {
+  AdBreak = 'AD_BREAK',
+  Command = 'COMMAND',
+  Note = 'NOTE'
+}
+
+export type MusicClockLibraryNote = MusicClockLibraryItemInterface & {
+  __typename?: 'MusicClockLibraryNote';
+  content: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  duration: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  label: Scalars['String']['output'];
+  network: Network;
+  updatedAt: Scalars['DateTime']['output'];
+};
 
 export type MusicClockMutationOutput = {
   __typename?: 'MusicClockMutationOutput';
@@ -1483,29 +1602,12 @@ export type MusicClockMutationOutput = {
 
 export type MusicClockTemplate = {
   __typename?: 'MusicClockTemplate';
-  assignments: Array<MusicClockTemplateAssignment>;
-  createdAt: Scalars['DateTime']['output'];
-  description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
-  isDefault: Scalars['Boolean']['output'];
-  name: Scalars['String']['output'];
-  network: Network;
-  networkId: Scalars['ID']['output'];
-  updatedAt: Scalars['DateTime']['output'];
-  weeklyOverrides: Array<MusicClockWeeklyOverride>;
 };
 
 export type MusicClockTemplateAssignment = {
   __typename?: 'MusicClockTemplateAssignment';
-  clock: MusicClock;
-  clockId: Scalars['ID']['output'];
-  createdAt: Scalars['DateTime']['output'];
-  dayOfWeek: Scalars['Int']['output'];
-  hour: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
-  template: MusicClockTemplate;
-  templateId: Scalars['ID']['output'];
-  updatedAt: Scalars['DateTime']['output'];
 };
 
 export type MusicClockTemplateAssignmentMutationOutput = {
@@ -1524,19 +1626,7 @@ export type MusicClockTemplateMutationOutput = {
 
 export type MusicClockWeeklyOverride = {
   __typename?: 'MusicClockWeeklyOverride';
-  clock?: Maybe<MusicClock>;
-  clockId?: Maybe<Scalars['ID']['output']>;
-  createdAt: Scalars['DateTime']['output'];
-  dayOfWeek: Scalars['Int']['output'];
-  hour: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
-  network: Network;
-  networkId: Scalars['ID']['output'];
-  reason?: Maybe<Scalars['String']['output']>;
-  template: MusicClockTemplate;
-  templateId: Scalars['ID']['output'];
-  updatedAt: Scalars['DateTime']['output'];
-  weekCommencing: Scalars['String']['output'];
 };
 
 export type MusicClockWeeklyOverrideMutationOutput = {
@@ -1756,6 +1846,7 @@ export type Mutation = {
   createEpisode: EpisodeMutationOutput;
   createGenre: GenreMutationOutput;
   createMusicClock: MusicClockMutationOutput;
+  createMusicClockLibraryItem: MusicClockLibraryItemMutationOutput;
   createMusicClockTemplate: MusicClockTemplateMutationOutput;
   createMusicRule: MusicRuleMutationOutput;
   createNetwork: NetworkMutationOutput;
@@ -1775,6 +1866,7 @@ export type Mutation = {
   deleteMedia: ActionOutput;
   deleteMediaObject: ActionOutput;
   deleteMusicClock: ActionOutput;
+  deleteMusicClockLibraryItem: DeleteMutationOutput;
   deleteMusicClockTemplate: ActionOutput;
   deleteMusicRule: ActionOutput;
   deleteNetwork: ActionOutput;
@@ -1815,6 +1907,8 @@ export type Mutation = {
   updateMedia: MediaMutationOutput;
   updateMusicAssignment: MusicAssignmentMutationOutput;
   updateMusicClock: MusicClockMutationOutput;
+  updateMusicClockItem: MusicClockItemMutationOutput;
+  updateMusicClockLibraryItem: MusicClockLibraryItemMutationOutput;
   updateMusicClockTemplate: MusicClockTemplateMutationOutput;
   updateMusicPlaylist: MusicPlaylistMutationOutput;
   updateMusicPlaylistItem: MusicPlaylistItemMutationOutput;
@@ -1943,6 +2037,11 @@ export type MutationCreateMusicClockArgs = {
 };
 
 
+export type MutationCreateMusicClockLibraryItemArgs = {
+  input: CreateMusicClockLibraryItemInput;
+};
+
+
 export type MutationCreateMusicClockTemplateArgs = {
   input: CreateMusicClockTemplateInput;
 };
@@ -2034,6 +2133,11 @@ export type MutationDeleteMediaObjectArgs = {
 
 
 export type MutationDeleteMusicClockArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteMusicClockLibraryItemArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -2242,6 +2346,16 @@ export type MutationUpdateMusicAssignmentArgs = {
 
 export type MutationUpdateMusicClockArgs = {
   input: UpdateMusicClockInput;
+};
+
+
+export type MutationUpdateMusicClockItemArgs = {
+  input: UpdateMusicClockItemInput;
+};
+
+
+export type MutationUpdateMusicClockLibraryItemArgs = {
+  input: UpdateMusicClockLibraryItemInput;
 };
 
 
@@ -2631,8 +2745,7 @@ export type Query = {
   musicClock?: Maybe<MusicClock>;
   musicClockAssignment?: Maybe<MusicClockAssignment>;
   musicClockAssignments: Array<MusicClockAssignment>;
-  musicClockTemplate?: Maybe<MusicClockTemplate>;
-  musicClockTemplates: Array<MusicClockTemplate>;
+  musicClockItemLibrary: MusicClockItemLibraryList;
   musicClockWeeklyOverrides: Array<MusicClockWeeklyOverride>;
   musicClocks: Array<MusicClock>;
   musicPlaylist?: Maybe<MusicPlaylist>;
@@ -2769,13 +2882,9 @@ export type QueryMusicClockAssignmentsArgs = {
 };
 
 
-export type QueryMusicClockTemplateArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
-export type QueryMusicClockTemplatesArgs = {
+export type QueryMusicClockItemLibraryArgs = {
   networkId: Scalars['ID']['input'];
+  type?: InputMaybe<MusicClockLibraryItemType>;
 };
 
 
@@ -3920,6 +4029,27 @@ export type UpdateMusicClockInput = {
   targetRuntime?: InputMaybe<Scalars['Int']['input']>;
 };
 
+export type UpdateMusicClockItemInput = {
+  command?: InputMaybe<Scalars['String']['input']>;
+  content?: InputMaybe<Scalars['String']['input']>;
+  duration?: InputMaybe<Scalars['Int']['input']>;
+  id: Scalars['ID']['input'];
+  itemId?: InputMaybe<Scalars['String']['input']>;
+  label?: InputMaybe<Scalars['String']['input']>;
+  orderIndex: Scalars['Int']['input'];
+  scheduledStartTime?: InputMaybe<Scalars['String']['input']>;
+  type: MusicClockItemType;
+};
+
+export type UpdateMusicClockLibraryItemInput = {
+  command?: InputMaybe<Scalars['String']['input']>;
+  content?: InputMaybe<Scalars['String']['input']>;
+  duration?: InputMaybe<Scalars['Int']['input']>;
+  id: Scalars['ID']['input'];
+  label?: InputMaybe<Scalars['String']['input']>;
+  scheduledStartTime?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type UpdateMusicClockTemplateInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
@@ -4156,7 +4286,7 @@ export type CreateMusicClockMutationVariables = Exact<{
 }>;
 
 
-export type CreateMusicClockMutation = { __typename?: 'Mutation', createMusicClock: { __typename?: 'MusicClockMutationOutput', success: boolean, message?: string | null, clock?: { __typename?: 'MusicClock', id: string, name: string, description?: string | null, color: string, targetRuntime: number, network: { __typename?: 'Network', id: string, name: string }, items: Array<{ __typename?: 'AdBreakClockItem', scheduledStartTime: any, id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string } | { __typename?: 'CommandClockItem', command: string, id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string } | { __typename?: 'GenreClockItem', id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string, genre: { __typename?: 'Genre', id: string, name: string } } | { __typename?: 'NoteClockItem', label?: string | null, content: string, id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string } | { __typename?: 'SubcategoryClockItem', id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string, subcategory: { __typename?: 'Subcategory', id: string, name: string, category: { __typename?: 'Category', id: string, name: string } } } | { __typename?: 'TrackClockItem', id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string, track: { __typename?: 'Track', id: string, title: string } }> } | null } };
+export type CreateMusicClockMutation = { __typename?: 'Mutation', createMusicClock: { __typename?: 'MusicClockMutationOutput', success: boolean, message?: string | null, clock?: { __typename?: 'MusicClock', id: string, name: string, description?: string | null, color: string, targetRuntime: number, network: { __typename?: 'Network', id: string, name: string }, items: Array<{ __typename?: 'AdBreakClockItem', scheduledStartTime: any, id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string } | { __typename?: 'CommandClockItem', command: string, id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string } | { __typename?: 'GenreClockItem', id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string, genre: { __typename?: 'Genre', id: string, name: string } } | { __typename?: 'LibraryAdBreakClockItem' } | { __typename?: 'LibraryCommandClockItem' } | { __typename?: 'LibraryNoteClockItem' } | { __typename?: 'NoteClockItem', label?: string | null, content: string, id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string } | { __typename?: 'SubcategoryClockItem', id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string, subcategory: { __typename?: 'Subcategory', id: string, name: string, category: { __typename?: 'Category', id: string, name: string } } } | { __typename?: 'TrackClockItem', id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string, track: { __typename?: 'Track', id: string, title: string } }> } | null } };
 
 type CommonClockItemFields_AdBreakClockItem_Fragment = { __typename?: 'AdBreakClockItem', id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string };
 
@@ -4164,13 +4294,19 @@ type CommonClockItemFields_CommandClockItem_Fragment = { __typename?: 'CommandCl
 
 type CommonClockItemFields_GenreClockItem_Fragment = { __typename?: 'GenreClockItem', id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string };
 
+type CommonClockItemFields_LibraryAdBreakClockItem_Fragment = { __typename?: 'LibraryAdBreakClockItem', id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string };
+
+type CommonClockItemFields_LibraryCommandClockItem_Fragment = { __typename?: 'LibraryCommandClockItem', id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string };
+
+type CommonClockItemFields_LibraryNoteClockItem_Fragment = { __typename?: 'LibraryNoteClockItem', id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string };
+
 type CommonClockItemFields_NoteClockItem_Fragment = { __typename?: 'NoteClockItem', id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string };
 
 type CommonClockItemFields_SubcategoryClockItem_Fragment = { __typename?: 'SubcategoryClockItem', id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string };
 
 type CommonClockItemFields_TrackClockItem_Fragment = { __typename?: 'TrackClockItem', id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string };
 
-export type CommonClockItemFieldsFragment = CommonClockItemFields_AdBreakClockItem_Fragment | CommonClockItemFields_CommandClockItem_Fragment | CommonClockItemFields_GenreClockItem_Fragment | CommonClockItemFields_NoteClockItem_Fragment | CommonClockItemFields_SubcategoryClockItem_Fragment | CommonClockItemFields_TrackClockItem_Fragment;
+export type CommonClockItemFieldsFragment = CommonClockItemFields_AdBreakClockItem_Fragment | CommonClockItemFields_CommandClockItem_Fragment | CommonClockItemFields_GenreClockItem_Fragment | CommonClockItemFields_LibraryAdBreakClockItem_Fragment | CommonClockItemFields_LibraryCommandClockItem_Fragment | CommonClockItemFields_LibraryNoteClockItem_Fragment | CommonClockItemFields_NoteClockItem_Fragment | CommonClockItemFields_SubcategoryClockItem_Fragment | CommonClockItemFields_TrackClockItem_Fragment;
 
 export type CreateMusicRuleMutationVariables = Exact<{
   input: CreateMusicRuleInput;
@@ -4333,63 +4469,6 @@ export type RetryJobMutationVariables = Exact<{
 
 export type RetryJobMutation = { __typename?: 'Mutation', retryJob: { __typename?: 'Job', id: string, status: JobStatus, progress?: any | null, updatedAt: string } };
 
-export type CreateMusicClockTemplateMutationVariables = Exact<{
-  input: CreateMusicClockTemplateInput;
-}>;
-
-
-export type CreateMusicClockTemplateMutation = { __typename?: 'Mutation', createMusicClockTemplate: { __typename?: 'MusicClockTemplateMutationOutput', success: boolean, message?: string | null, template?: { __typename?: 'MusicClockTemplate', id: string, name: string, description?: string | null, isDefault: boolean, createdAt: string, updatedAt: string } | null } };
-
-export type UpdateMusicClockTemplateMutationVariables = Exact<{
-  input: UpdateMusicClockTemplateInput;
-}>;
-
-
-export type UpdateMusicClockTemplateMutation = { __typename?: 'Mutation', updateMusicClockTemplate: { __typename?: 'MusicClockTemplateMutationOutput', success: boolean, message?: string | null, template?: { __typename?: 'MusicClockTemplate', id: string, name: string, description?: string | null, isDefault: boolean, createdAt: string, updatedAt: string } | null } };
-
-export type DeleteMusicClockTemplateMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
-}>;
-
-
-export type DeleteMusicClockTemplateMutation = { __typename?: 'Mutation', deleteMusicClockTemplate: { __typename?: 'ActionOutput', success: boolean, message?: string | null } };
-
-export type SetDefaultMusicClockTemplateMutationVariables = Exact<{
-  networkId: Scalars['ID']['input'];
-  templateId: Scalars['ID']['input'];
-}>;
-
-
-export type SetDefaultMusicClockTemplateMutation = { __typename?: 'Mutation', setDefaultMusicClockTemplate: { __typename?: 'ActionOutput', success: boolean, message?: string | null } };
-
-export type AssignClockToTemplateMutationVariables = Exact<{
-  input: AssignClockToTemplateInput;
-}>;
-
-
-export type AssignClockToTemplateMutation = { __typename?: 'Mutation', assignClockToTemplate: { __typename?: 'MusicClockTemplateAssignmentMutationOutput', success: boolean, message?: string | null, assignment?: { __typename?: 'MusicClockTemplateAssignment', id: string, dayOfWeek: number, hour: number, clock: { __typename?: 'MusicClock', id: string, name: string } } | null } };
-
-export type RemoveClockFromTemplateMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
-}>;
-
-
-export type RemoveClockFromTemplateMutation = { __typename?: 'Mutation', removeClockFromTemplate: { __typename?: 'ActionOutput', success: boolean, message?: string | null } };
-
-export type CreateWeeklyOverrideMutationVariables = Exact<{
-  input: CreateWeeklyOverrideInput;
-}>;
-
-
-export type CreateWeeklyOverrideMutation = { __typename?: 'Mutation', createWeeklyOverride: { __typename?: 'MusicClockWeeklyOverrideMutationOutput', success: boolean, message?: string | null, override?: { __typename?: 'MusicClockWeeklyOverride', id: string, weekCommencing: string, dayOfWeek: number, hour: number, reason?: string | null, clock?: { __typename?: 'MusicClock', id: string, name: string } | null } | null } };
-
-export type RemoveWeeklyOverrideMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
-}>;
-
-
-export type RemoveWeeklyOverrideMutation = { __typename?: 'Mutation', removeWeeklyOverride: { __typename?: 'ActionOutput', success: boolean, message?: string | null } };
-
 export type UpdateEpisodeMutationVariables = Exact<{
   input: UpdateEpisodeInput;
 }>;
@@ -4402,7 +4481,7 @@ export type UpdateMusicClockMutationVariables = Exact<{
 }>;
 
 
-export type UpdateMusicClockMutation = { __typename?: 'Mutation', updateMusicClock: { __typename?: 'MusicClockMutationOutput', success: boolean, message?: string | null, clock?: { __typename?: 'MusicClock', id: string, name: string, description?: string | null, color: string, targetRuntime: number, network: { __typename?: 'Network', id: string, name: string }, items: Array<{ __typename?: 'AdBreakClockItem', scheduledStartTime: any, id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string } | { __typename?: 'CommandClockItem', command: string, id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string } | { __typename?: 'GenreClockItem', id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string, genre: { __typename?: 'Genre', id: string, name: string } } | { __typename?: 'NoteClockItem', label?: string | null, content: string, id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string } | { __typename?: 'SubcategoryClockItem', id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string, subcategory: { __typename?: 'Subcategory', id: string, name: string, category: { __typename?: 'Category', id: string, name: string } } } | { __typename?: 'TrackClockItem', id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string, track: { __typename?: 'Track', id: string, title: string } }> } | null } };
+export type UpdateMusicClockMutation = { __typename?: 'Mutation', updateMusicClock: { __typename?: 'MusicClockMutationOutput', success: boolean, message?: string | null, clock?: { __typename?: 'MusicClock', id: string, name: string, description?: string | null, color: string, targetRuntime: number, network: { __typename?: 'Network', id: string, name: string }, items: Array<{ __typename?: 'AdBreakClockItem', scheduledStartTime: any, id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string } | { __typename?: 'CommandClockItem', command: string, id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string } | { __typename?: 'GenreClockItem', id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string, genre: { __typename?: 'Genre', id: string, name: string } } | { __typename?: 'LibraryAdBreakClockItem' } | { __typename?: 'LibraryCommandClockItem' } | { __typename?: 'LibraryNoteClockItem' } | { __typename?: 'NoteClockItem', label?: string | null, content: string, id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string } | { __typename?: 'SubcategoryClockItem', id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string, subcategory: { __typename?: 'Subcategory', id: string, name: string, category: { __typename?: 'Category', id: string, name: string } } } | { __typename?: 'TrackClockItem', id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string, track: { __typename?: 'Track', id: string, title: string } }> } | null } };
 
 export type UpdateNetworkMutationVariables = Exact<{
   input: UpdateNetworkInput;
@@ -4585,14 +4664,14 @@ export type GetMusicClocksQueryVariables = Exact<{
 }>;
 
 
-export type GetMusicClocksQuery = { __typename?: 'Query', musicClocks: Array<{ __typename?: 'MusicClock', id: string, name: string, description?: string | null, color: string, targetRuntime: number, createdAt: string, updatedAt: string, network: { __typename?: 'Network', id: string, name: string, logoSvgIcon: string }, items: Array<{ __typename?: 'AdBreakClockItem', scheduledStartTime: any, id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string } | { __typename?: 'CommandClockItem', command: string, id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string } | { __typename?: 'GenreClockItem', id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string, genre: { __typename?: 'Genre', id: string, name: string } } | { __typename?: 'NoteClockItem', label?: string | null, content: string, id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string } | { __typename?: 'SubcategoryClockItem', id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string, subcategory: { __typename?: 'Subcategory', id: string, name: string, category: { __typename?: 'Category', id: string, name: string } } } | { __typename?: 'TrackClockItem', id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string, track: { __typename?: 'Track', id: string, title: string } }> }> };
+export type GetMusicClocksQuery = { __typename?: 'Query', musicClocks: Array<{ __typename?: 'MusicClock', id: string, name: string, description?: string | null, color: string, targetRuntime: number, createdAt: string, updatedAt: string, network: { __typename?: 'Network', id: string, name: string, logoSvgIcon: string }, items: Array<{ __typename?: 'AdBreakClockItem', scheduledStartTime: any, id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string } | { __typename?: 'CommandClockItem', command: string, id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string } | { __typename?: 'GenreClockItem', id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string, genre: { __typename?: 'Genre', id: string, name: string } } | { __typename?: 'LibraryAdBreakClockItem' } | { __typename?: 'LibraryCommandClockItem' } | { __typename?: 'LibraryNoteClockItem' } | { __typename?: 'NoteClockItem', label?: string | null, content: string, id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string } | { __typename?: 'SubcategoryClockItem', id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string, subcategory: { __typename?: 'Subcategory', id: string, name: string, category: { __typename?: 'Category', id: string, name: string } } } | { __typename?: 'TrackClockItem', id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string, track: { __typename?: 'Track', id: string, title: string } }> }> };
 
 export type GetMusicClockQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetMusicClockQuery = { __typename?: 'Query', musicClock?: { __typename?: 'MusicClock', id: string, name: string, description?: string | null, color: string, targetRuntime: number, createdAt: string, updatedAt: string, network: { __typename?: 'Network', id: string, name: string }, items: Array<{ __typename?: 'AdBreakClockItem', scheduledStartTime: any, id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string } | { __typename?: 'CommandClockItem', command: string, id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string } | { __typename?: 'GenreClockItem', id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string, genre: { __typename?: 'Genre', id: string, name: string } } | { __typename?: 'NoteClockItem', label?: string | null, content: string, id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string } | { __typename?: 'SubcategoryClockItem', id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string, subcategory: { __typename?: 'Subcategory', id: string, name: string, category: { __typename?: 'Category', id: string, name: string } } } | { __typename?: 'TrackClockItem', id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string, track: { __typename?: 'Track', id: string, title: string } }> } | null };
+export type GetMusicClockQuery = { __typename?: 'Query', musicClock?: { __typename?: 'MusicClock', id: string, name: string, description?: string | null, color: string, targetRuntime: number, createdAt: string, updatedAt: string, network: { __typename?: 'Network', id: string, name: string }, items: Array<{ __typename?: 'AdBreakClockItem', scheduledStartTime: any, id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string } | { __typename?: 'CommandClockItem', command: string, id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string } | { __typename?: 'GenreClockItem', id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string, genre: { __typename?: 'Genre', id: string, name: string } } | { __typename?: 'LibraryAdBreakClockItem' } | { __typename?: 'LibraryCommandClockItem' } | { __typename?: 'LibraryNoteClockItem' } | { __typename?: 'NoteClockItem', label?: string | null, content: string, id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string } | { __typename?: 'SubcategoryClockItem', id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string, subcategory: { __typename?: 'Subcategory', id: string, name: string, category: { __typename?: 'Category', id: string, name: string } } } | { __typename?: 'TrackClockItem', id: string, clockId: string, createdAt: string, duration: number, orderIndex: number, updatedAt: string, track: { __typename?: 'Track', id: string, title: string } }> } | null };
 
 export type GetMusicRulesQueryVariables = Exact<{
   networkId?: InputMaybe<Scalars['ID']['input']>;
@@ -4608,24 +4687,6 @@ export type GetMusicRuleQueryVariables = Exact<{
 
 
 export type GetMusicRuleQuery = { __typename?: 'Query', musicRule?: { __typename?: 'MusicRule', id: string, name: string, description?: string | null, ruleType: RuleType, breakable: RuleBreakable, value: number, unit: RuleUnit, priority: number, isActive: boolean, createdAt: string, updatedAt: string, criteria: { __typename?: 'MusicRuleCriteria', categories?: Array<string> | null, genres?: Array<string> | null, artists?: Array<string> | null, tags?: Array<string> | null, timeWindows?: Array<{ __typename?: 'MusicTimeWindow', startHour: number, endHour: number, daysOfWeek?: Array<string> | null }> | null }, network?: { __typename?: 'Network', id: string, name: string } | null } | null };
-
-export type MusicSchedulesQueryVariables = Exact<{
-  networkId: Scalars['ID']['input'];
-  startDate: Scalars['Date']['input'];
-  endDate: Scalars['Date']['input'];
-}>;
-
-
-export type MusicSchedulesQuery = { __typename?: 'Query', musicSchedules: Array<{ __typename?: 'MusicSchedule', id: string, networkId: string, scheduledDate: string, hour: number, clockId: string, playlistName?: string | null, exportedToRadioDj: boolean, ruleViolations: Array<{ __typename?: 'RuleViolation', ruleId: string, ruleName: string, ruleType: string, severity: RuleBreakable, description: string, conflictTrackId?: string | null, conflictTime?: string | null }>, items: Array<{ __typename?: 'MusicScheduleItem', id: string, orderIndex: number, itemType: ScheduleItemType, trackId?: string | null, noteContent?: string | null, duration: number, startTime: number, track?: { __typename?: 'Track', id: string, title: string, artist: string, duration: { __typename?: 'TrackDuration', formatted: string } } | null, ruleViolations: Array<{ __typename?: 'RuleViolation', ruleId: string, ruleName: string, ruleType: string, severity: RuleBreakable, description: string, conflictTrackId?: string | null, conflictTime?: string | null }> }>, clock: { __typename?: 'MusicClock', id: string, name: string, color: string, targetRuntime: number } }> };
-
-export type WeeklyOverridesQueryVariables = Exact<{
-  networkId: Scalars['ID']['input'];
-  templateId: Scalars['ID']['input'];
-  weekCommencing: Scalars['String']['input'];
-}>;
-
-
-export type WeeklyOverridesQuery = { __typename?: 'Query', musicClockWeeklyOverrides: Array<{ __typename?: 'MusicClockWeeklyOverride', id: string, networkId: string, templateId: string, clockId?: string | null, weekCommencing: string, dayOfWeek: number, hour: number, reason?: string | null, clock?: { __typename?: 'MusicClock', id: string, name: string, color: string, targetRuntime: number } | null }> };
 
 export type GetNetworksQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -4773,14 +4834,6 @@ export const DuplicateScheduleTemplateDocument = {"kind":"Document","definitions
 export const CreateEnrichmentJobDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateEnrichmentJob"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"EnrichmentJobInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createEnrichmentJob"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"progress"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<CreateEnrichmentJobMutation, CreateEnrichmentJobMutationVariables>;
 export const EnrichPendingJobDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"EnrichPendingJob"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"EnrichPendingJobInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"enrichPendingJob"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"progress"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<EnrichPendingJobMutation, EnrichPendingJobMutationVariables>;
 export const RetryJobDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RetryJob"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"retryJob"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"progress"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<RetryJobMutation, RetryJobMutationVariables>;
-export const CreateMusicClockTemplateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateMusicClockTemplate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateMusicClockTemplateInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createMusicClockTemplate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}},{"kind":"Field","name":{"kind":"Name","value":"message"}},{"kind":"Field","name":{"kind":"Name","value":"template"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"isDefault"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]}}]} as unknown as DocumentNode<CreateMusicClockTemplateMutation, CreateMusicClockTemplateMutationVariables>;
-export const UpdateMusicClockTemplateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateMusicClockTemplate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateMusicClockTemplateInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateMusicClockTemplate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}},{"kind":"Field","name":{"kind":"Name","value":"message"}},{"kind":"Field","name":{"kind":"Name","value":"template"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"isDefault"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]}}]} as unknown as DocumentNode<UpdateMusicClockTemplateMutation, UpdateMusicClockTemplateMutationVariables>;
-export const DeleteMusicClockTemplateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"DeleteMusicClockTemplate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deleteMusicClockTemplate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}},{"kind":"Field","name":{"kind":"Name","value":"message"}}]}}]}}]} as unknown as DocumentNode<DeleteMusicClockTemplateMutation, DeleteMusicClockTemplateMutationVariables>;
-export const SetDefaultMusicClockTemplateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"SetDefaultMusicClockTemplate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"networkId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"templateId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"setDefaultMusicClockTemplate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"networkId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"networkId"}}},{"kind":"Argument","name":{"kind":"Name","value":"templateId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"templateId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}},{"kind":"Field","name":{"kind":"Name","value":"message"}}]}}]}}]} as unknown as DocumentNode<SetDefaultMusicClockTemplateMutation, SetDefaultMusicClockTemplateMutationVariables>;
-export const AssignClockToTemplateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AssignClockToTemplate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"AssignClockToTemplateInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"assignClockToTemplate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}},{"kind":"Field","name":{"kind":"Name","value":"message"}},{"kind":"Field","name":{"kind":"Name","value":"assignment"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"dayOfWeek"}},{"kind":"Field","name":{"kind":"Name","value":"hour"}},{"kind":"Field","name":{"kind":"Name","value":"clock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}}]}}]} as unknown as DocumentNode<AssignClockToTemplateMutation, AssignClockToTemplateMutationVariables>;
-export const RemoveClockFromTemplateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RemoveClockFromTemplate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"removeClockFromTemplate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}},{"kind":"Field","name":{"kind":"Name","value":"message"}}]}}]}}]} as unknown as DocumentNode<RemoveClockFromTemplateMutation, RemoveClockFromTemplateMutationVariables>;
-export const CreateWeeklyOverrideDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateWeeklyOverride"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateWeeklyOverrideInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createWeeklyOverride"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}},{"kind":"Field","name":{"kind":"Name","value":"message"}},{"kind":"Field","name":{"kind":"Name","value":"override"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"weekCommencing"}},{"kind":"Field","name":{"kind":"Name","value":"dayOfWeek"}},{"kind":"Field","name":{"kind":"Name","value":"hour"}},{"kind":"Field","name":{"kind":"Name","value":"reason"}},{"kind":"Field","name":{"kind":"Name","value":"clock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}}]}}]} as unknown as DocumentNode<CreateWeeklyOverrideMutation, CreateWeeklyOverrideMutationVariables>;
-export const RemoveWeeklyOverrideDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RemoveWeeklyOverride"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"removeWeeklyOverride"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}},{"kind":"Field","name":{"kind":"Name","value":"message"}}]}}]}}]} as unknown as DocumentNode<RemoveWeeklyOverrideMutation, RemoveWeeklyOverrideMutationVariables>;
 export const UpdateEpisodeDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateEpisode"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateEpisodeInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateEpisode"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"episode"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"duration"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"formatted"}},{"kind":"Field","name":{"kind":"Name","value":"raw"}}]}},{"kind":"Field","name":{"kind":"Name","value":"extraData"}},{"kind":"Field","name":{"kind":"Name","value":"shortId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"featuredImage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"key"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"mimeType"}},{"kind":"Field","name":{"kind":"Name","value":"fileSize"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"raw"}}]}},{"kind":"Field","name":{"kind":"Name","value":"urls"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"medium"}},{"kind":"Field","name":{"kind":"Name","value":"square"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"show"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"shortName"}}]}},{"kind":"Field","name":{"kind":"Name","value":"series"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"shortName"}}]}},{"kind":"Field","name":{"kind":"Name","value":"presenters"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"networks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvgIcon"}}]}}]}}]}}]}}]} as unknown as DocumentNode<UpdateEpisodeMutation, UpdateEpisodeMutationVariables>;
 export const UpdateMusicClockDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateMusicClock"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateMusicClockInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateMusicClock"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}},{"kind":"Field","name":{"kind":"Name","value":"message"}},{"kind":"Field","name":{"kind":"Name","value":"clock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"color"}},{"kind":"Field","name":{"kind":"Name","value":"targetRuntime"}},{"kind":"Field","name":{"kind":"Name","value":"network"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"TrackClockItem"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CommonClockItemFields"}},{"kind":"Field","name":{"kind":"Name","value":"track"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"SubcategoryClockItem"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CommonClockItemFields"}},{"kind":"Field","name":{"kind":"Name","value":"subcategory"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"category"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"GenreClockItem"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CommonClockItemFields"}},{"kind":"Field","name":{"kind":"Name","value":"genre"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"NoteClockItem"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CommonClockItemFields"}},{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"AdBreakClockItem"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CommonClockItemFields"}},{"kind":"Field","name":{"kind":"Name","value":"scheduledStartTime"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CommandClockItem"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CommonClockItemFields"}},{"kind":"Field","name":{"kind":"Name","value":"command"}}]}}]}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CommonClockItemFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"ClockItemInterface"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"clockId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"duration"}},{"kind":"Field","name":{"kind":"Name","value":"orderIndex"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]} as unknown as DocumentNode<UpdateMusicClockMutation, UpdateMusicClockMutationVariables>;
 export const UpdateNetworkDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateNetwork"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateNetworkInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateNetwork"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}},{"kind":"Field","name":{"kind":"Name","value":"message"}},{"kind":"Field","name":{"kind":"Name","value":"network"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"baseUrl"}},{"kind":"Field","name":{"kind":"Name","value":"imagesUrl"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvg"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvgCircular"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvgColor"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvgIcon"}},{"kind":"Field","name":{"kind":"Name","value":"networkType"}},{"kind":"Field","name":{"kind":"Name","value":"tagline"}},{"kind":"Field","name":{"kind":"Name","value":"cssUrl"}},{"kind":"Field","name":{"kind":"Name","value":"playFormat"}},{"kind":"Field","name":{"kind":"Name","value":"playUrl"}},{"kind":"Field","name":{"kind":"Name","value":"shortId"}}]}}]}}]}}]} as unknown as DocumentNode<UpdateNetworkMutation, UpdateNetworkMutationVariables>;
@@ -4812,8 +4865,6 @@ export const GetMusicClocksDocument = {"kind":"Document","definitions":[{"kind":
 export const GetMusicClockDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetMusicClock"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"musicClock"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"color"}},{"kind":"Field","name":{"kind":"Name","value":"targetRuntime"}},{"kind":"Field","name":{"kind":"Name","value":"network"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"TrackClockItem"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CommonClockItemFields"}},{"kind":"Field","name":{"kind":"Name","value":"track"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"SubcategoryClockItem"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CommonClockItemFields"}},{"kind":"Field","name":{"kind":"Name","value":"subcategory"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"category"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"GenreClockItem"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CommonClockItemFields"}},{"kind":"Field","name":{"kind":"Name","value":"genre"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"NoteClockItem"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CommonClockItemFields"}},{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"AdBreakClockItem"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CommonClockItemFields"}},{"kind":"Field","name":{"kind":"Name","value":"scheduledStartTime"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CommandClockItem"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CommonClockItemFields"}},{"kind":"Field","name":{"kind":"Name","value":"command"}}]}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CommonClockItemFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"ClockItemInterface"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"clockId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"duration"}},{"kind":"Field","name":{"kind":"Name","value":"orderIndex"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]} as unknown as DocumentNode<GetMusicClockQuery, GetMusicClockQueryVariables>;
 export const GetMusicRulesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetMusicRules"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"networkId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filters"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"MusicRuleFilters"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"musicRules"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"networkId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"networkId"}}},{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filters"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"ruleType"}},{"kind":"Field","name":{"kind":"Name","value":"breakable"}},{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"Field","name":{"kind":"Name","value":"unit"}},{"kind":"Field","name":{"kind":"Name","value":"criteria"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"categories"}},{"kind":"Field","name":{"kind":"Name","value":"genres"}},{"kind":"Field","name":{"kind":"Name","value":"artists"}},{"kind":"Field","name":{"kind":"Name","value":"tags"}},{"kind":"Field","name":{"kind":"Name","value":"timeWindows"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"startHour"}},{"kind":"Field","name":{"kind":"Name","value":"endHour"}},{"kind":"Field","name":{"kind":"Name","value":"daysOfWeek"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"priority"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}},{"kind":"Field","name":{"kind":"Name","value":"network"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<GetMusicRulesQuery, GetMusicRulesQueryVariables>;
 export const GetMusicRuleDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetMusicRule"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"musicRule"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"ruleType"}},{"kind":"Field","name":{"kind":"Name","value":"breakable"}},{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"Field","name":{"kind":"Name","value":"unit"}},{"kind":"Field","name":{"kind":"Name","value":"criteria"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"categories"}},{"kind":"Field","name":{"kind":"Name","value":"genres"}},{"kind":"Field","name":{"kind":"Name","value":"artists"}},{"kind":"Field","name":{"kind":"Name","value":"tags"}},{"kind":"Field","name":{"kind":"Name","value":"timeWindows"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"startHour"}},{"kind":"Field","name":{"kind":"Name","value":"endHour"}},{"kind":"Field","name":{"kind":"Name","value":"daysOfWeek"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"priority"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}},{"kind":"Field","name":{"kind":"Name","value":"network"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<GetMusicRuleQuery, GetMusicRuleQueryVariables>;
-export const MusicSchedulesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"MusicSchedules"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"networkId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"startDate"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Date"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"endDate"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Date"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"musicSchedules"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"networkId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"networkId"}}},{"kind":"Argument","name":{"kind":"Name","value":"startDate"},"value":{"kind":"Variable","name":{"kind":"Name","value":"startDate"}}},{"kind":"Argument","name":{"kind":"Name","value":"endDate"},"value":{"kind":"Variable","name":{"kind":"Name","value":"endDate"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"networkId"}},{"kind":"Field","name":{"kind":"Name","value":"scheduledDate"}},{"kind":"Field","name":{"kind":"Name","value":"hour"}},{"kind":"Field","name":{"kind":"Name","value":"clockId"}},{"kind":"Field","name":{"kind":"Name","value":"playlistName"}},{"kind":"Field","name":{"kind":"Name","value":"exportedToRadioDj"}},{"kind":"Field","name":{"kind":"Name","value":"ruleViolations"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ruleId"}},{"kind":"Field","name":{"kind":"Name","value":"ruleName"}},{"kind":"Field","name":{"kind":"Name","value":"ruleType"}},{"kind":"Field","name":{"kind":"Name","value":"severity"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"conflictTrackId"}},{"kind":"Field","name":{"kind":"Name","value":"conflictTime"}}]}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"orderIndex"}},{"kind":"Field","name":{"kind":"Name","value":"itemType"}},{"kind":"Field","name":{"kind":"Name","value":"trackId"}},{"kind":"Field","name":{"kind":"Name","value":"track"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"artist"}},{"kind":"Field","name":{"kind":"Name","value":"duration"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"formatted"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"noteContent"}},{"kind":"Field","name":{"kind":"Name","value":"duration"}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}},{"kind":"Field","name":{"kind":"Name","value":"ruleViolations"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ruleId"}},{"kind":"Field","name":{"kind":"Name","value":"ruleName"}},{"kind":"Field","name":{"kind":"Name","value":"ruleType"}},{"kind":"Field","name":{"kind":"Name","value":"severity"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"conflictTrackId"}},{"kind":"Field","name":{"kind":"Name","value":"conflictTime"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"clock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"color"}},{"kind":"Field","name":{"kind":"Name","value":"targetRuntime"}}]}}]}}]}}]} as unknown as DocumentNode<MusicSchedulesQuery, MusicSchedulesQueryVariables>;
-export const WeeklyOverridesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"WeeklyOverrides"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"networkId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"templateId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"weekCommencing"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"musicClockWeeklyOverrides"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"networkId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"networkId"}}},{"kind":"Argument","name":{"kind":"Name","value":"templateId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"templateId"}}},{"kind":"Argument","name":{"kind":"Name","value":"weekCommencing"},"value":{"kind":"Variable","name":{"kind":"Name","value":"weekCommencing"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"networkId"}},{"kind":"Field","name":{"kind":"Name","value":"templateId"}},{"kind":"Field","name":{"kind":"Name","value":"clockId"}},{"kind":"Field","name":{"kind":"Name","value":"weekCommencing"}},{"kind":"Field","name":{"kind":"Name","value":"dayOfWeek"}},{"kind":"Field","name":{"kind":"Name","value":"hour"}},{"kind":"Field","name":{"kind":"Name","value":"reason"}},{"kind":"Field","name":{"kind":"Name","value":"clock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"color"}},{"kind":"Field","name":{"kind":"Name","value":"targetRuntime"}}]}}]}}]}}]} as unknown as DocumentNode<WeeklyOverridesQuery, WeeklyOverridesQueryVariables>;
 export const GetNetworksDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetNetworks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"networks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"baseUrl"}},{"kind":"Field","name":{"kind":"Name","value":"imagesUrl"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvg"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvgCircular"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvgColor"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvgIcon"}},{"kind":"Field","name":{"kind":"Name","value":"networkType"}},{"kind":"Field","name":{"kind":"Name","value":"tagline"}},{"kind":"Field","name":{"kind":"Name","value":"cssUrl"}},{"kind":"Field","name":{"kind":"Name","value":"playFormat"}},{"kind":"Field","name":{"kind":"Name","value":"playUrl"}},{"kind":"Field","name":{"kind":"Name","value":"shortId"}}]}}]}}]} as unknown as DocumentNode<GetNetworksQuery, GetNetworksQueryVariables>;
 export const GetNetworkDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetNetwork"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"network"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"baseUrl"}},{"kind":"Field","name":{"kind":"Name","value":"imagesUrl"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvg"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvgCircular"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvgColor"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvgIcon"}},{"kind":"Field","name":{"kind":"Name","value":"networkType"}},{"kind":"Field","name":{"kind":"Name","value":"tagline"}},{"kind":"Field","name":{"kind":"Name","value":"cssUrl"}},{"kind":"Field","name":{"kind":"Name","value":"playFormat"}},{"kind":"Field","name":{"kind":"Name","value":"playUrl"}},{"kind":"Field","name":{"kind":"Name","value":"shortId"}}]}}]}}]} as unknown as DocumentNode<GetNetworkQuery, GetNetworkQueryVariables>;
 export const GetPresentersDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetPresenters"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filters"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"PresenterListInputV2"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"presentersV2"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filters"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"total"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"picture"}},{"kind":"Field","name":{"kind":"Name","value":"hidden"}},{"kind":"Field","name":{"kind":"Name","value":"networks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvgIcon"}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetPresentersQuery, GetPresentersQueryVariables>;

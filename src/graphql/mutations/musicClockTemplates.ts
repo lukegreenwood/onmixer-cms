@@ -2,18 +2,18 @@ import { gql } from '../__generated__';
 
 export const CREATE_MUSIC_CLOCK_TEMPLATE = gql(`
   mutation CreateMusicClockTemplate($input: CreateMusicClockTemplateInput!) {
-    createMusicClockTemplate(input: $input) {
-      success
-      message
-      template {
-        id
-        name
-        description
-        isDefault
-        createdAt
-        updatedAt
-      }
-    }
+    # createMusicClockTemplate(input: $input) {
+    #   success
+    #   message
+    #   template {
+    #     id
+    #     name
+    #     description
+    #     isDefault
+    #     createdAt
+    #     updatedAt
+    #   }
+    # }
   }
 `);
 
