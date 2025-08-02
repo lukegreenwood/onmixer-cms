@@ -56,4 +56,3 @@ export { OptionsIcon } from './OptionsIcon';
 export { AudioIcon } from './AudioIcon';
 export { GripVerticalIcon } from './GripVerticalIcon';
 export { MoreHorizontalIcon } from './MoreHorizontalIcon';
-export { PlusIcon } from './PlusIcon';
