@@ -226,7 +226,7 @@ export const ClockGrid = ({
                     {
                       '--badge-color':
                         item.__typename === 'SubcategoryClockItem'
-                          ? `var(--subcategory-${item.subcategory?.id}-color, var(--green-500))`
+                          ? `var(--subcategory-color, var(--green-500))`
                           : undefined,
                     } as React.CSSProperties
                   }

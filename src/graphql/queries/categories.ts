@@ -8,6 +8,7 @@ export const GET_CATEGORIES = gql(`
       subcategories {
         id
         name
+        color
         averageDuration {
           raw
           formatted

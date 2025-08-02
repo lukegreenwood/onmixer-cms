@@ -13,6 +13,7 @@ import {
   GripVerticalIcon,
   CommandIcon,
   GenreIcon,
+  ChevronRightIcon,
 } from '@/components/icons';
 import type {
   GetCategoriesQuery,
@@ -188,9 +189,13 @@ export const ClockItemLibrary = ({
                 {item.description}
               </div>
             </div>
-            {item.draggable && (
+            {item.draggable ? (
               <div className="clock-item-library__item-drag">
                 <GripVerticalIcon size={16} />
+              </div>
+            ) : (
+              <div className="clock-item-library__item-drag">
+                <ChevronRightIcon size={24} />
               </div>
             )}
           </div>
@@ -226,6 +231,12 @@ export const ClockItemLibrary = ({
               (onItemDrag as (item: unknown) => (e: React.DragEvent) => void)(
                 item,
               )(e)
+            }
+            style={
+              {
+                '--item-background-color':
+                  currentView === 'categories' ? item.color : undefined,
+              } as React.CSSProperties
             }
           >
             <div className="clock-item-library__item-icon">

@@ -62,6 +62,7 @@ export const GET_MUSIC_CLOCK = gql(/* GraphQL */ `
           subcategory {
             id
             name
+            color
             category {
               id
               name
