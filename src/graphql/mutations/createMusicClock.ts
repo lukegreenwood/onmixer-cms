@@ -16,15 +16,21 @@ export const CREATE_MUSIC_CLOCK = gql(/* GraphQL */ `
           name
         }
         items {
+          ... on ClockItemInterface {
+            id
+            clockId
+            createdAt
+            duration
+            orderIndex
+            updatedAt
+          }
           ... on TrackClockItem {
-            ...CommonClockItemFields
             track {
               id
               title
             }
           }
           ... on SubcategoryClockItem {
-            ...CommonClockItemFields
             subcategory {
               id
               name
@@ -35,36 +41,45 @@ export const CREATE_MUSIC_CLOCK = gql(/* GraphQL */ `
             }
           }
           ... on GenreClockItem {
-            ...CommonClockItemFields
             genre {
               id
               name
             }
           }
           ... on NoteClockItem {
-            ...CommonClockItemFields
             label
             content
           }
           ... on AdBreakClockItem {
-            ...CommonClockItemFields
             scheduledStartTime
           }
           ... on CommandClockItem {
-            ...CommonClockItemFields
             command
+          }
+          ... on LibraryNoteClockItem {
+            note {
+              id
+              duration
+              label
+              content
+            }
+          }
+          ... on LibraryAdBreakClockItem {
+            adBreak {
+              id
+              duration
+              scheduledStartTime
+            }
+          }
+          ... on LibraryCommandClockItem {
+            libraryCommand: command {
+              id
+              duration
+              command
+            }
           }
         }
       }
     }
-  }
-
-  fragment CommonClockItemFields on ClockItemInterface {
-    id
-    clockId
-    createdAt
-    duration
-    orderIndex
-    updatedAt
   }
 `);

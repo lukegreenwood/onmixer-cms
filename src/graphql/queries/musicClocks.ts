@@ -16,59 +16,20 @@ export const GET_MUSIC_CLOCKS = gql(/* GraphQL */ `
       createdAt
       updatedAt
       items {
-        ... on TrackClockItem {
-          ...CommonClockItemFields
-          track {
-            id
-            title
-          }
-        }
-        ... on SubcategoryClockItem {
-          ...CommonClockItemFields
-          subcategory {
-            id
-            name
-            category {
-              id
-              name
-            }
-          }
-        }
-        ... on GenreClockItem {
-          ...CommonClockItemFields
-          genre {
-            id
-            name
-          }
-        }
-        ... on NoteClockItem {
-          ...CommonClockItemFields
-          label
-          content
-        }
-        ... on AdBreakClockItem {
-          ...CommonClockItemFields
-          scheduledStartTime
-        }
-        ... on CommandClockItem {
-          ...CommonClockItemFields
-          command
+        ... on ClockItemInterface {
+          id
+          clockId
+          createdAt
+          duration
+          orderIndex
+          updatedAt
         }
       }
     }
   }
-
-  fragment CommonClockItemFields on ClockItemInterface {
-    id
-    clockId
-    createdAt
-    duration
-    orderIndex
-    updatedAt
-  }
 `);
 
-export const GET_MUSIC_CLOCK = gql(`
+export const GET_MUSIC_CLOCK = gql(/* GraphQL */ `
   query GetMusicClock($id: ID!) {
     musicClock(id: $id) {
       id
@@ -83,15 +44,21 @@ export const GET_MUSIC_CLOCK = gql(`
       createdAt
       updatedAt
       items {
-        ...on TrackClockItem {
-          ...CommonClockItemFields,
+        ... on ClockItemInterface {
+          id
+          clockId
+          createdAt
+          duration
+          orderIndex
+          updatedAt
+        }
+        ... on TrackClockItem {
           track {
             id
             title
           }
         }
         ... on SubcategoryClockItem {
-          ...CommonClockItemFields,
           subcategory {
             id
             name
@@ -102,35 +69,44 @@ export const GET_MUSIC_CLOCK = gql(`
           }
         }
         ... on GenreClockItem {
-          ...CommonClockItemFields,
           genre {
             id
             name
           }
         }
         ... on NoteClockItem {
-          ...CommonClockItemFields
           label
           content
         }
         ... on AdBreakClockItem {
-          ...CommonClockItemFields
           scheduledStartTime
         }
         ... on CommandClockItem {
-          ...CommonClockItemFields
           command
+        }
+        ... on LibraryNoteClockItem {
+          note {
+            id
+            duration
+            label
+            content
+          }
+        }
+        ... on LibraryAdBreakClockItem {
+          adBreak {
+            id
+            duration
+            scheduledStartTime
+          }
+        }
+        ... on LibraryCommandClockItem {
+          libraryCommand: command {
+            id
+            duration
+            command
+          }
         }
       }
     }
   }
-
-fragment CommonClockItemFields on ClockItemInterface {
-	id
-	clockId
-	createdAt
-	duration
-	orderIndex
-	updatedAt
-}
 `);
