@@ -288,7 +288,7 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
         variables: { id: itemId },
         onCompleted: () => {
           toast('Library item deleted successfully', 'success');
-          handleViewChange(currentView);
+          refetchLibraryItems();
         },
         onError: () => {
           toast('Failed to delete library item', 'error');
