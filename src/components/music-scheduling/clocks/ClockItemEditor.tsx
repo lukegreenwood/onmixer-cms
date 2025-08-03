@@ -34,6 +34,8 @@ import {
   ClockIcon,
   MusicIcon,
   NoteIcon,
+  CategoryIcon,
+  GenreIcon,
 } from '@/components/icons';
 import { GET_CATEGORIES } from '@/graphql/queries/categories';
 
@@ -44,7 +46,7 @@ import {
   isNoteClockItem,
 } from '../utils';
 
-import type { 
+import type {
   MusicClockItem,
   TrackClockItem,
   SubcategoryClockItem,
@@ -254,9 +256,7 @@ const SortableClockItem = ({
         <div className="clock-item__content">
           <div className="clock-item__type">
             <TypeIcon size={16} />
-            <span className="clock-item__type-label">
-              {getTypeLabel(item)}
-            </span>
+            <span className="clock-item__type-label">{getTypeLabel(item)}</span>
           </div>
           <div className="clock-item__name">
             <Input
@@ -311,7 +311,7 @@ const ClockItemForm = ({
     subcategoryId: isSubcategoryClockItem(item) ? item.subcategoryId : '',
     genreId: isGenreClockItem(item) ? item.genreId : '',
     content: isNoteClockItem(item) ? item.content : '',
-    color: isNoteClockItem(item) ? (item.color || '#3B82F6') : '#3B82F6',
+    color: isNoteClockItem(item) ? item.color || '#3B82F6' : '#3B82F6',
   };
 
   const methods = useForm<ClockItemFormData>({
@@ -322,7 +322,7 @@ const ClockItemForm = ({
   const handleSubmit = (data: ClockItemFormData) => {
     // Create updated item based on current item type
     let updatedItem: MusicClockItem;
-    
+
     if (isTrackClockItem(item)) {
       updatedItem = {
         ...item,
@@ -360,7 +360,7 @@ const ClockItemForm = ({
       // Fallback
       updatedItem = item;
     }
-    
+
     onSave(updatedItem);
   };
 
@@ -409,7 +409,7 @@ const ClockItemForm = ({
         },
       ];
     }
-    
+
     return [];
   };
 
@@ -532,12 +532,13 @@ export const ClockItemEditor = ({
         id: `item-${Date.now()}`,
         clockId: '',
         name: `New ${type.replace('_', ' ')}`,
-        duration: defaultDurations[type as keyof typeof defaultDurations] || 180,
+        duration:
+          defaultDurations[type as keyof typeof defaultDurations] || 180,
         orderIndex: items.length,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      
+
       switch (type) {
         case 'TRACK':
           newItem = {
@@ -548,7 +549,11 @@ export const ClockItemEditor = ({
               title: '',
               artist: '',
               duration: {
-                formatted: `${Math.floor(baseItem.duration / 60)}:${(baseItem.duration % 60).toString().padStart(2, '0')}`,
+                formatted: `${Math.floor(baseItem.duration / 60)}:${(
+                  baseItem.duration % 60
+                )
+                  .toString()
+                  .padStart(2, '0')}`,
               },
             },
           } as TrackClockItem;
@@ -645,14 +650,14 @@ export const ClockItemEditor = ({
     },
     {
       type: 'SUBCATEGORY',
-      icon: MusicIcon,
+      icon: CategoryIcon,
       label: 'Subcategory',
       description: 'Music from subcategory',
       duration: '3:30',
     },
     {
       type: 'GENRE',
-      icon: MusicIcon,
+      icon: GenreIcon,
       label: 'Genre',
       description: 'Music from genre',
       duration: '3:30',

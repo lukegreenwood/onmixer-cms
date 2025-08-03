@@ -197,17 +197,24 @@
         cursor: grabbing;
         background-color: var(--item-background-color, palette.$gray-200);
       }
+
+      .clock-item-library__item-icon {
+        padding: 0;
+        background-color: transparent;
+        color: palette.$gray-800;
+      }
     }
   }
 
   &__item-icon {
-    width: 20px;
-    height: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: palette.$gray-600;
+    color: palette.$blue-900;
     flex-shrink: 0;
+    padding: mixins.spacing(1);
+    border-radius: sizing.$radius-sm;
+    background-color: palette.$blue-50;
   }
 
   &__item-content {
@@ -229,10 +236,12 @@
   }
 
   &__item-drag {
-    margin-left: auto;
+    margin-inline-start: auto;
     opacity: 0;
     color: palette.$gray-400;
     transition: opacity 0.15s ease;
+    display: flex;
+    align-items: center;
   }
 
   &__item:hover &__item-drag {
