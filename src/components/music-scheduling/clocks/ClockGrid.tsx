@@ -1,6 +1,6 @@
 'use client';
 
-import { useSortable } from '@dnd-kit/sortable';
+import { useSortable, useDroppable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Badge, Button, DropdownMenu } from '@soundwaves/components';
 import React from 'react';
@@ -38,6 +38,36 @@ interface SortableItemProps {
   items: ClockItem[];
   onItemEdit: (item: ClockItem) => void;
   onItemDelete: (itemId: string) => void;
+}
+
+interface DroppableZoneProps {
+  index: number;
+  children: React.ReactNode;
+  onDrop: (e: React.DragEvent, index: number) => void;
+  onDragOver: (e: React.DragEvent, index: number) => void;
+  showPlaceholder: boolean;
+  placeholderContent?: string;
+}
+
+function DroppableZone({ index, children, onDrop, onDragOver, showPlaceholder, placeholderContent }: DroppableZoneProps) {
+  return (
+    <React.Fragment>
+      {showPlaceholder && (
+        <div className="clock-grid__placeholder">
+          <div className="clock-grid__placeholder-content">
+            {placeholderContent || 'Drop here'}
+          </div>
+        </div>
+      )}
+      <div
+        onDragOver={(e) => onDragOver(e, index)}
+        onDrop={(e) => onDrop(e, index)}
+        className="clock-grid__droppable-zone"
+      >
+        {children}
+      </div>
+    </React.Fragment>
+  );
 }
 
 function SortableItem({ item, index, items, onItemEdit, onItemDelete }: SortableItemProps) {
@@ -271,9 +301,49 @@ export const ClockGrid = ({
 }: ClockGridProps) => {
   const [isDraggingFromLibrary, setIsDraggingFromLibrary] = useState(false);
   const [libraryDragData, setLibraryDragData] = useState<{itemType: string, data: Record<string, unknown>} | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
 
-  // TODO: Implement library drag and drop functionality
+  const handleDragOver = (e: React.DragEvent, index?: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    
+    if (index !== undefined) {
+      setDragOverIndex(index);
+    }
+    
+    // Check if dragging from library
+    const dragData = e.dataTransfer.getData('application/json');
+    if (dragData && !isDraggingFromLibrary) {
+      try {
+        const parsed = JSON.parse(dragData);
+        setIsDraggingFromLibrary(true);
+        setLibraryDragData(parsed);
+      } catch {
+        // Ignore parse errors
+      }
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+
+    // Handle dropping from library
+    try {
+      const dragData = e.dataTransfer.getData('application/json');
+      if (dragData) {
+        const { itemType, data } = JSON.parse(dragData);
+        onItemAdd(itemType, data, dropIndex);
+      }
+    } catch (error) {
+      console.error('Error parsing drag data:', error);
+    }
+
+    setDragOverIndex(null);
+    setIsDraggingFromLibrary(false);
+    setLibraryDragData(null);
+  };
+
   const handleGridDrop = (e: React.DragEvent) => {
     e.preventDefault();
 
@@ -288,6 +358,7 @@ export const ClockGrid = ({
       console.error('Error parsing drag data:', error);
     }
     
+    setDragOverIndex(null);
     setIsDraggingFromLibrary(false);
     setLibraryDragData(null);
   };
@@ -295,6 +366,7 @@ export const ClockGrid = ({
   const handleDragLeave = (e: React.DragEvent) => {
     // Only reset if leaving the grid entirely
     if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setDragOverIndex(null);
       setIsDraggingFromLibrary(false);
       setLibraryDragData(null);
     }
@@ -303,6 +375,7 @@ export const ClockGrid = ({
   return (
     <div
       className="clock-grid"
+      onDragOver={(e) => handleDragOver(e)}
       onDrop={handleGridDrop}
       onDragLeave={handleDragLeave}
     >
@@ -317,25 +390,41 @@ export const ClockGrid = ({
       </div>
 
       <div className="clock-grid__body">
-        {items.map((item, index) => (
-          <SortableItem
-            key={item.id}
-            item={item}
-            index={index}
-            items={items}
-            onItemEdit={onItemEdit}
-            onItemDelete={onItemDelete}
-          />
-        ))}
+        {items.map((item, index) => {
+          const shouldShowPlaceholder = isDraggingFromLibrary && dragOverIndex === index;
+          const placeholderContent = libraryDragData ? `Dropping: ${libraryDragData.data.name as string || 'New Item'}` : undefined;
+          
+          return (
+            <DroppableZone
+              key={`${item.id}-zone`}
+              index={index}
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              showPlaceholder={shouldShowPlaceholder}
+              placeholderContent={placeholderContent}
+            >
+              <SortableItem
+                key={item.id}
+                item={item}
+                index={index}
+                items={items}
+                onItemEdit={onItemEdit}
+                onItemDelete={onItemDelete}
+              />
+            </DroppableZone>
+          );
+        })}
         
         {/* Show placeholder at end if dragging from library */}
-        {isDraggingFromLibrary && libraryDragData && (
-          <div className="clock-grid__placeholder">
-            <div className="clock-grid__placeholder-content">
-              Dropping: {libraryDragData.data.name as string || 'New Item'}
-            </div>
-          </div>
-        )}
+        <DroppableZone
+          index={items.length}
+          onDrop={handleGridDrop}
+          onDragOver={handleDragOver}
+          showPlaceholder={isDraggingFromLibrary && dragOverIndex === items.length}
+          placeholderContent={libraryDragData ? `Dropping: ${libraryDragData.data.name as string || 'New Item'}` : undefined}
+        >
+          <div className="clock-grid__end-zone" />
+        </DroppableZone>
       </div>
     </div>
   );

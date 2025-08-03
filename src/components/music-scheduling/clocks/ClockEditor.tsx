@@ -25,7 +25,17 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { FloatingBar } from '@/components/common';
-import { ClockIcon, EditIcon } from '@/components/icons';
+import {
+  ClockIcon,
+  EditIcon,
+  AudioIcon,
+  CategoryIcon,
+  GenreIcon,
+  NoteIcon,
+  CommandIcon,
+  AdIcon,
+  GripVerticalIcon,
+} from '@/components/icons';
 import {
   GetMusicClockQuery,
   MusicClockItemInput,
@@ -45,6 +55,159 @@ import {
 
 import { ClockGrid } from './ClockGrid';
 import { ClockItemLibrary } from './ClockItemLibrary';
+
+// Component for rendering the drag overlay with proper item content
+const DragOverlayContent = ({ item }: { item: ClockItem }) => {
+  const getItemIcon = (item: ClockItem) => {
+    switch (item.__typename) {
+      case 'TrackClockItem':
+        return AudioIcon;
+      case 'SubcategoryClockItem':
+        return CategoryIcon;
+      case 'GenreClockItem':
+        return GenreIcon;
+      case 'NoteClockItem':
+      case 'LibraryNoteClockItem':
+        return NoteIcon;
+      case 'CommandClockItem':
+      case 'LibraryCommandClockItem':
+        return CommandIcon;
+      case 'AdBreakClockItem':
+      case 'LibraryAdBreakClockItem':
+        return AdIcon;
+      default:
+        return AudioIcon;
+    }
+  };
+
+  const getItemTypeLabel = (item: ClockItem) => {
+    switch (item.__typename) {
+      case 'TrackClockItem':
+        return 'Track';
+      case 'SubcategoryClockItem':
+        return item.subcategory?.name || 'Category';
+      case 'GenreClockItem':
+        return item.genre?.name || 'Genre';
+      case 'NoteClockItem':
+        return 'Note';
+      case 'CommandClockItem':
+        return 'Command';
+      case 'AdBreakClockItem':
+        return 'Commercial';
+      case 'LibraryNoteClockItem':
+        return 'Library Note';
+      case 'LibraryCommandClockItem':
+        return 'Library Command';
+      case 'LibraryAdBreakClockItem':
+        return 'Library Ad Break';
+      default:
+        return 'Unknown';
+    }
+  };
+
+  const getItemTitle = (item: ClockItem) => {
+    switch (item.__typename) {
+      case 'TrackClockItem':
+        return item.track?.title || 'Unknown Track';
+      case 'SubcategoryClockItem':
+        return 'Unscheduled position';
+      case 'GenreClockItem':
+        return 'Unscheduled position';
+      case 'NoteClockItem':
+        return item.content || 'Note';
+      case 'CommandClockItem':
+        return item.command || 'Command';
+      case 'AdBreakClockItem':
+        return item.scheduledStartTime || '00:00';
+      case 'LibraryNoteClockItem':
+        return (
+          (item as { note?: { content?: string; label?: string } }).note
+            ?.content ||
+          (item as { note?: { content?: string; label?: string } }).note
+            ?.label ||
+          'Library Note'
+        );
+      case 'LibraryCommandClockItem':
+        return (
+          (item as { libraryCommand?: { command?: string } }).libraryCommand
+            ?.command || 'Library Command'
+        );
+      case 'LibraryAdBreakClockItem':
+        return (
+          (item as { adBreak?: { scheduledStartTime?: string } }).adBreak
+            ?.scheduledStartTime || '00:00'
+        );
+      default:
+        return 'Unknown';
+    }
+  };
+
+  const getItemBadgeColor = (item: ClockItem) => {
+    switch (item.__typename) {
+      case 'SubcategoryClockItem':
+        return 'green';
+      case 'GenreClockItem':
+        return 'blue';
+      case 'NoteClockItem':
+      case 'LibraryNoteClockItem':
+        return 'gray';
+      case 'CommandClockItem':
+      case 'LibraryCommandClockItem':
+        return 'purple';
+      case 'AdBreakClockItem':
+      case 'LibraryAdBreakClockItem':
+        return 'red';
+      default:
+        return 'blue';
+    }
+  };
+
+  const Icon = getItemIcon(item);
+  const badgeColor = getItemBadgeColor(item);
+
+  return (
+    <div className="clock-grid__row clock-grid__row--overlay">
+      <div className="clock-grid__cell clock-grid__cell--air-time">
+        <GripVerticalIcon className="clock-grid__drag-handle" size={16} />
+        <span>--:--</span>
+      </div>
+
+      <div className="clock-grid__cell clock-grid__cell--type">
+        <Badge
+          color={badgeColor}
+          size="sm"
+          before={<Icon size={16} />}
+          style={
+            {
+              '--badge-color':
+                item.__typename === 'SubcategoryClockItem'
+                  ? `var(--subcategory-color, var(--green-500))`
+                  : undefined,
+            } as React.CSSProperties
+          }
+        >
+          {getItemTypeLabel(item)}
+        </Badge>
+      </div>
+
+      <div className="clock-grid__cell clock-grid__cell--title">
+        {getItemTitle(item)}
+      </div>
+
+      <div className="clock-grid__cell clock-grid__cell--artist">--</div>
+
+      <div className="clock-grid__cell clock-grid__cell--duration">
+        {formatDuration(Math.floor(Math.abs(item.duration)))}
+      </div>
+
+      <div className="clock-grid__cell clock-grid__cell--item-id">
+        {item.id.slice(-6)}
+      </div>
+
+      <div className="clock-grid__cell clock-grid__cell--actions">•••</div>
+    </div>
+  );
+};
 
 const clockFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -217,7 +380,7 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
   const handleAddItem = useCallback(
     (itemType: string, data: Record<string, unknown>, position?: number) => {
       let newItem: ClockItem;
-      const baseId = '';
+      const baseId = `temp-${Date.now()}`;
       const baseProps = {
         id: baseId,
         clockId: clock?.id || '',
@@ -546,42 +709,7 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
           </div>
 
           <DragOverlay>
-            {activeItem ? (
-              <div className="clock-grid__row clock-grid__row--overlay">
-                <div className="clock-grid__cell clock-grid__cell--air-time">
-                  {/* Air time content will be calculated dynamically */}
-                  --:--
-                </div>
-                <div className="clock-grid__cell clock-grid__cell--type">
-                  {/* Badge content from active item */}
-                  Dragging...
-                </div>
-                <div className="clock-grid__cell clock-grid__cell--title">
-                  {/* Title from active item */}
-                  {activeItem.__typename === 'TrackClockItem'
-                    ? activeItem.track?.title
-                    : activeItem.__typename === 'NoteClockItem'
-                    ? activeItem.content
-                    : activeItem.__typename === 'CommandClockItem'
-                    ? activeItem.command
-                    : 'Item'}
-                </div>
-                <div className="clock-grid__cell clock-grid__cell--artist">
-                  {/* Artist content */}
-                  --
-                </div>
-                <div className="clock-grid__cell clock-grid__cell--duration">
-                  {formatDuration(Math.floor(Math.abs(activeItem.duration)))}
-                </div>
-                <div className="clock-grid__cell clock-grid__cell--item-id">
-                  {activeItem.id.slice(-6)}
-                </div>
-                <div className="clock-grid__cell clock-grid__cell--actions">
-                  {/* Actions content */}
-                  •••
-                </div>
-              </div>
-            ) : null}
+            {activeItem ? <DragOverlayContent item={activeItem} /> : null}
           </DragOverlay>
 
           {/* Floating Duration Bar */}
