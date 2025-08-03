@@ -1,6 +1,5 @@
 'use client';
 
-import { useDroppable } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Badge, Button, DropdownMenu } from '@soundwaves/components';
@@ -44,7 +43,6 @@ interface SortableItemProps {
   onItemDelete: (itemId: string) => void;
 }
 
-
 function SortableItem({
   item,
   index,
@@ -66,15 +64,6 @@ function SortableItem({
     transition,
     opacity: isDragging ? 0.5 : 1,
   };
-  
-  // Skip rendering temp preview items
-  if (item.id.startsWith('temp-preview-')) {
-    return (
-      <div className="clock-grid__insertion-placeholder">
-        <div className="clock-grid__insertion-line" />
-      </div>
-    );
-  }
 
   const getItemIcon = (item: ClockItem) => {
     switch (item.__typename) {
@@ -300,24 +289,6 @@ function SortableItem({
   );
 }
 
-// Droppable zone component
-const DropZone = ({ id, children }: { id: string; children?: React.ReactNode }) => {
-  const { setNodeRef, isOver } = useDroppable({ id });
-  
-  return (
-    <div 
-      ref={setNodeRef}
-      style={{ 
-        minHeight: children ? 'auto' : '20px',
-        backgroundColor: isOver ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
-        transition: 'background-color 0.2s ease'
-      }}
-    >
-      {children}
-    </div>
-  );
-};
-
 export const ClockGrid = ({
   items,
   onItemEdit,
@@ -337,19 +308,15 @@ export const ClockGrid = ({
 
       <div className="clock-grid__body">
         {items.map((item, index) => (
-          <DropZone key={`${item.id}-zone`} id={`clock-item-${item.id}`}>
-            <SortableItem
-              item={item}
-              index={index}
-              items={items}
-              onItemEdit={onItemEdit}
-              onItemDelete={onItemDelete}
-            />
-          </DropZone>
+          <SortableItem
+            key={item.id}
+            item={item}
+            index={index}
+            items={items}
+            onItemEdit={onItemEdit}
+            onItemDelete={onItemDelete}
+          />
         ))}
-        
-        {/* Droppable zone at the end for dropping at the end of the list */}
-        <DropZone id="clock-grid-end" />
       </div>
     </div>
   );

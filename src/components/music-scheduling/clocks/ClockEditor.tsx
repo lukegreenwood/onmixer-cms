@@ -6,14 +6,11 @@ import {
   DragEndEvent,
   DragOverlay,
   DragStartEvent,
-  DragOverEvent,
   closestCenter,
-  pointerWithin,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
-  CollisionDetection,
 } from '@dnd-kit/core';
 import {
   SortableContext,
@@ -235,7 +232,6 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
   const [clockItems, setClockItems] = useState<ClockItem[]>(clock?.items || []);
   const [isClockDialogOpen, setIsClockDialogOpen] = useState(false);
   const [activeItem, setActiveItem] = useState<ClockItem | null>(null);
-  const [clonedItems, setClonedItems] = useState<ClockItem[] | null>(null);
 
   const [updateClock, { loading: updateLoading }] =
     useMutation(UPDATE_MUSIC_CLOCK);
@@ -249,20 +245,6 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     }),
-  );
-  
-  // Custom collision detection for better drag experience
-  const collisionDetectionStrategy: CollisionDetection = useCallback(
-    (args) => {
-      if (activeItem && activeItem.id.startsWith('temp-')) {
-        // For library items, use pointer intersection first, then closest center
-        return pointerWithin(args) ?? closestCenter(args);
-      }
-
-      // For existing clock items, use closest center
-      return closestCenter(args);
-    },
-    [activeItem],
   );
 
   // Convert ClockItem to MusicClockItemInput for API
@@ -345,57 +327,29 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
     [],
   );
 
-
-  // Save clock items with specific data (for fresh state)
-  const saveClockItemsWithData = useCallback(async (itemsToSave: ClockItem[]) => {
+  // Save clock items to API
+  const saveClockItems = useCallback(async (items: ClockItem[]) => {
     if (!clock?.id || !isEditing) return;
 
     try {
-      const items = itemsToSave.map(convertClockItemToInput);
+      const itemInputs = items.map(convertClockItemToInput);
       const result = await updateClock({
         variables: {
           input: {
             id: clock.id,
-            items,
+            items: itemInputs,
           },
-        },
-        onError: (error) => {
-          console.error('Failed to save clock items:', error);
-          toast('Failed to save changes', 'error');
         },
       });
 
-      // Update local state with new IDs from the API response, but preserve local changes
       if (result.data?.updateMusicClock?.clock?.items) {
-        const updatedItems = result.data.updateMusicClock.clock.items;
-        
-        // Only update if the lengths match to avoid duplication
-        setClockItems(current => {
-          if (current.length === updatedItems.length) {
-            return updatedItems;
-          }
-          return current;
-        });
+        setClockItems(result.data.updateMusicClock.clock.items);
       }
     } catch (error) {
       console.error('Error saving clock items:', error);
       toast('Failed to save changes', 'error');
     }
   }, [clock?.id, convertClockItemToInput, isEditing, updateClock]);
-
-  // Auto-save when clock items change
-  // useEffect(() => {
-  //   if (clockItems.length === 0 && clock?.items?.length === 0) {
-  //     // Skip saving on initial load
-  //     return;
-  //   }
-
-  //   const timeoutId = setTimeout(() => {
-  //     saveClockItems();
-  //   }, 500); // Debounce saves by 500ms
-
-  //   return () => clearTimeout(timeoutId);
-  // }, [clockItems, saveClockItems, clock?.items?.length]);
 
   const methods = useForm<ClockFormData>({
     resolver: zodResolver(clockFormSchema),
@@ -407,14 +361,14 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
     },
   });
 
-  // Helper to create ClockItem from library data
+  // Create a new clock item from library data
   const createClockItemFromLibraryData = useCallback(
-    (itemType: string, data: Record<string, unknown>, orderIndex: number): ClockItem => {
+    (itemType: string, data: Record<string, unknown>): ClockItem => {
       const baseId = `temp-${Date.now()}-${Math.random()}`;
       const baseProps = {
         id: baseId,
         clockId: clock?.id || '',
-        orderIndex,
+        orderIndex: clockItems.length,
         duration: Number(data.duration) || 0,
       };
 
@@ -496,46 +450,39 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
           } as ClockItem;
       }
     },
-    [clock?.id],
-  );
-
-  // Helper to create temp item for drag preview
-  const createTempItemFromLibraryData = useCallback(
-    (itemType: string, data: Record<string, unknown>): ClockItem => {
-      return createClockItemFromLibraryData(itemType, data, 0);
-    },
-    [createClockItemFromLibraryData],
+    [clockItems.length, clock?.id],
   );
 
   const handleAddItem = useCallback(
     (itemType: string, data: Record<string, unknown>, position?: number) => {
-      const newItem = createClockItemFromLibraryData(itemType, data, position ?? clockItems.length);
-
-      let finalItems: ClockItem[];
+      const newItem = createClockItemFromLibraryData(itemType, data);
       
-      if (position !== undefined && position < clockItems.length) {
-        // Insert at specific position
-        const newItems = [...clockItems];
-        newItems.splice(position, 0, newItem);
+      setClockItems((prev) => {
+        let newItems: ClockItem[];
+        
+        if (position !== undefined && position < prev.length) {
+          // Insert at specific position
+          newItems = [...prev];
+          newItems.splice(position, 0, newItem);
+        } else {
+          // Add to end
+          newItems = [...prev, newItem];
+        }
+        
         // Update order indices
-        finalItems = newItems.map((item, index) => ({
+        const itemsWithOrderIndex = newItems.map((item, index) => ({
           ...item,
           orderIndex: index,
         }));
-      } else {
-        // Add to end
-        finalItems = [...clockItems, newItem];
-      }
-      
-      // Update local state optimistically
-      setClockItems(finalItems);
-      
-      // Save to server
-      setTimeout(() => saveClockItemsWithData(finalItems), 100);
+        
+        // Save to API
+        setTimeout(() => saveClockItems(itemsWithOrderIndex), 100);
+        
+        return itemsWithOrderIndex;
+      });
     },
-    [clockItems, createClockItemFromLibraryData, saveClockItemsWithData],
+    [createClockItemFromLibraryData, saveClockItems],
   );
-
 
   const handleItemEdit = useCallback((item: ClockItem) => {
     // TODO: Implement item edit dialog
@@ -550,39 +497,39 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
         orderIndex: index,
       }));
       
-      // Save after deletion with fresh data
-      setTimeout(() => saveClockItemsWithData(reindexed), 100);
+      // Save to API
+      setTimeout(() => saveClockItems(reindexed), 100);
       
       return reindexed;
     });
-  }, [saveClockItemsWithData]);
+  }, [saveClockItems]);
 
   const handleItemReorder = useCallback(
     (fromIndex: number, toIndex: number) => {
       setClockItems((prev) => {
         const newItems = arrayMove(prev, fromIndex, toIndex);
-        return newItems.map((item, index) => ({
+        const reorderedItems = newItems.map((item, index) => ({
           ...item,
           orderIndex: index,
         }));
+        
+        // Save to API
+        setTimeout(() => saveClockItems(reorderedItems), 100);
+        
+        return reorderedItems;
       });
     },
-    [],
+    [saveClockItems],
   );
 
   const handleDragStart = useCallback(
     (event: DragStartEvent) => {
       const { active } = event;
       
-      // Store current state for potential rollback
-      setClonedItems(clockItems);
-      
       // Handle library item drags
       if (active.data.current?.type === 'library-item') {
         const { itemType, data } = active.data.current;
-        
-        // Create a temporary item for preview
-        const tempItem = createTempItemFromLibraryData(itemType, data);
+        const tempItem = createClockItemFromLibraryData(itemType, data);
         setActiveItem(tempItem);
       } else {
         // Handle clock item drags
@@ -590,67 +537,21 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
         setActiveItem(item || null);
       }
     },
-    [clockItems, createTempItemFromLibraryData],
+    [clockItems, createClockItemFromLibraryData],
   );
-
-  const handleDragOver = useCallback((event: DragOverEvent) => {
-    const { active, over } = event;
-    const overId = over?.id;
-    
-    if (!overId) {
-      return;
-    }
-    
-    
-    // Handle library item being dragged over clock items
-    if (active.data.current?.type === 'library-item') {
-      const { itemType, data } = active.data.current;
-      
-      // Find where to insert
-      let insertIndex = clockItems.length;
-      
-      if (overId.toString().startsWith('clock-item-')) {
-        const targetId = overId.toString().replace('clock-item-', '');
-        const targetIndex = clockItems.findIndex(item => item.id === targetId);
-        if (targetIndex >= 0) {
-          insertIndex = targetIndex;
-        }
-      }
-      
-      // Create preview by inserting temp item
-      const tempItem = createTempItemFromLibraryData(itemType, data);
-      const newItems = [...clockItems];
-      newItems.splice(insertIndex, 0, { ...tempItem, id: `temp-preview-${Date.now()}` });
-      
-      setClockItems(newItems);
-    }
-  }, [clockItems, createTempItemFromLibraryData]);
 
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
       const { active, over } = event;
-      
-      // Restore original state first
-      if (clonedItems) {
-        setClockItems(clonedItems);
-      }
 
       // Handle library item drops
       if (active.data.current?.type === 'library-item') {
         const { itemType, data } = active.data.current;
 
-        if (over?.id) {
-          let insertIndex = clockItems.length;
-          
-          if (over.id.toString().startsWith('clock-item-')) {
-            const targetId = over.id.toString().replace('clock-item-', '');
-            const targetIndex = clockItems.findIndex(item => item.id === targetId);
-            if (targetIndex >= 0) {
-              insertIndex = targetIndex;
-            }
-          }
-          
-          handleAddItem(itemType, data, insertIndex);
+        if (over?.id && over.id !== active.id) {
+          // Find the drop position
+          const overIndex = clockItems.findIndex((item) => item.id === over.id);
+          handleAddItem(itemType, data, overIndex >= 0 ? overIndex : undefined);
         } else {
           // Drop at end
           handleAddItem(itemType, data);
@@ -658,35 +559,17 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
       }
       // Handle clock item reordering
       else if (active.id !== over?.id && over?.id) {
-        const activeIndex = clockItems.findIndex((item) => item.id === active.id);
-        let overIndex = clockItems.findIndex((item) => item.id === over.id);
-        
-        // Handle droppable zone IDs
-        if (over.id.toString().startsWith('clock-item-')) {
-          const targetId = over.id.toString().replace('clock-item-', '');
-          overIndex = clockItems.findIndex(item => item.id === targetId);
-        }
+        const oldIndex = clockItems.findIndex((item) => item.id === active.id);
+        const newIndex = clockItems.findIndex((item) => item.id === over?.id);
 
-        if (activeIndex !== -1 && overIndex !== -1 && activeIndex !== overIndex) {
-          const newItems = arrayMove(clockItems, activeIndex, overIndex);
-          const reorderedItems = newItems.map((item, index) => ({
-            ...item,
-            orderIndex: index,
-          }));
-          
-          setClockItems(reorderedItems);
-          
-          // Save after reordering with fresh data
-          setTimeout(() => {
-            saveClockItemsWithData(reorderedItems);
-          }, 100);
+        if (oldIndex !== -1 && newIndex !== -1) {
+          handleItemReorder(oldIndex, newIndex);
         }
       }
       
       setActiveItem(null);
-      setClonedItems(null);
     },
-    [handleAddItem, clockItems, saveClockItemsWithData, clonedItems],
+    [handleAddItem, clockItems, handleItemReorder],
   );
 
   const handleClockSubmit = useCallback(
@@ -730,9 +613,8 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
     <FormProvider {...methods}>
       <DndContext
         sensors={sensors}
-        collisionDetection={collisionDetectionStrategy}
+        collisionDetection={closestCenter}
         onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
       >
         <div className="clock-editor">
