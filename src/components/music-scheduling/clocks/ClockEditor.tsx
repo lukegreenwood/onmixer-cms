@@ -323,12 +323,13 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
     [],
   );
 
-  // Auto-save clock items whenever they change
-  const saveClockItems = useCallback(async () => {
+
+  // Save clock items with specific data (for fresh state)
+  const saveClockItemsWithData = useCallback(async (itemsToSave: ClockItem[]) => {
     if (!clock?.id || !isEditing) return;
 
     try {
-      const items = clockItems.map(convertClockItemToInput);
+      const items = itemsToSave.map(convertClockItemToInput);
       const result = await updateClock({
         variables: {
           input: {
@@ -351,7 +352,7 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
       console.error('Error saving clock items:', error);
       toast('Failed to save changes', 'error');
     }
-  }, [clock?.id, clockItems, convertClockItemToInput, isEditing, updateClock]);
+  }, [clock?.id, convertClockItemToInput, isEditing, updateClock]);
 
   // Auto-save when clock items change
   // useEffect(() => {
@@ -377,20 +378,20 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
     },
   });
 
-  const handleAddItem = useCallback(
-    (itemType: string, data: Record<string, unknown>, position?: number) => {
-      let newItem: ClockItem;
-      const baseId = `temp-${Date.now()}`;
+  // Helper to create ClockItem from library data
+  const createClockItemFromLibraryData = useCallback(
+    (itemType: string, data: Record<string, unknown>, orderIndex: number): ClockItem => {
+      const baseId = `temp-${Date.now()}-${Math.random()}`;
       const baseProps = {
         id: baseId,
         clockId: clock?.id || '',
-        orderIndex: position ?? clockItems.length,
+        orderIndex,
         duration: Number(data.duration) || 0,
       };
 
       switch (itemType) {
         case 'track':
-          newItem = {
+          return {
             ...baseProps,
             __typename: 'TrackClockItem',
             track: {
@@ -399,9 +400,8 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
               title: (data.name as string) || 'Unknown Track',
             },
           } as ClockItem;
-          break;
         case 'subcategory':
-          newItem = {
+          return {
             ...baseProps,
             __typename: 'SubcategoryClockItem',
             subcategory: {
@@ -410,9 +410,8 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
               name: data.name as string,
             },
           } as ClockItem;
-          break;
         case 'genre':
-          newItem = {
+          return {
             ...baseProps,
             __typename: 'GenreClockItem',
             genre: {
@@ -421,10 +420,9 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
               name: data.name as string,
             },
           } as ClockItem;
-          break;
         case 'note':
         case 'library_note':
-          newItem = {
+          return {
             ...baseProps,
             __typename: 'LibraryNoteClockItem',
             note: {
@@ -435,10 +433,9 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
               content: data.content as string,
             },
           } as ClockItem;
-          break;
         case 'command':
         case 'library_command':
-          newItem = {
+          return {
             ...baseProps,
             __typename: 'LibraryCommandClockItem',
             libraryCommand: {
@@ -448,10 +445,9 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
               command: data.command as string,
             },
           } as ClockItem;
-          break;
         case 'ad_break':
         case 'library_ad_break':
-          newItem = {
+          return {
             ...baseProps,
             __typename: 'LibraryAdBreakClockItem',
             adBreak: {
@@ -461,16 +457,30 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
               scheduledStartTime: data.scheduledStartTime as string,
             },
           } as ClockItem;
-          break;
         default:
           console.warn('Unknown item type:', itemType);
-          newItem = {
+          return {
             ...baseProps,
             __typename: 'NoteClockItem',
             content: 'Unknown item',
             duration: 0,
           } as ClockItem;
       }
+    },
+    [clock?.id],
+  );
+
+  // Helper to create temp item for drag preview
+  const createTempItemFromLibraryData = useCallback(
+    (itemType: string, data: Record<string, unknown>): ClockItem => {
+      return createClockItemFromLibraryData(itemType, data, 0);
+    },
+    [createClockItemFromLibraryData],
+  );
+
+  const handleAddItem = useCallback(
+    (itemType: string, data: Record<string, unknown>, position?: number) => {
+      const newItem = createClockItemFromLibraryData(itemType, data, position ?? clockItems.length);
 
       if (position !== undefined && position < clockItems.length) {
         // Insert at specific position
@@ -478,18 +488,31 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
           const newItems = [...prev];
           newItems.splice(position, 0, newItem);
           // Update order indices
-          return newItems.map((item, index) => ({
+          const reorderedItems = newItems.map((item, index) => ({
             ...item,
             orderIndex: index,
           }));
+          
+          // Save after adding with fresh data
+          setTimeout(() => saveClockItemsWithData(reorderedItems), 100);
+          
+          return reorderedItems;
         });
       } else {
         // Add to end
-        setClockItems((prev) => [...prev, newItem]);
+        setClockItems((prev) => {
+          const newItems = [...prev, newItem];
+          
+          // Save after adding with fresh data
+          setTimeout(() => saveClockItemsWithData(newItems), 100);
+          
+          return newItems;
+        });
       }
     },
-    [clockItems.length, clock?.id],
+    [clockItems.length, createClockItemFromLibraryData, saveClockItemsWithData],
   );
+
 
   const handleItemEdit = useCallback((item: ClockItem) => {
     // TODO: Implement item edit dialog
@@ -497,8 +520,19 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
   }, []);
 
   const handleItemDelete = useCallback((itemId: string) => {
-    setClockItems((prev) => prev.filter((item) => item.id !== itemId));
-  }, []);
+    setClockItems((prev) => {
+      const filtered = prev.filter((item) => item.id !== itemId);
+      const reindexed = filtered.map((item, index) => ({
+        ...item,
+        orderIndex: index,
+      }));
+      
+      // Save after deletion with fresh data
+      setTimeout(() => saveClockItemsWithData(reindexed), 100);
+      
+      return reindexed;
+    });
+  }, [saveClockItemsWithData]);
 
   const handleItemReorder = useCallback(
     (fromIndex: number, toIndex: number) => {
@@ -516,10 +550,21 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
   const handleDragStart = useCallback(
     (event: DragStartEvent) => {
       const { active } = event;
-      const item = clockItems.find((item) => item.id === active.id);
-      setActiveItem(item || null);
+      
+      // Handle library item drags
+      if (active.data.current?.type === 'library-item') {
+        const { itemType, data } = active.data.current;
+        
+        // Create a temporary item for preview
+        const tempItem = createTempItemFromLibraryData(itemType, data);
+        setActiveItem(tempItem);
+      } else {
+        // Handle clock item drags
+        const item = clockItems.find((item) => item.id === active.id);
+        setActiveItem(item || null);
+      }
     },
-    [clockItems],
+    [clockItems, createTempItemFromLibraryData],
   );
 
   const handleDragEnd = useCallback(
@@ -548,16 +593,23 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
           if (oldIndex === -1 || newIndex === -1) return items;
 
           const newItems = arrayMove(items, oldIndex, newIndex);
-          return newItems.map((item, index) => ({
+          const reorderedItems = newItems.map((item, index) => ({
             ...item,
             orderIndex: index,
           }));
+          
+          // Save after reordering with fresh data
+          setTimeout(() => {
+            saveClockItemsWithData(reorderedItems);
+          }, 100);
+          
+          return reorderedItems;
         });
       }
-      saveClockItems();
+      
       setActiveItem(null);
     },
-    [handleAddItem, clockItems, saveClockItems],
+    [handleAddItem, clockItems, saveClockItemsWithData],
   );
 
   const handleClockSubmit = useCallback(
