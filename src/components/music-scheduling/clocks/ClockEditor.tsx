@@ -6,6 +6,7 @@ import {
   DragEndEvent,
   DragOverlay,
   DragStartEvent,
+  DragOverEvent,
   closestCenter,
   KeyboardSensor,
   PointerSensor,
@@ -232,6 +233,7 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
   const [clockItems, setClockItems] = useState<ClockItem[]>(clock?.items || []);
   const [isClockDialogOpen, setIsClockDialogOpen] = useState(false);
   const [activeItem, setActiveItem] = useState<ClockItem | null>(null);
+  const [overId, setOverId] = useState<string | null>(null);
 
   const [updateClock, { loading: updateLoading }] =
     useMutation(UPDATE_MUSIC_CLOCK);
@@ -343,10 +345,17 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
         },
       });
 
-      // Update local state with new IDs from the API response
+      // Update local state with new IDs from the API response, but preserve local changes
       if (result.data?.updateMusicClock?.clock?.items) {
         const updatedItems = result.data.updateMusicClock.clock.items;
-        setClockItems(updatedItems);
+        
+        // Only update if the lengths match to avoid duplication
+        setClockItems(current => {
+          if (current.length === updatedItems.length) {
+            return updatedItems;
+          }
+          return current;
+        });
       }
     } catch (error) {
       console.error('Error saving clock items:', error);
@@ -482,35 +491,29 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
     (itemType: string, data: Record<string, unknown>, position?: number) => {
       const newItem = createClockItemFromLibraryData(itemType, data, position ?? clockItems.length);
 
+      let finalItems: ClockItem[];
+      
       if (position !== undefined && position < clockItems.length) {
         // Insert at specific position
-        setClockItems((prev) => {
-          const newItems = [...prev];
-          newItems.splice(position, 0, newItem);
-          // Update order indices
-          const reorderedItems = newItems.map((item, index) => ({
-            ...item,
-            orderIndex: index,
-          }));
-          
-          // Save after adding with fresh data
-          setTimeout(() => saveClockItemsWithData(reorderedItems), 100);
-          
-          return reorderedItems;
-        });
+        const newItems = [...clockItems];
+        newItems.splice(position, 0, newItem);
+        // Update order indices
+        finalItems = newItems.map((item, index) => ({
+          ...item,
+          orderIndex: index,
+        }));
       } else {
         // Add to end
-        setClockItems((prev) => {
-          const newItems = [...prev, newItem];
-          
-          // Save after adding with fresh data
-          setTimeout(() => saveClockItemsWithData(newItems), 100);
-          
-          return newItems;
-        });
+        finalItems = [...clockItems, newItem];
       }
+      
+      // Update local state optimistically
+      setClockItems(finalItems);
+      
+      // Save to server
+      setTimeout(() => saveClockItemsWithData(finalItems), 100);
     },
-    [clockItems.length, createClockItemFromLibraryData, saveClockItemsWithData],
+    [clockItems, createClockItemFromLibraryData, saveClockItemsWithData],
   );
 
 
@@ -567,6 +570,11 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
     [clockItems, createTempItemFromLibraryData],
   );
 
+  const handleDragOver = useCallback((event: DragOverEvent) => {
+    const { over } = event;
+    setOverId(over ? String(over.id) : null);
+  }, []);
+
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
       const { active, over } = event;
@@ -608,6 +616,7 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
       }
       
       setActiveItem(null);
+      setOverId(null);
     },
     [handleAddItem, clockItems, saveClockItemsWithData],
   );
@@ -655,6 +664,7 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
         sensors={sensors}
         collisionDetection={closestCenter}
         onDragStart={handleDragStart}
+        onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
       >
         <div className="clock-editor">
@@ -774,6 +784,8 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
                   onItemDelete={handleItemDelete}
                   onItemReorder={handleItemReorder}
                   onItemAdd={handleAddItem}
+                  activeId={activeItem?.id}
+                  overId={overId}
                 />
               </SortableContext>
             </div>

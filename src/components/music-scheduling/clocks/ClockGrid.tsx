@@ -1,5 +1,6 @@
 'use client';
 
+import { useDroppable } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Badge, Button, DropdownMenu } from '@soundwaves/components';
@@ -33,6 +34,8 @@ interface ClockGridProps {
     data: Record<string, unknown>,
     position?: number,
   ) => void;
+  activeId?: string;
+  overId?: string | null;
 }
 
 interface SortableItemProps {
@@ -290,12 +293,25 @@ function SortableItem({
   );
 }
 
+// Droppable zone component for the end of the list
+const DropZone = ({ id }: { id: string }) => {
+  const { setNodeRef } = useDroppable({ id });
+  
+  return (
+    <div 
+      ref={setNodeRef}
+      style={{ height: '20px', minHeight: '20px' }}
+    />
+  );
+};
+
 export const ClockGrid = ({
   items,
   onItemEdit,
   onItemDelete,
+  activeId,
+  overId,
 }: ClockGridProps) => {
-
   return (
     <div className="clock-grid">
       <div className="clock-grid__header">
@@ -309,16 +325,44 @@ export const ClockGrid = ({
       </div>
 
       <div className="clock-grid__body">
-        {items.map((item, index) => (
-          <SortableItem
-            key={item.id}
-            item={item}
-            index={index}
-            items={items}
-            onItemEdit={onItemEdit}
-            onItemDelete={onItemDelete}
-          />
-        ))}
+        {items.map((item, index) => {
+          const isOverCurrent = overId === item.id;
+          const isDraggingLibraryItem = activeId && activeId.startsWith('library-');
+          
+          // Debug logging
+          if (isDraggingLibraryItem) {
+            console.log('Dragging library item:', { activeId, overId, isOverCurrent, itemId: item.id });
+          }
+          
+          return (
+            <React.Fragment key={item.id}>
+              {/* Show insertion placeholder above current item when dragging library item */}
+              {isDraggingLibraryItem && isOverCurrent && (
+                <div className="clock-grid__insertion-placeholder">
+                  <div className="clock-grid__insertion-line" />
+                </div>
+              )}
+              
+              <SortableItem
+                item={item}
+                index={index}
+                items={items}
+                onItemEdit={onItemEdit}
+                onItemDelete={onItemDelete}
+              />
+            </React.Fragment>
+          );
+        })}
+        
+        {/* Show insertion placeholder at end when dragging over empty space */}
+        {activeId && activeId.startsWith('library-') && overId === 'clock-grid-end' && (
+          <div className="clock-grid__insertion-placeholder">
+            <div className="clock-grid__insertion-line" />
+          </div>
+        )}
+        
+        {/* Droppable zone at the end for dropping at the end of the list */}
+        <DropZone id="clock-grid-end" />
       </div>
     </div>
   );

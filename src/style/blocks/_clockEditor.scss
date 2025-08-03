@@ -414,6 +414,24 @@
     }
   }
 
+  &__insertion-placeholder {
+    height: 8px;
+    margin: mixins.spacing(1) mixins.spacing(4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s ease-in-out;
+  }
+
+  &__insertion-line {
+    width: 100%;
+    height: 3px;
+    background: palette.$blue-500;
+    border-radius: sizing.$radius-3xl;
+    box-shadow: 0 0 8px rgba(palette.$blue-500, 0.4);
+    animation: pulse 1s ease-in-out infinite alternate;
+  }
+
   &__cell {
     display: flex;
     align-items: center;
@@ -534,6 +552,28 @@
     &__row {
       grid-template-columns: 120px 200px 1fr 200px 100px 100px 80px;
     }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scaleY(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+@keyframes pulse {
+  from {
+    opacity: 0.6;
+    transform: scaleX(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(1);
   }
 }
 
