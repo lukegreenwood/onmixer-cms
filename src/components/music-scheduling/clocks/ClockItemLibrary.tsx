@@ -1,6 +1,7 @@
 'use client';
 
 import { useLazyQuery, useMutation } from '@apollo/client';
+import { useDraggable } from '@dnd-kit/core';
 import { Input, Button, Dialog } from '@soundwaves/components';
 import { useState } from 'react';
 
@@ -16,6 +17,7 @@ import {
   DeleteIcon,
   AudioIcon,
   ChevronRightIcon,
+  GripVerticalIcon,
 } from '@/components/icons';
 import type {
   GetCategoriesQuery,
@@ -45,6 +47,87 @@ import { toast } from '@/lib/toast';
 
 interface ClockItemLibraryProps {
   onAddItem: (itemType: string, data: Record<string, unknown>) => void;
+}
+
+interface DraggableLibraryItemProps {
+  id: string;
+  itemType: string;
+  data: Record<string, unknown>;
+  icon: React.ComponentType<{ size: number }>;
+  title: string;
+  description?: string;
+  onDelete?: () => void;
+  style?: React.CSSProperties;
+}
+
+function DraggableLibraryItem({
+  id,
+  itemType,
+  data,
+  icon: Icon,
+  title,
+  description,
+  onDelete,
+  style,
+}: DraggableLibraryItemProps) {
+  const { attributes, listeners, setNodeRef, transform, isDragging } =
+    useDraggable({
+      id,
+      data: {
+        type: 'library-item',
+        itemType,
+        data,
+      },
+    });
+
+  const dragStyle = transform
+    ? {
+        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+      }
+    : undefined;
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={`clock-item-library__item clock-item-library__item--draggable ${
+        isDragging ? 'is-dragging' : ''
+      }`}
+      style={{ ...style, ...dragStyle }}
+      {...attributes}
+      {...listeners}
+    >
+      <div className="clock-item-library__item-icon">
+        <Icon size={16} />
+      </div>
+      <div className="clock-item-library__item-content">
+        <div className="clock-item-library__item-title">{title}</div>
+        {description && (
+          <div className="clock-item-library__item-description">
+            {description}
+          </div>
+        )}
+      </div>
+      <div className="clock-item-library__item-actions">
+        {onDelete && (
+          <Button
+            variant="transparent"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+            size="xs-icon"
+            isIconOnly
+            destructive
+          >
+            <DeleteIcon size={14} />
+          </Button>
+        )}
+        <div className="clock-item-library__drag-handle">
+          <GripVerticalIcon size={14} />
+        </div>
+      </div>
+    </div>
+  );
 }
 
 type LibraryView =
@@ -468,50 +551,31 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
                 };
               }
 
+              let icon = NoteIcon;
+              if (type === MusicClockLibraryItemType.Command) {
+                icon = CommandIcon;
+              } else if (type === MusicClockLibraryItemType.AdBreak) {
+                icon = AdIcon;
+              }
+
+              let description = '';
+              if (type === MusicClockLibraryItemType.Command && 'command' in item && item.command) {
+                description = item.command;
+              } else if (type === MusicClockLibraryItemType.AdBreak) {
+                description = `${item.duration || 180}s`;
+              }
+
               return (
-                  <div 
-                    key={item.id as string}
-                    className="clock-item-library__item clock-item-library__item--clickable"
-                    onClick={() => onAddItem(itemType, dragData)}
-                  >
-                    <div className="clock-item-library__item-icon">
-                      {type === MusicClockLibraryItemType.Note && (
-                        <NoteIcon size={16} />
-                      )}
-                      {type === MusicClockLibraryItemType.Command && (
-                        <CommandIcon size={16} />
-                      )}
-                      {type === MusicClockLibraryItemType.AdBreak && (
-                        <AdIcon size={16} />
-                      )}
-                    </div>
-                    <div className="clock-item-library__item-content">
-                      <div className="clock-item-library__item-title">
-                        {'label' in item ? item.label : item.id}
-                      </div>
-                      <div className="clock-item-library__item-description">
-                        {type === MusicClockLibraryItemType.Command &&
-                          'command' in item &&
-                          item.command}
-                        {type === MusicClockLibraryItemType.AdBreak &&
-                          `${item.duration || 180}s`}
-                      </div>
-                    </div>
-                    <div className="clock-item-library__item-actions">
-                      <Button
-                        variant="transparent"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteLibraryItem(item.id);
-                        }}
-                        size="xs-icon"
-                        isIconOnly
-                        destructive
-                      >
-                        <DeleteIcon size={14} />
-                      </Button>
-                    </div>
-                  </div>
+                <DraggableLibraryItem
+                  key={item.id as string}
+                  id={`library-${item.id}`}
+                  itemType={itemType}
+                  data={dragData}
+                  icon={icon}
+                  title={'label' in item ? item.label : item.id}
+                  description={description}
+                  onDelete={() => handleDeleteLibraryItem(item.id)}
+                />
               );
             })}
         </div>
@@ -533,29 +597,24 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
         </div>
       </div>
       <div className="clock-item-library__items clock-item-library__items--scrollable">
-        {tracks.map((track) => (
-          <div 
-            key={track.id}
-            className="clock-item-library__item clock-item-library__item--clickable"
-            onClick={() => onAddItem('track', {
-              trackId: track.id,
-              name: `${track.artist} - ${track.title}`,
-              duration: track.duration?.raw || 0,
-            })}
-          >
-            <div className="clock-item-library__item-icon">
-              <AudioIcon size={16} />
-            </div>
-            <div className="clock-item-library__item-content">
-              <div className="clock-item-library__item-title">
-                {track.artist} - {track.title}
-              </div>
-              <div className="clock-item-library__item-description">
-                {track.duration?.formatted || '0:00'}
-              </div>
-            </div>
-          </div>
-        ))}
+        {tracks.map((track) => {
+          const trackData = {
+            trackId: track.id,
+            name: `${track.artist} - ${track.title}`,
+            duration: track.duration?.raw || 0,
+          };
+          return (
+            <DraggableLibraryItem
+              key={track.id}
+              id={`track-${track.id}`}
+              itemType="track"
+              data={trackData}
+              icon={AudioIcon}
+              title={`${track.artist} - ${track.title}`}
+              description={track.duration?.formatted || '0:00'}
+            />
+          );
+        })}
       </div>
     </>
   );
@@ -574,26 +633,23 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
         </div>
       </div>
       <div className="clock-item-library__items clock-item-library__items--scrollable">
-        {genres.map((genre) => (
-          <div 
-            key={genre.id}
-            className="clock-item-library__item clock-item-library__item--clickable"
-            onClick={() => onAddItem('genre', {
-              genreId: genre.id,
-              name: genre.name,
-              duration: 180,
-            })}
-          >
-            <div className="clock-item-library__item-icon">
-              <GenreIcon size={16} />
-            </div>
-            <div className="clock-item-library__item-content">
-              <div className="clock-item-library__item-title">
-                {genre.name}
-              </div>
-            </div>
-          </div>
-        ))}
+        {genres.map((genre) => {
+          const genreData = {
+            genreId: genre.id,
+            name: genre.name,
+            duration: 180,
+          };
+          return (
+            <DraggableLibraryItem
+              key={genre.id}
+              id={`genre-${genre.id}`}
+              itemType="genre"
+              data={genreData}
+              icon={GenreIcon}
+              title={genre.name}
+            />
+          );
+        })}
       </div>
     </>
   );
@@ -670,36 +726,32 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
                   .toLowerCase()
                   .includes(searchTerm.toLowerCase()),
             )
-            .map((subcategory) => (
-              <div
-                key={subcategory.id}
-                className="clock-item-library__item clock-item-library__item--clickable"
-                style={
-                  {
-                    '--item-background-color': subcategory.color,
-                  } as React.CSSProperties
-                }
-                onClick={() => onAddItem('subcategory', {
-                  subcategoryId: subcategory.id,
-                  name: subcategory.name,
-                  duration: subcategory.averageDuration?.raw || 0,
-                })}
-              >
-                <div className="clock-item-library__item-icon">
-                  <CategoryIcon size={16} />
-                </div>
-                <div className="clock-item-library__item-content">
-                  <div className="clock-item-library__item-title">
-                    {subcategory.name}
-                  </div>
-                </div>
-                <div className="clock-item-library__item-description">
-                  {subcategory.averageDuration?.formatted
-                    ? `~${subcategory.averageDuration.formatted}`
-                    : ''}
-                </div>
-              </div>
-            ))}
+            .map((subcategory) => {
+              const subcategoryData = {
+                subcategoryId: subcategory.id,
+                name: subcategory.name,
+                duration: subcategory.averageDuration?.raw || 0,
+              };
+              const subcategoryStyle = {
+                '--item-background-color': subcategory.color,
+              } as React.CSSProperties;
+              return (
+                <DraggableLibraryItem
+                  key={subcategory.id}
+                  id={`subcategory-${subcategory.id}`}
+                  itemType="subcategory"
+                  data={subcategoryData}
+                  icon={CategoryIcon}
+                  title={subcategory.name}
+                  description={
+                    subcategory.averageDuration?.formatted
+                      ? `~${subcategory.averageDuration.formatted}`
+                      : ''
+                  }
+                  style={subcategoryStyle}
+                />
+              );
+            })}
         </div>
       </>
     );

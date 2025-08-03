@@ -324,6 +324,44 @@
     opacity: 1;
   }
 
+  &__drag-handle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: palette.$gray-400;
+    cursor: grab;
+    padding: mixins.spacing(1);
+    border-radius: sizing.$radius-sm;
+    transition: all 0.15s ease;
+
+    &:hover {
+      color: palette.$gray-600;
+      background: palette.$gray-100;
+    }
+
+    &:active {
+      cursor: grabbing;
+      background: palette.$gray-200;
+    }
+  }
+
+  &__item.is-dragging {
+    opacity: 0.5;
+    transform: rotate(2deg);
+    z-index: 1000;
+  }
+
+  &__item--dragging {
+    background: palette.$white-900;
+    border: 1px solid palette.$gray-200;
+    border-radius: sizing.$radius-md;
+    box-shadow: shadows.$shadows-lg;
+    opacity: 0.9;
+    transform: rotate(2deg);
+    z-index: 1000;
+    pointer-events: none;
+  }
+
   &__add-btn {
     background: none;
     border: none;
@@ -351,7 +389,7 @@
 
   &__header {
     display: grid;
-    grid-template-columns: 100px 180px 1fr 180px 80px 80px 60px;
+    grid-template-columns: 60px 100px 180px 1fr 180px 80px 80px 60px;
     gap: mixins.spacing(2);
     padding: mixins.spacing(3) mixins.spacing(4);
     background: palette.$gray-50;
@@ -374,7 +412,7 @@
 
   &__row {
     display: grid;
-    grid-template-columns: 100px 180px 1fr 180px 80px 80px 60px;
+    grid-template-columns: 60px 100px 180px 1fr 180px 80px 80px 60px;
     gap: mixins.spacing(2);
     padding: mixins.spacing(3) mixins.spacing(4);
     border-bottom: 1px solid palette.$gray-100;
@@ -398,11 +436,18 @@
       border-top: 3px solid palette.$blue-500;
       background: palette.$blue-50;
     }
+
+    &--ghost {
+      background: palette.$blue-50;
+      border: 2px dashed palette.$blue-300;
+      opacity: 0.8;
+      animation: fadeIn 0.2s ease-in-out;
+    }
   }
 
   &__placeholder {
     display: grid;
-    grid-template-columns: 100px 180px 1fr 180px 80px 80px 60px;
+    grid-template-columns: 60px 100px 180px 1fr 180px 80px 80px 60px;
     gap: mixins.spacing(2);
     padding: mixins.spacing(3) mixins.spacing(4);
     border: 2px dashed palette.$blue-300;
@@ -481,19 +526,37 @@
     &--actions {
       justify-content: flex-end;
     }
+
+    &--drag-handle {
+      justify-content: center;
+    }
   }
 
   &__drag-handle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     color: palette.$gray-400;
     cursor: grab;
+    padding: mixins.spacing(1);
+    border-radius: sizing.$radius-sm;
+    transition: all 0.15s ease;
 
     &:hover {
       color: palette.$gray-600;
+      background: palette.$gray-100;
     }
 
     &:active {
       cursor: grabbing;
+      background: palette.$gray-200;
     }
+  }
+
+  &__row.is-dragging {
+    opacity: 0.5;
+    background: palette.$blue-50;
+    border: 1px dashed palette.$blue-300;
   }
 }
 
@@ -557,7 +620,7 @@
   .clock-grid {
     &__header,
     &__row {
-      grid-template-columns: 120px 200px 1fr 200px 100px 100px 80px;
+      grid-template-columns: 80px 120px 200px 1fr 200px 100px 100px 80px;
     }
   }
 }
@@ -584,6 +647,22 @@
   }
 }
 
+// Drag overlay styles
+.drag-overlay {
+  background: palette.$white-900;
+  border: 1px solid palette.$gray-200;
+  border-radius: sizing.$radius-md;
+  box-shadow: shadows.$shadows-lg;
+  padding: mixins.spacing(3);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: palette.$gray-900;
+  opacity: 0.9;
+  transform: rotate(2deg);
+  z-index: 1000;
+  pointer-events: none;
+}
+
 // Only stack on very small mobile screens (below sm breakpoint)
 @media (max-width: 639px) {
   .clock-editor {
@@ -601,7 +680,7 @@
   .clock-grid {
     &__header,
     &__row {
-      grid-template-columns: 60px 100px 1fr 100px 50px 50px 30px;
+      grid-template-columns: 40px 60px 100px 1fr 100px 50px 50px 30px;
       padding: mixins.spacing(2);
       font-size: 0.7rem;
     }

@@ -1,5 +1,8 @@
 'use client';
 
+import { useDroppable } from '@dnd-kit/core';
+import { useSortable, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { Badge, Button, DropdownMenu } from '@soundwaves/components';
 import React from 'react';
 
@@ -13,12 +16,154 @@ import {
   GenreIcon,
   EditIcon,
   DeleteIcon,
+  GripVerticalIcon,
 } from '@/components/icons';
 import type { GetMusicClockQuery } from '@/graphql/__generated__/graphql';
 
 import { formatDuration } from '../utils';
 
 type ClockItem = NonNullable<GetMusicClockQuery['musicClock']>['items'][number];
+
+// Ghost item component to show preview of dragged item
+function GhostClockItem({ draggedItem }: {
+  draggedItem: {
+    type?: string;
+    itemType?: string;
+    data?: Record<string, unknown>;
+    item?: any;
+  };
+}) {
+  let Icon = AudioIcon;
+  let typeLabel = 'Unknown';
+  let title = 'Item';
+  let description = '';
+  
+  // Handle grid item reordering
+  if (draggedItem.type === 'grid-item' && draggedItem.item) {
+    const gridItem = draggedItem.item;
+    
+    switch (gridItem.__typename) {
+      case 'TrackClockItem':
+        Icon = AudioIcon;
+        typeLabel = 'Track';
+        title = gridItem.track?.title || 'Track';
+        description = formatDuration(Math.floor(Math.abs(gridItem.duration || 0)));
+        break;
+      case 'NoteClockItem':
+        Icon = NoteIcon;
+        typeLabel = 'Note';
+        title = gridItem.content || 'Note';
+        break;
+      case 'CommandClockItem':
+        Icon = CommandIcon;
+        typeLabel = 'Command';
+        title = gridItem.command || 'Command';
+        break;
+      case 'AdBreakClockItem':
+        Icon = AdIcon;
+        typeLabel = 'Commercial';
+        title = gridItem.scheduledStartTime || '00:00';
+        description = formatDuration(Math.floor(Math.abs(gridItem.duration || 180)));
+        break;
+      case 'SubcategoryClockItem':
+        Icon = CategoryIcon;
+        typeLabel = gridItem.subcategory?.name || 'Category';
+        title = 'Unscheduled position';
+        break;
+      case 'GenreClockItem':
+        Icon = GenreIcon;
+        typeLabel = gridItem.genre?.name || 'Genre';
+        title = 'Unscheduled position';
+        break;
+      case 'LibraryNoteClockItem':
+        Icon = NoteIcon;
+        typeLabel = 'Library Note';
+        title = (gridItem as any).note?.content || 'Library Note';
+        break;
+      case 'LibraryCommandClockItem':
+        Icon = CommandIcon;
+        typeLabel = 'Library Command';
+        title = (gridItem as any).libraryCommand?.command || 'Library Command';
+        break;
+      case 'LibraryAdBreakClockItem':
+        Icon = AdIcon;
+        typeLabel = 'Library Ad Break';
+        title = (gridItem as any).adBreak?.scheduledStartTime || '00:00';
+        description = formatDuration(Math.floor(Math.abs(gridItem.duration || 180)));
+        break;
+    }
+  } else {
+    // Handle library items
+    const { itemType, data } = draggedItem;
+    title = data?.name as string || 'Item';
+    
+    if (itemType === 'track') {
+      Icon = AudioIcon;
+      typeLabel = 'Track';
+      description = `${formatDuration((data?.duration as number) || 0)}`;
+    } else if (itemType === 'genre') {
+      Icon = GenreIcon;
+      typeLabel = data?.name as string || 'Genre';
+    } else if (itemType === 'subcategory') {
+      Icon = CategoryIcon;
+      typeLabel = data?.name as string || 'Category';
+    } else if (itemType === 'note' || itemType === 'library_note') {
+      Icon = NoteIcon;
+      typeLabel = 'Note';
+    } else if (itemType === 'command' || itemType === 'library_command') {
+      Icon = CommandIcon;
+      typeLabel = 'Command';
+    } else if (itemType === 'ad_break' || itemType === 'library_ad_break') {
+      Icon = AdIcon;
+      typeLabel = 'Commercial';
+      description = `${(data?.duration as number) || 180}s`;
+    }
+  }
+
+  return (
+    <div className="clock-grid__row clock-grid__row--ghost">
+      <div className="clock-grid__cell clock-grid__cell--drag-handle">
+        <div className="clock-grid__drag-handle">
+          <GripVerticalIcon size={16} />
+        </div>
+      </div>
+      
+      <div className="clock-grid__cell clock-grid__cell--air-time">
+        <span>--:--</span>
+      </div>
+
+      <div className="clock-grid__cell clock-grid__cell--type">
+        <Badge
+          color="gray"
+          size="sm"
+          before={<Icon size={16} />}
+        >
+          {typeLabel}
+        </Badge>
+      </div>
+
+      <div className="clock-grid__cell clock-grid__cell--title">
+        {title}
+      </div>
+
+      <div className="clock-grid__cell clock-grid__cell--artist">
+        {/* Empty for now */}
+      </div>
+
+      <div className="clock-grid__cell clock-grid__cell--duration">
+        {description || formatDuration(180)}
+      </div>
+
+      <div className="clock-grid__cell clock-grid__cell--item-id">
+        ------
+      </div>
+
+      <div className="clock-grid__cell clock-grid__cell--actions">
+        {/* Empty for ghost */}
+      </div>
+    </div>
+  );
+}
 
 interface ClockGridProps {
   items: ClockItem[];
@@ -30,6 +175,13 @@ interface ClockGridProps {
     data: Record<string, unknown>,
     position?: number,
   ) => void;
+  insertionIndex?: number | null;
+  draggedItem?: {
+    type?: string;
+    itemType?: string;
+    data?: Record<string, unknown>;
+    item?: any;
+  } | null;
 }
 
 interface SortableItemProps {
@@ -40,13 +192,33 @@ interface SortableItemProps {
   onItemDelete: (itemId: string) => void;
 }
 
-function ClockItem({
+function SortableClockItem({
   item,
   index,
   items,
   onItemEdit,
   onItemDelete,
 }: SortableItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ 
+    id: item.id,
+    data: {
+      type: 'grid-item',
+      item,
+    },
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
 
   const getItemIcon = (item: ClockItem) => {
     switch (item.__typename) {
@@ -195,7 +367,21 @@ function ClockItem({
   const badgeColor = getItemBadgeColor(item);
 
   return (
-    <div className="clock-grid__row">
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`clock-grid__row ${isDragging ? 'is-dragging' : ''}`}
+    >
+      <div className="clock-grid__cell clock-grid__cell--drag-handle">
+        <div
+          className="clock-grid__drag-handle"
+          {...attributes}
+          {...listeners}
+        >
+          <GripVerticalIcon size={16} />
+        </div>
+      </div>
+      
       <div className="clock-grid__cell clock-grid__cell--air-time">
         <span>{airTime}</span>
       </div>
@@ -264,10 +450,17 @@ export const ClockGrid = ({
   items,
   onItemEdit,
   onItemDelete,
+  insertionIndex,
+  draggedItem,
 }: ClockGridProps) => {
+  const { setNodeRef } = useDroppable({
+    id: 'clock-grid',
+  });
+
   return (
-    <div className="clock-grid">
+    <div ref={setNodeRef} className="clock-grid">
       <div className="clock-grid__header">
+        <div className="clock-grid__column">Drag</div>
         <div className="clock-grid__column">Air Time</div>
         <div className="clock-grid__column">Type / Category</div>
         <div className="clock-grid__column">Title</div>
@@ -278,16 +471,31 @@ export const ClockGrid = ({
       </div>
 
       <div className="clock-grid__body">
-        {items.map((item, index) => (
-          <ClockItem
-            key={item.id}
-            item={item}
-            index={index}
-            items={items}
-            onItemEdit={onItemEdit}
-            onItemDelete={onItemDelete}
-          />
-        ))}
+        <SortableContext
+          items={items.map((item) => item.id)}
+          strategy={verticalListSortingStrategy}
+        >
+          {items.map((item, index) => {
+            const showGhostBefore = insertionIndex === index;
+            return (
+              <React.Fragment key={item.id}>
+                {showGhostBefore && draggedItem && (
+                  <GhostClockItem draggedItem={draggedItem} />
+                )}
+                <SortableClockItem
+                  item={item}
+                  index={index}
+                  items={items}
+                  onItemEdit={onItemEdit}
+                  onItemDelete={onItemDelete}
+                />
+              </React.Fragment>
+            );
+          })}
+          {insertionIndex === items.length && draggedItem && (
+            <GhostClockItem draggedItem={draggedItem} />
+          )}
+        </SortableContext>
       </div>
     </div>
   );
