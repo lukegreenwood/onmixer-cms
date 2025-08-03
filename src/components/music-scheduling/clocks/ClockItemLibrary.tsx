@@ -1,7 +1,7 @@
 'use client';
 
 import { useLazyQuery, useMutation } from '@apollo/client';
-import { useDraggable } from '@dnd-kit/core';
+import { useDraggable, useDroppable } from '@dnd-kit/core';
 import { Input, Button, Dialog } from '@soundwaves/components';
 import { useState } from 'react';
 
@@ -144,6 +144,9 @@ type LibraryItemType = MusicClockLibraryItemType;
 
 export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
   const { currentNetwork } = useNetwork();
+  const { setNodeRef, isOver, active } = useDroppable({
+    id: 'library',
+  });
   const [currentView, setCurrentView] = useState<LibraryView>('main');
   const [searchTerm, setSearchTerm] = useState('');
   const [currentCategory, setCurrentCategory] = useState<
@@ -757,8 +760,11 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
     );
   };
 
+  // Only show drop target styling when dragging a grid item (not library item)
+  const isGridItemOver = isOver && active?.data.current?.type === 'grid-item';
+  
   return (
-    <div className="clock-item-library">
+    <div ref={setNodeRef} className={`clock-item-library ${isGridItemOver ? 'clock-item-library--drop-target' : ''}`}>
       <div className="clock-item-library__header">
         {currentView !== 'main' && (
           <button

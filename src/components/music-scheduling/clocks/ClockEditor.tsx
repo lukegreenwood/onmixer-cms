@@ -670,8 +670,15 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
         return;
       }
 
-      // Handle reordering within grid
+      // Handle reordering within grid or deletion by dragging to trash
       if (activeData?.type === 'grid-item') {
+        // Check if dropped on library (trash)
+        if (overId === TRASH_ID) {
+          handleItemDelete(active.id as string);
+          return;
+        }
+
+        // Handle reordering within grid
         const activeIndex = clockItems.findIndex(
           (item) => item.id === active.id,
         );
@@ -686,7 +693,7 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
         }
       }
     },
-    [clockItems, handleAddItem, handleItemReorder],
+    [clockItems, handleAddItem, handleItemReorder, handleItemDelete],
   );
 
   // Dragabble Methods

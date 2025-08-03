@@ -1,7 +1,11 @@
 'use client';
 
 import { useDroppable } from '@dnd-kit/core';
-import { useSortable, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import {
+  useSortable,
+  SortableContext,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Badge, Button, DropdownMenu } from '@soundwaves/components';
 import React from 'react';
@@ -25,7 +29,9 @@ import { formatDuration } from '../utils';
 type ClockItem = NonNullable<GetMusicClockQuery['musicClock']>['items'][number];
 
 // Ghost item component to show preview of dragged item
-function GhostClockItem({ draggedItem }: {
+function GhostClockItem({
+  draggedItem,
+}: {
   draggedItem: {
     type?: string;
     itemType?: string;
@@ -37,17 +43,19 @@ function GhostClockItem({ draggedItem }: {
   let typeLabel = 'Unknown';
   let title = 'Item';
   let description = '';
-  
+
   // Handle grid item reordering
   if (draggedItem.type === 'grid-item' && draggedItem.item) {
     const gridItem = draggedItem.item;
-    
+
     switch (gridItem.__typename) {
       case 'TrackClockItem':
         Icon = AudioIcon;
         typeLabel = 'Track';
         title = gridItem.track?.title || 'Track';
-        description = formatDuration(Math.floor(Math.abs(gridItem.duration || 0)));
+        description = formatDuration(
+          Math.floor(Math.abs(gridItem.duration || 0)),
+        );
         break;
       case 'NoteClockItem':
         Icon = NoteIcon;
@@ -63,7 +71,9 @@ function GhostClockItem({ draggedItem }: {
         Icon = AdIcon;
         typeLabel = 'Commercial';
         title = gridItem.scheduledStartTime || '00:00';
-        description = formatDuration(Math.floor(Math.abs(gridItem.duration || 180)));
+        description = formatDuration(
+          Math.floor(Math.abs(gridItem.duration || 180)),
+        );
         break;
       case 'SubcategoryClockItem':
         Icon = CategoryIcon;
@@ -89,24 +99,26 @@ function GhostClockItem({ draggedItem }: {
         Icon = AdIcon;
         typeLabel = 'Library Ad Break';
         title = (gridItem as any).adBreak?.scheduledStartTime || '00:00';
-        description = formatDuration(Math.floor(Math.abs(gridItem.duration || 180)));
+        description = formatDuration(
+          Math.floor(Math.abs(gridItem.duration || 180)),
+        );
         break;
     }
   } else {
     // Handle library items
     const { itemType, data } = draggedItem;
-    title = data?.name as string || 'Item';
-    
+    title = (data?.name as string) || 'Item';
+
     if (itemType === 'track') {
       Icon = AudioIcon;
       typeLabel = 'Track';
       description = `${formatDuration((data?.duration as number) || 0)}`;
     } else if (itemType === 'genre') {
       Icon = GenreIcon;
-      typeLabel = data?.name as string || 'Genre';
+      typeLabel = (data?.name as string) || 'Genre';
     } else if (itemType === 'subcategory') {
       Icon = CategoryIcon;
-      typeLabel = data?.name as string || 'Category';
+      typeLabel = (data?.name as string) || 'Category';
     } else if (itemType === 'note' || itemType === 'library_note') {
       Icon = NoteIcon;
       typeLabel = 'Note';
@@ -127,24 +139,18 @@ function GhostClockItem({ draggedItem }: {
           <GripVerticalIcon size={16} />
         </div>
       </div>
-      
+
       <div className="clock-grid__cell clock-grid__cell--air-time">
         <span>--:--</span>
       </div>
 
       <div className="clock-grid__cell clock-grid__cell--type">
-        <Badge
-          color="gray"
-          size="sm"
-          before={<Icon size={16} />}
-        >
+        <Badge color="gray" size="sm" before={<Icon size={16} />}>
           {typeLabel}
         </Badge>
       </div>
 
-      <div className="clock-grid__cell clock-grid__cell--title">
-        {title}
-      </div>
+      <div className="clock-grid__cell clock-grid__cell--title">{title}</div>
 
       <div className="clock-grid__cell clock-grid__cell--artist">
         {/* Empty for now */}
@@ -154,9 +160,7 @@ function GhostClockItem({ draggedItem }: {
         {description || formatDuration(180)}
       </div>
 
-      <div className="clock-grid__cell clock-grid__cell--item-id">
-        ------
-      </div>
+      <div className="clock-grid__cell clock-grid__cell--item-id">------</div>
 
       <div className="clock-grid__cell clock-grid__cell--actions">
         {/* Empty for ghost */}
@@ -206,7 +210,7 @@ function SortableClockItem({
     transform,
     transition,
     isDragging,
-  } = useSortable({ 
+  } = useSortable({
     id: item.id,
     data: {
       type: 'grid-item',
@@ -373,15 +377,11 @@ function SortableClockItem({
       className={`clock-grid__row ${isDragging ? 'is-dragging' : ''}`}
     >
       <div className="clock-grid__cell clock-grid__cell--drag-handle">
-        <div
-          className="clock-grid__drag-handle"
-          {...attributes}
-          {...listeners}
-        >
+        <div className="clock-grid__drag-handle" {...attributes} {...listeners}>
           <GripVerticalIcon size={16} />
         </div>
       </div>
-      
+
       <div className="clock-grid__cell clock-grid__cell--air-time">
         <span>{airTime}</span>
       </div>
@@ -460,7 +460,7 @@ export const ClockGrid = ({
   return (
     <div ref={setNodeRef} className="clock-grid">
       <div className="clock-grid__header">
-        <div className="clock-grid__column">Drag</div>
+        <div className="clock-grid__column"></div>
         <div className="clock-grid__column">Air Time</div>
         <div className="clock-grid__column">Type / Category</div>
         <div className="clock-grid__column">Title</div>
