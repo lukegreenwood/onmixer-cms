@@ -266,6 +266,7 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
 
       await createLibraryItem({
         variables: { input },
+        refetchQueries: ['GetMusicClockItemLibrary'],
         onCompleted: () => {
           toast('Library item created successfully', 'success');
           setIsCreateDialogOpen(false);
@@ -286,6 +287,7 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
     try {
       await deleteLibraryItem({
         variables: { id: itemId },
+        refetchQueries: ['GetMusicClockItemLibrary'],
         onCompleted: () => {
           toast('Library item deleted successfully', 'success');
           refetchLibraryItems();
@@ -390,23 +392,36 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
         </div>
 
         <div className="clock-item-library__actions">
-          <div
+          <button
             className="clock-item-library__action-item"
             onClick={() => {
-              const data = {
-                name: `Clock-specific ${title.slice(0, -1)}`,
-                duration: type === MusicClockLibraryItemType.AdBreak ? 180 : 0,
-                ...(type === MusicClockLibraryItemType.Note && {
+              let itemType = '';
+              let data: Record<string, unknown> = {};
+              
+              if (type === MusicClockLibraryItemType.Note) {
+                itemType = 'note';
+                data = {
+                  name: `Clock-specific Note`,
+                  duration: 0,
                   content: 'New note',
-                }),
-                ...(type === MusicClockLibraryItemType.Command && {
+                };
+              } else if (type === MusicClockLibraryItemType.Command) {
+                itemType = 'command';
+                data = {
+                  name: `Clock-specific Command`,
+                  duration: 0,
                   command: 'FADE_IN',
-                }),
-                ...(type === MusicClockLibraryItemType.AdBreak && {
+                };
+              } else if (type === MusicClockLibraryItemType.AdBreak) {
+                itemType = 'ad_break';
+                data = {
+                  name: `Clock-specific Ad Break`,
+                  duration: 180,
                   scheduledStartTime: '00:00',
-                }),
-              };
-              onAddItem(type.toLowerCase(), data);
+                };
+              }
+              
+              onAddItem(itemType, data);
             }}
           >
             <div className="clock-item-library__action-icon">
@@ -420,7 +435,7 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
                 Create a one-time item for this clock only
               </div>
             </div>
-          </div>
+          </button>
         </div>
 
         <div className="clock-item-library__items clock-item-library__items--scrollable">
@@ -437,21 +452,38 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
                 key={item.id as string}
                 className="clock-item-library__item clock-item-library__item--draggable"
                 draggable
-                onDragStart={(e) =>
-                  handleDragStart(e, type.toLowerCase(), {
-                    libraryItemId: item.id,
-                    name: 'label' in item ? item.label : item.id,
-                    duration: item.duration || 0,
-                    ...('content' in item &&
-                      item.content && { content: item.content }),
-                    ...('command' in item &&
-                      item.command && { command: item.command }),
-                    ...('scheduledStartTime' in item &&
-                      item.scheduledStartTime && {
-                        scheduledStartTime: item.scheduledStartTime,
-                      }),
-                  })
-                }
+                onDragStart={(e) => {
+                  let itemType = '';
+                  let dragData: Record<string, unknown> = {};
+                  
+                  if (type === MusicClockLibraryItemType.Note) {
+                    itemType = 'library_note';
+                    dragData = {
+                      libraryItemId: item.id,
+                      name: 'label' in item ? item.label : item.id,
+                      duration: 0,
+                      content: 'content' in item ? item.content : '',
+                    };
+                  } else if (type === MusicClockLibraryItemType.Command) {
+                    itemType = 'library_command';
+                    dragData = {
+                      libraryItemId: item.id,
+                      name: 'label' in item ? item.label : item.id,
+                      duration: item.duration || 0,
+                      command: 'command' in item ? item.command : '',
+                    };
+                  } else if (type === MusicClockLibraryItemType.AdBreak) {
+                    itemType = 'library_ad_break';
+                    dragData = {
+                      libraryItemId: item.id,
+                      name: 'label' in item ? item.label : item.id,
+                      duration: item.duration || 180,
+                      scheduledStartTime: 'scheduledStartTime' in item ? item.scheduledStartTime : '00:00',
+                    };
+                  }
+                  
+                  handleDragStart(e, itemType, dragData);
+                }}
               >
                 <div className="clock-item-library__item-icon">
                   {type === MusicClockLibraryItemType.Note && (
