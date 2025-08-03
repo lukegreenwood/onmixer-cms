@@ -1,7 +1,9 @@
 'use client';
 
-import React from 'react';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { Badge, Button, DropdownMenu } from '@soundwaves/components';
+import React from 'react';
 import { useState } from 'react';
 
 import {
@@ -26,21 +28,33 @@ interface ClockGridProps {
   items: ClockItem[];
   onItemEdit: (item: ClockItem) => void;
   onItemDelete: (itemId: string) => void;
-  onItemReorder: (fromIndex: number, toIndex: number) => void;
+  onItemReorder?: (fromIndex: number, toIndex: number) => void;
   onItemAdd: (itemType: string, data: Record<string, unknown>, position?: number) => void;
 }
 
-export const ClockGrid = ({
-  items,
-  onItemEdit,
-  onItemDelete,
-  onItemReorder,
-  onItemAdd,
-}: ClockGridProps) => {
-  const [draggedItem, setDraggedItem] = useState<number | null>(null);
-  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
-  const [isDraggingFromLibrary, setIsDraggingFromLibrary] = useState(false);
-  const [libraryDragData, setLibraryDragData] = useState<{itemType: string, data: Record<string, unknown>} | null>(null);
+interface SortableItemProps {
+  item: ClockItem;
+  index: number;
+  items: ClockItem[];
+  onItemEdit: (item: ClockItem) => void;
+  onItemDelete: (itemId: string) => void;
+}
+
+function SortableItem({ item, index, items, onItemEdit, onItemDelete }: SortableItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: item.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
 
   const getItemIcon = (item: ClockItem) => {
     switch (item.__typename) {
@@ -98,11 +112,11 @@ export const ClockGrid = ({
       case 'GenreClockItem':
         return item.genre?.id || item.id;
       case 'LibraryNoteClockItem':
-        return 'note' in item ? (item.note as any)?.id || item.id : item.id;
+        return (item as { note?: { id: string } }).note?.id || item.id;
       case 'LibraryCommandClockItem':
-        return 'libraryCommand' in item ? (item.libraryCommand as any)?.id || item.id : item.id;
+        return (item as { libraryCommand?: { id: string } }).libraryCommand?.id || item.id;
       case 'LibraryAdBreakClockItem':
-        return 'adBreak' in item ? (item.adBreak as any)?.id || item.id : item.id;
+        return (item as { adBreak?: { id: string } }).adBreak?.id || item.id;
       case 'NoteClockItem':
       case 'CommandClockItem':
       case 'AdBreakClockItem':
@@ -127,19 +141,17 @@ export const ClockGrid = ({
       case 'AdBreakClockItem':
         return item.scheduledStartTime || '00:00';
       case 'LibraryNoteClockItem':
-        return 'note' in item ? (item.note as any)?.content || (item.note as any)?.label || 'Library Note' : 'Library Note';
+        return (item as { note?: { content?: string; label?: string } }).note?.content || (item as { note?: { content?: string; label?: string } }).note?.label || 'Library Note';
       case 'LibraryCommandClockItem':
-        return 'libraryCommand' in item ? (item.libraryCommand as any)?.command || 'Library Command' : 'Library Command';
+        return (item as { libraryCommand?: { command?: string } }).libraryCommand?.command || 'Library Command';
       case 'LibraryAdBreakClockItem':
-        return 'adBreak' in item ? (item.adBreak as any)?.scheduledStartTime || '00:00' : '00:00';
+        return (item as { adBreak?: { scheduledStartTime?: string } }).adBreak?.scheduledStartTime || '00:00';
       default:
         return 'Unknown';
     }
   };
 
   const getItemArtist = (_item: ClockItem) => {
-    // Note: Track artist field may not be available in the current GraphQL schema
-    // This would require updating the GraphQL query to include artist information
     return '';
   };
 
@@ -163,7 +175,7 @@ export const ClockGrid = ({
     }
   };
 
-  const calculateAirTime = (index: number) => {
+  const calculateAirTime = (index: number, items: ClockItem[]) => {
     let totalSeconds = 0;
     for (let i = 0; i < index; i++) {
       totalSeconds += Math.floor(Math.abs(items[i].duration));
@@ -171,62 +183,97 @@ export const ClockGrid = ({
     return formatDuration(totalSeconds);
   };
 
-  const handleDragStart = (e: React.DragEvent, index: number) => {
-    setDraggedItem(index);
-    e.dataTransfer.effectAllowed = 'move';
-  };
+  const Icon = getItemIcon(item);
+  const airTime = calculateAirTime(index, items);
+  const badgeColor = getItemBadgeColor(item);
 
-  const handleDragOver = (e: React.DragEvent, index?: number) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    
-    if (index !== undefined) {
-      setDragOverIndex(index);
-    }
-    
-    // Check if dragging from library
-    const dragData = e.dataTransfer.getData('application/json');
-    if (dragData && !isDraggingFromLibrary) {
-      try {
-        const parsed = JSON.parse(dragData);
-        setIsDraggingFromLibrary(true);
-        setLibraryDragData(parsed);
-      } catch {
-        // Ignore parse errors
-      }
-    }
-  };
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`clock-grid__row ${isDragging ? 'clock-grid__row--dragging' : ''}`}
+      {...attributes}
+    >
+      <div className="clock-grid__cell clock-grid__cell--air-time">
+        <GripVerticalIcon
+          className="clock-grid__drag-handle"
+          size={16}
+          {...listeners}
+        />
+        <span>{airTime}</span>
+      </div>
 
-  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
-    e.preventDefault();
+      <div className="clock-grid__cell clock-grid__cell--type">
+        <Badge
+          color={badgeColor}
+          size="sm"
+          before={<Icon size={16} />}
+          style={
+            {
+              '--badge-color':
+                item.__typename === 'SubcategoryClockItem'
+                  ? `var(--subcategory-color, var(--green-500))`
+                  : undefined,
+            } as React.CSSProperties
+          }
+        >
+          {getItemTypeLabel(item)}
+        </Badge>
+      </div>
 
-    // Handle reordering existing items
-    if (draggedItem !== null && draggedItem !== dropIndex) {
-      onItemReorder(draggedItem, dropIndex);
-      setDraggedItem(null);
-      setDragOverIndex(null);
-      setIsDraggingFromLibrary(false);
-      setLibraryDragData(null);
-      return;
-    }
+      <div className="clock-grid__cell clock-grid__cell--title">
+        {getItemTitle(item)}
+      </div>
 
-    // Handle dropping from library
-    try {
-      const dragData = e.dataTransfer.getData('application/json');
-      if (dragData) {
-        const { itemType, data } = JSON.parse(dragData);
-        onItemAdd(itemType, data, dropIndex);
-      }
-    } catch (error) {
-      console.error('Error parsing drag data:', error);
-    }
+      <div className="clock-grid__cell clock-grid__cell--artist">
+        {getItemArtist(item)}
+      </div>
 
-    setDraggedItem(null);
-    setDragOverIndex(null);
-    setIsDraggingFromLibrary(false);
-    setLibraryDragData(null);
-  };
+      <div className="clock-grid__cell clock-grid__cell--duration">
+        {formatDuration(Math.floor(Math.abs(item.duration)))}
+      </div>
 
+      <div className="clock-grid__cell clock-grid__cell--item-id">
+        {getItemSourceId(item).slice(-6)}
+      </div>
+
+      <div className="clock-grid__cell clock-grid__cell--actions">
+        <DropdownMenu>
+          <DropdownMenu.Trigger asChild>
+            <Button variant="transparent" size="sm" isIconOnly>
+              <MoreHorizontalIcon size={16} />
+            </Button>
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content align="end">
+            <DropdownMenu.Item onClick={() => onItemEdit(item)}>
+              <EditIcon size={16} />
+              Edit
+            </DropdownMenu.Item>
+            <DropdownMenu.Item
+              onClick={() => onItemDelete(item.id)}
+              className="text-red-600"
+            >
+              <DeleteIcon size={16} />
+              Remove
+            </DropdownMenu.Item>
+          </DropdownMenu.Content>
+        </DropdownMenu>
+      </div>
+    </div>
+  );
+}
+
+export const ClockGrid = ({
+  items,
+  onItemEdit,
+  onItemDelete,
+  onItemAdd,
+}: ClockGridProps) => {
+  const [isDraggingFromLibrary, setIsDraggingFromLibrary] = useState(false);
+  const [libraryDragData, setLibraryDragData] = useState<{itemType: string, data: Record<string, unknown>} | null>(null);
+
+
+  // TODO: Implement library drag and drop functionality
   const handleGridDrop = (e: React.DragEvent) => {
     e.preventDefault();
 
@@ -241,8 +288,6 @@ export const ClockGrid = ({
       console.error('Error parsing drag data:', error);
     }
     
-    setDraggedItem(null);
-    setDragOverIndex(null);
     setIsDraggingFromLibrary(false);
     setLibraryDragData(null);
   };
@@ -250,7 +295,6 @@ export const ClockGrid = ({
   const handleDragLeave = (e: React.DragEvent) => {
     // Only reset if leaving the grid entirely
     if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-      setDragOverIndex(null);
       setIsDraggingFromLibrary(false);
       setLibraryDragData(null);
     }
@@ -259,7 +303,6 @@ export const ClockGrid = ({
   return (
     <div
       className="clock-grid"
-      onDragOver={(e) => handleDragOver(e)}
       onDrop={handleGridDrop}
       onDragLeave={handleDragLeave}
     >
@@ -274,118 +317,26 @@ export const ClockGrid = ({
       </div>
 
       <div className="clock-grid__body">
-        {items.map((item, index) => {
-          const shouldShowPlaceholder = isDraggingFromLibrary && dragOverIndex === index;
-          
-          return (
-            <React.Fragment key={`${item.id}-fragment`}>
-              {shouldShowPlaceholder && libraryDragData && (
-                <div className="clock-grid__placeholder" key={`placeholder-${index}`}>
-                  <div className="clock-grid__placeholder-content">
-                    Dropping: {libraryDragData.data.name || 'New Item'}
-                  </div>
-                </div>
-              )}
-              {renderClockItem(item, index)}
-            </React.Fragment>
-          );
-        })}
+        {items.map((item, index) => (
+          <SortableItem
+            key={item.id}
+            item={item}
+            index={index}
+            items={items}
+            onItemEdit={onItemEdit}
+            onItemDelete={onItemDelete}
+          />
+        ))}
         
-        {/* Show placeholder at end if dragging over end */}
-        {isDraggingFromLibrary && dragOverIndex === items.length && libraryDragData && (
+        {/* Show placeholder at end if dragging from library */}
+        {isDraggingFromLibrary && libraryDragData && (
           <div className="clock-grid__placeholder">
             <div className="clock-grid__placeholder-content">
-              Dropping: {libraryDragData.data.name || 'New Item'}
+              Dropping: {libraryDragData.data.name as string || 'New Item'}
             </div>
           </div>
         )}
       </div>
     </div>
   );
-  
-  function renderClockItem(item: ClockItem, index: number) {
-    const Icon = getItemIcon(item);
-    const airTime = calculateAirTime(index);
-    const badgeColor = getItemBadgeColor(item);
-
-    return (
-      <div
-        key={item.id}
-        className={`clock-grid__row ${
-          draggedItem === index ? 'clock-grid__row--dragging' : ''
-        } ${
-          dragOverIndex === index ? 'clock-grid__row--drag-over' : ''
-        }`}
-        draggable
-        onDragStart={(e) => handleDragStart(e, index)}
-        onDragOver={(e) => handleDragOver(e, index)}
-        onDrop={(e) => handleDrop(e, index)}
-      >
-              <div className="clock-grid__cell clock-grid__cell--air-time">
-                <GripVerticalIcon
-                  className="clock-grid__drag-handle"
-                  size={16}
-                />
-                <span>{airTime}</span>
-              </div>
-
-              <div className="clock-grid__cell clock-grid__cell--type">
-                <Badge
-                  color={badgeColor}
-                  size="sm"
-                  before={<Icon size={16} />}
-                  style={
-                    {
-                      '--badge-color':
-                        item.__typename === 'SubcategoryClockItem'
-                          ? `var(--subcategory-color, var(--green-500))`
-                          : undefined,
-                    } as React.CSSProperties
-                  }
-                >
-                  {getItemTypeLabel(item)}
-                </Badge>
-              </div>
-
-              <div className="clock-grid__cell clock-grid__cell--title">
-                {getItemTitle(item)}
-              </div>
-
-              <div className="clock-grid__cell clock-grid__cell--artist">
-                {getItemArtist(item)}
-              </div>
-
-              <div className="clock-grid__cell clock-grid__cell--duration">
-                {formatDuration(Math.floor(Math.abs(item.duration)))}
-              </div>
-
-              <div className="clock-grid__cell clock-grid__cell--item-id">
-                {getItemSourceId(item).slice(-6)}
-              </div>
-
-              <div className="clock-grid__cell clock-grid__cell--actions">
-                <DropdownMenu>
-                  <DropdownMenu.Trigger asChild>
-                    <Button variant="transparent" size="sm" isIconOnly>
-                      <MoreHorizontalIcon size={16} />
-                    </Button>
-                  </DropdownMenu.Trigger>
-                  <DropdownMenu.Content align="end">
-                    <DropdownMenu.Item onClick={() => onItemEdit(item)}>
-                      <EditIcon size={16} />
-                      Edit
-                    </DropdownMenu.Item>
-                    <DropdownMenu.Item
-                      onClick={() => onItemDelete(item.id)}
-                      className="text-red-600"
-                    >
-                      <DeleteIcon size={16} />
-                      Remove
-                    </DropdownMenu.Item>
-                  </DropdownMenu.Content>
-                </DropdownMenu>
-              </div>
-      </div>
-    );
-  }
 };
