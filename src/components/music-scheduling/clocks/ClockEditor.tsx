@@ -20,7 +20,7 @@ import {
 } from '@dnd-kit/sortable';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Dialog, Input, Textarea, Badge } from '@soundwaves/components';
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -222,7 +222,7 @@ type MusicClock = NonNullable<GetMusicClockQuery['musicClock']>;
 type ClockItem = MusicClock['items'][number];
 
 interface ClockEditorProps {
-  clock: MusicClock;
+  clock?: MusicClock;
 }
 
 export const ClockEditor = ({ clock }: ClockEditorProps) => {
@@ -354,18 +354,18 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
   }, [clock?.id, clockItems, convertClockItemToInput, isEditing, updateClock]);
 
   // Auto-save when clock items change
-  useEffect(() => {
-    if (clockItems.length === 0 && clock?.items?.length === 0) {
-      // Skip saving on initial load
-      return;
-    }
+  // useEffect(() => {
+  //   if (clockItems.length === 0 && clock?.items?.length === 0) {
+  //     // Skip saving on initial load
+  //     return;
+  //   }
 
-    const timeoutId = setTimeout(() => {
-      saveClockItems();
-    }, 500); // Debounce saves by 500ms
+  //   const timeoutId = setTimeout(() => {
+  //     saveClockItems();
+  //   }, 500); // Debounce saves by 500ms
 
-    return () => clearTimeout(timeoutId);
-  }, [clockItems, saveClockItems, clock?.items?.length]);
+  //   return () => clearTimeout(timeoutId);
+  // }, [clockItems, saveClockItems, clock?.items?.length]);
 
   const methods = useForm<ClockFormData>({
     resolver: zodResolver(clockFormSchema),
@@ -522,24 +522,43 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
     [clockItems],
   );
 
-  const handleDragEnd = useCallback((event: DragEndEvent) => {
-    const { active, over } = event;
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
 
-    if (active.id !== over?.id) {
-      setClockItems((items) => {
-        const oldIndex = items.findIndex((item) => item.id === active.id);
-        const newIndex = items.findIndex((item) => item.id === over?.id);
+      // Handle library item drops
+      if (active.data.current?.type === 'library-item') {
+        const { itemType, data } = active.data.current;
 
-        const newItems = arrayMove(items, oldIndex, newIndex);
-        return newItems.map((item, index) => ({
-          ...item,
-          orderIndex: index,
-        }));
-      });
-    }
+        if (over?.id && over.id !== active.id) {
+          // Find the drop position
+          const overIndex = clockItems.findIndex((item) => item.id === over.id);
+          handleAddItem(itemType, data, overIndex >= 0 ? overIndex : undefined);
+        } else {
+          // Drop at end
+          handleAddItem(itemType, data);
+        }
+      }
+      // Handle clock item reordering
+      else if (active.id !== over?.id && over?.id) {
+        setClockItems((items) => {
+          const oldIndex = items.findIndex((item) => item.id === active.id);
+          const newIndex = items.findIndex((item) => item.id === over?.id);
 
-    setActiveItem(null);
-  }, []);
+          if (oldIndex === -1 || newIndex === -1) return items;
+
+          const newItems = arrayMove(items, oldIndex, newIndex);
+          return newItems.map((item, index) => ({
+            ...item,
+            orderIndex: index,
+          }));
+        });
+      }
+      saveClockItems();
+      setActiveItem(null);
+    },
+    [handleAddItem, clockItems, saveClockItems],
+  );
 
   const handleClockSubmit = useCallback(
     (data: ClockFormData) => {

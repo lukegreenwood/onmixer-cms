@@ -1555,6 +1555,7 @@ export type MusicClockLibraryCommand = MusicClockLibraryItemInterface & {
   createdAt: Scalars['DateTime']['output'];
   duration: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
+  label: Scalars['String']['output'];
   network: Network;
   updatedAt: Scalars['DateTime']['output'];
 };

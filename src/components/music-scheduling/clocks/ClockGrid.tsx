@@ -1,6 +1,6 @@
 'use client';
 
-import { useSortable, useDroppable } from '@dnd-kit/sortable';
+import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Badge, Button, DropdownMenu } from '@soundwaves/components';
 import React from 'react';
@@ -29,7 +29,11 @@ interface ClockGridProps {
   onItemEdit: (item: ClockItem) => void;
   onItemDelete: (itemId: string) => void;
   onItemReorder?: (fromIndex: number, toIndex: number) => void;
-  onItemAdd: (itemType: string, data: Record<string, unknown>, position?: number) => void;
+  onItemAdd: (
+    itemType: string,
+    data: Record<string, unknown>,
+    position?: number,
+  ) => void;
 }
 
 interface SortableItemProps {
@@ -49,7 +53,14 @@ interface DroppableZoneProps {
   placeholderContent?: string;
 }
 
-function DroppableZone({ index, children, onDrop, onDragOver, showPlaceholder, placeholderContent }: DroppableZoneProps) {
+function DroppableZone({
+  index,
+  children,
+  onDrop,
+  onDragOver,
+  showPlaceholder,
+  placeholderContent,
+}: DroppableZoneProps) {
   return (
     <React.Fragment>
       {showPlaceholder && (
@@ -70,7 +81,13 @@ function DroppableZone({ index, children, onDrop, onDragOver, showPlaceholder, p
   );
 }
 
-function SortableItem({ item, index, items, onItemEdit, onItemDelete }: SortableItemProps) {
+function SortableItem({
+  item,
+  index,
+  items,
+  onItemEdit,
+  onItemDelete,
+}: SortableItemProps) {
   const {
     attributes,
     listeners,
@@ -144,7 +161,10 @@ function SortableItem({ item, index, items, onItemEdit, onItemDelete }: Sortable
       case 'LibraryNoteClockItem':
         return (item as { note?: { id: string } }).note?.id || item.id;
       case 'LibraryCommandClockItem':
-        return (item as { libraryCommand?: { id: string } }).libraryCommand?.id || item.id;
+        return (
+          (item as { libraryCommand?: { id: string } }).libraryCommand?.id ||
+          item.id
+        );
       case 'LibraryAdBreakClockItem':
         return (item as { adBreak?: { id: string } }).adBreak?.id || item.id;
       case 'NoteClockItem':
@@ -171,11 +191,23 @@ function SortableItem({ item, index, items, onItemEdit, onItemDelete }: Sortable
       case 'AdBreakClockItem':
         return item.scheduledStartTime || '00:00';
       case 'LibraryNoteClockItem':
-        return (item as { note?: { content?: string; label?: string } }).note?.content || (item as { note?: { content?: string; label?: string } }).note?.label || 'Library Note';
+        return (
+          (item as { note?: { content?: string; label?: string } }).note
+            ?.content ||
+          (item as { note?: { content?: string; label?: string } }).note
+            ?.label ||
+          'Library Note'
+        );
       case 'LibraryCommandClockItem':
-        return (item as { libraryCommand?: { command?: string } }).libraryCommand?.command || 'Library Command';
+        return (
+          (item as { libraryCommand?: { command?: string } }).libraryCommand
+            ?.command || 'Library Command'
+        );
       case 'LibraryAdBreakClockItem':
-        return (item as { adBreak?: { scheduledStartTime?: string } }).adBreak?.scheduledStartTime || '00:00';
+        return (
+          (item as { adBreak?: { scheduledStartTime?: string } }).adBreak
+            ?.scheduledStartTime || '00:00'
+        );
       default:
         return 'Unknown';
     }
@@ -221,7 +253,9 @@ function SortableItem({ item, index, items, onItemEdit, onItemDelete }: Sortable
     <div
       ref={setNodeRef}
       style={style}
-      className={`clock-grid__row ${isDragging ? 'clock-grid__row--dragging' : ''}`}
+      className={`clock-grid__row ${
+        isDragging ? 'clock-grid__row--dragging' : ''
+      }`}
       {...attributes}
     >
       <div className="clock-grid__cell clock-grid__cell--air-time">
@@ -300,18 +334,20 @@ export const ClockGrid = ({
   onItemAdd,
 }: ClockGridProps) => {
   const [isDraggingFromLibrary, setIsDraggingFromLibrary] = useState(false);
-  const [libraryDragData, setLibraryDragData] = useState<{itemType: string, data: Record<string, unknown>} | null>(null);
+  const [libraryDragData, setLibraryDragData] = useState<{
+    itemType: string;
+    data: Record<string, unknown>;
+  } | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
-
 
   const handleDragOver = (e: React.DragEvent, index?: number) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
-    
+
     if (index !== undefined) {
       setDragOverIndex(index);
     }
-    
+
     // Check if dragging from library
     const dragData = e.dataTransfer.getData('application/json');
     if (dragData && !isDraggingFromLibrary) {
@@ -357,7 +393,7 @@ export const ClockGrid = ({
     } catch (error) {
       console.error('Error parsing drag data:', error);
     }
-    
+
     setDragOverIndex(null);
     setIsDraggingFromLibrary(false);
     setLibraryDragData(null);
@@ -391,9 +427,12 @@ export const ClockGrid = ({
 
       <div className="clock-grid__body">
         {items.map((item, index) => {
-          const shouldShowPlaceholder = isDraggingFromLibrary && dragOverIndex === index;
-          const placeholderContent = libraryDragData ? `Dropping: ${libraryDragData.data.name as string || 'New Item'}` : undefined;
-          
+          const shouldShowPlaceholder =
+            isDraggingFromLibrary && dragOverIndex === index;
+          const placeholderContent = libraryDragData
+            ? `Dropping: ${(libraryDragData.data.name as string) || 'New Item'}`
+            : undefined;
+
           return (
             <DroppableZone
               key={`${item.id}-zone`}
@@ -414,14 +453,22 @@ export const ClockGrid = ({
             </DroppableZone>
           );
         })}
-        
+
         {/* Show placeholder at end if dragging from library */}
         <DroppableZone
           index={items.length}
           onDrop={handleGridDrop}
           onDragOver={handleDragOver}
-          showPlaceholder={isDraggingFromLibrary && dragOverIndex === items.length}
-          placeholderContent={libraryDragData ? `Dropping: ${libraryDragData.data.name as string || 'New Item'}` : undefined}
+          showPlaceholder={
+            isDraggingFromLibrary && dragOverIndex === items.length
+          }
+          placeholderContent={
+            libraryDragData
+              ? `Dropping: ${
+                  (libraryDragData.data.name as string) || 'New Item'
+                }`
+              : undefined
+          }
         >
           <div className="clock-grid__end-zone" />
         </DroppableZone>
