@@ -17,6 +17,7 @@ import {
 import { arrayMove } from '@dnd-kit/sortable';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Dialog, Input, Textarea, Badge } from '@soundwaves/components';
+import { useDebouncedCallback } from '@tanstack/react-pacer';
 import { useState, useCallback, useRef, useMemo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -418,8 +419,8 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
     [],
   );
 
-  // Save clock items to API
-  const saveClockItems = useCallback(
+  // Core save function
+  const saveClockItemsCore = useCallback(
     async (items: QueryMusicClockItem[]) => {
       if (!clock?.id || !isEditing) return;
 
@@ -443,6 +444,17 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
       }
     },
     [clock?.id, convertClockItemToInput, isEditing, updateClock],
+  );
+
+  // Debounced version using TanStack react-pacer
+  const saveClockItems = useDebouncedCallback(
+    (items: QueryMusicClockItem[]) => {
+      saveClockItemsCore(items);
+    },
+    {
+      wait: 50,
+      trailing: true,
+    },
   );
 
   const form = useForm<ClockFormData>({
@@ -477,8 +489,8 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
           orderIndex: index,
         }));
 
-        // Save to API
-        setTimeout(() => saveClockItems(itemsWithOrderIndex), 100);
+        // Save to API (debounced)
+        saveClockItems(itemsWithOrderIndex);
 
         return itemsWithOrderIndex;
       });
@@ -491,10 +503,48 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
     console.log('[ClockEditor] handleItemEdit', { item });
   }, []);
 
-  const handleItemDelete = useCallback((itemId: string) => {
-    // TODO Implement
-    console.log('[ClockEditor] handleItemDelete', { itemId });
-  }, []);
+  const handleItemDelete = useCallback(
+    async (itemId: string) => {
+      if (!clock?.id || !isEditing) return;
+
+      try {
+        // Filter out the item to delete
+        const filteredItems = clockItems.filter((item) => item.id !== itemId);
+
+        // Update order indices
+        const reorderedItems = filteredItems.map((item, index) => ({
+          ...item,
+          orderIndex: index,
+        }));
+
+        // Convert to API input format
+        const itemInputs = reorderedItems.map(convertClockItemToInput);
+
+        // Call API to update clock without the deleted item
+        await updateClock({
+          variables: {
+            input: {
+              id: clock.id,
+              items: itemInputs,
+            },
+          },
+          onCompleted: (result) => {
+            if (result?.updateMusicClock?.clock?.items) {
+              setClockItems(result.updateMusicClock.clock.items);
+              toast('Item deleted successfully', 'success');
+            }
+          },
+          onError: () => {
+            toast('Failed to delete item', 'error');
+          },
+        });
+      } catch (error) {
+        console.error('Error deleting clock item:', error);
+        toast('Failed to delete item', 'error');
+      }
+    },
+    [clock?.id, clockItems, convertClockItemToInput, isEditing, updateClock],
+  );
 
   const handleItemReorder = useCallback(
     (fromIndex: number, toIndex: number) => {
@@ -505,8 +555,8 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
           orderIndex: index,
         }));
 
-        // Save to API
-        setTimeout(() => saveClockItems(reorderedItems), 100);
+        // Save to API immediately
+        saveClockItems(reorderedItems);
 
         return reorderedItems;
       });
@@ -714,7 +764,7 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
       >
         <div className="clock-editor">
           <div className="clock-editor__sidebar">
-            <ClockItemLibrary onAddItem={handleAddItem} />
+            <ClockItemLibrary />
           </div>
 
           {/* Main Content Area */}

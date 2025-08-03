@@ -46,7 +46,7 @@ import { useNetwork } from '@/hooks';
 import { toast } from '@/lib/toast';
 
 interface ClockItemLibraryProps {
-  onAddItem: (itemType: string, data: Record<string, unknown>) => void;
+  onAddItem?: (itemType: string, data: Record<string, unknown>) => void;
 }
 
 interface DraggableLibraryItemProps {
@@ -492,7 +492,7 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
                 };
               }
 
-              onAddItem(itemType, data);
+              onAddItem?.(itemType, data);
             }}
           >
             <div className="clock-item-library__action-icon">

@@ -64,6 +64,17 @@ const client = () => {
             },
           },
         },
+        MusicClock: {
+          fields: {
+            items: {
+              merge(existing, incoming) {
+                // Always replace the existing items array with the incoming one
+                // This handles reordering, deletions, and additions properly
+                return incoming;
+              },
+            },
+          },
+        },
       },
     }),
     link: from([errorLink, httpLink]),
