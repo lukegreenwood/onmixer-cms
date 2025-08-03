@@ -1,7 +1,5 @@
 'use client';
 
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 import { Badge, Button, DropdownMenu } from '@soundwaves/components';
 import React from 'react';
 
@@ -9,7 +7,6 @@ import {
   AudioIcon,
   AdIcon,
   CategoryIcon,
-  GripVerticalIcon,
   MoreHorizontalIcon,
   NoteIcon,
   CommandIcon,
@@ -43,27 +40,13 @@ interface SortableItemProps {
   onItemDelete: (itemId: string) => void;
 }
 
-function SortableItem({
+function ClockItem({
   item,
   index,
   items,
   onItemEdit,
   onItemDelete,
 }: SortableItemProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: item.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
 
   const getItemIcon = (item: ClockItem) => {
     switch (item.__typename) {
@@ -212,20 +195,8 @@ function SortableItem({
   const badgeColor = getItemBadgeColor(item);
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className={`clock-grid__row ${
-        isDragging ? 'clock-grid__row--dragging' : ''
-      }`}
-      {...attributes}
-    >
+    <div className="clock-grid__row">
       <div className="clock-grid__cell clock-grid__cell--air-time">
-        <GripVerticalIcon
-          className="clock-grid__drag-handle"
-          size={16}
-          {...listeners}
-        />
         <span>{airTime}</span>
       </div>
 
@@ -308,7 +279,7 @@ export const ClockGrid = ({
 
       <div className="clock-grid__body">
         {items.map((item, index) => (
-          <SortableItem
+          <ClockItem
             key={item.id}
             item={item}
             index={index}

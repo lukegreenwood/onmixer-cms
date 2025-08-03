@@ -1,7 +1,6 @@
 'use client';
 
 import { useLazyQuery, useMutation } from '@apollo/client';
-import { useDraggable } from '@dnd-kit/core';
 import { Input, Button, Dialog } from '@soundwaves/components';
 import { useState } from 'react';
 
@@ -13,7 +12,6 @@ import {
   CategoryIcon,
   GenreIcon,
   SearchIcon,
-  GripVerticalIcon,
   AddIcon,
   DeleteIcon,
   AudioIcon,
@@ -60,38 +58,6 @@ type LibraryView =
   | 'adbreaks';
 type LibraryItemType = MusicClockLibraryItemType;
 
-// Draggable wrapper component for all library items
-const DraggableLibraryItem = ({
-  children,
-  itemType,
-  data,
-  id,
-}: {
-  children: React.ReactNode;
-  itemType: string;
-  data: Record<string, unknown>;
-  id: string;
-}) => {
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
-    id: `library-${itemType}-${id}`,
-    data: {
-      type: 'library-item',
-      itemType,
-      data,
-    },
-  });
-
-  return (
-    <div
-      ref={setNodeRef}
-      {...listeners}
-      {...attributes}
-      style={{ opacity: isDragging ? 0.5 : 1 }}
-    >
-      {children}
-    </div>
-  );
-};
 
 export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
   const { currentNetwork } = useNetwork();
@@ -387,7 +353,7 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
                 {item.description}
               </div>
             </div>
-            <div className="clock-item-library__item-drag">
+            <div className="clock-item-library__item-action">
               <ChevronRightIcon size={24} />
             </div>
           </div>
@@ -503,13 +469,11 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
               }
 
               return (
-                <DraggableLibraryItem
-                  key={item.id as string}
-                  itemType={itemType}
-                  data={dragData}
-                  id={item.id as string}
-                >
-                  <div className="clock-item-library__item clock-item-library__item--draggable">
+                  <div 
+                    key={item.id as string}
+                    className="clock-item-library__item clock-item-library__item--clickable"
+                    onClick={() => onAddItem(itemType, dragData)}
+                  >
                     <div className="clock-item-library__item-icon">
                       {type === MusicClockLibraryItemType.Note && (
                         <NoteIcon size={16} />
@@ -547,11 +511,7 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
                         <DeleteIcon size={14} />
                       </Button>
                     </div>
-                    <div className="clock-item-library__item-drag">
-                      <GripVerticalIcon size={16} />
-                    </div>
                   </div>
-                </DraggableLibraryItem>
               );
             })}
         </div>
@@ -574,33 +534,27 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
       </div>
       <div className="clock-item-library__items clock-item-library__items--scrollable">
         {tracks.map((track) => (
-          <DraggableLibraryItem
+          <div 
             key={track.id}
-            itemType="track"
-            data={{
+            className="clock-item-library__item clock-item-library__item--clickable"
+            onClick={() => onAddItem('track', {
               trackId: track.id,
               name: `${track.artist} - ${track.title}`,
               duration: track.duration?.raw || 0,
-            }}
-            id={track.id}
+            })}
           >
-            <div className="clock-item-library__item clock-item-library__item--draggable">
-              <div className="clock-item-library__item-icon">
-                <AudioIcon size={16} />
+            <div className="clock-item-library__item-icon">
+              <AudioIcon size={16} />
+            </div>
+            <div className="clock-item-library__item-content">
+              <div className="clock-item-library__item-title">
+                {track.artist} - {track.title}
               </div>
-              <div className="clock-item-library__item-content">
-                <div className="clock-item-library__item-title">
-                  {track.artist} - {track.title}
-                </div>
-                <div className="clock-item-library__item-description">
-                  {track.duration?.formatted || '0:00'}
-                </div>
-              </div>
-              <div className="clock-item-library__item-drag">
-                <GripVerticalIcon size={16} />
+              <div className="clock-item-library__item-description">
+                {track.duration?.formatted || '0:00'}
               </div>
             </div>
-          </DraggableLibraryItem>
+          </div>
         ))}
       </div>
     </>
@@ -621,30 +575,24 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
       </div>
       <div className="clock-item-library__items clock-item-library__items--scrollable">
         {genres.map((genre) => (
-          <DraggableLibraryItem
+          <div 
             key={genre.id}
-            itemType="genre"
-            data={{
+            className="clock-item-library__item clock-item-library__item--clickable"
+            onClick={() => onAddItem('genre', {
               genreId: genre.id,
               name: genre.name,
               duration: 180,
-            }}
-            id={genre.id}
+            })}
           >
-            <div className="clock-item-library__item clock-item-library__item--draggable">
-              <div className="clock-item-library__item-icon">
-                <GenreIcon size={16} />
-              </div>
-              <div className="clock-item-library__item-content">
-                <div className="clock-item-library__item-title">
-                  {genre.name}
-                </div>
-              </div>
-              <div className="clock-item-library__item-drag">
-                <GripVerticalIcon size={16} />
+            <div className="clock-item-library__item-icon">
+              <GenreIcon size={16} />
+            </div>
+            <div className="clock-item-library__item-content">
+              <div className="clock-item-library__item-title">
+                {genre.name}
               </div>
             </div>
-          </DraggableLibraryItem>
+          </div>
         ))}
       </div>
     </>
@@ -723,42 +671,34 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
                   .includes(searchTerm.toLowerCase()),
             )
             .map((subcategory) => (
-              <DraggableLibraryItem
+              <div
                 key={subcategory.id}
-                itemType="subcategory"
-                data={{
+                className="clock-item-library__item clock-item-library__item--clickable"
+                style={
+                  {
+                    '--item-background-color': subcategory.color,
+                  } as React.CSSProperties
+                }
+                onClick={() => onAddItem('subcategory', {
                   subcategoryId: subcategory.id,
                   name: subcategory.name,
                   duration: subcategory.averageDuration?.raw || 0,
-                }}
-                id={subcategory.id}
+                })}
               >
-                <div
-                  className="clock-item-library__item clock-item-library__item--draggable"
-                  style={
-                    {
-                      '--item-background-color': subcategory.color,
-                    } as React.CSSProperties
-                  }
-                >
-                  <div className="clock-item-library__item-icon">
-                    <CategoryIcon size={16} />
-                  </div>
-                  <div className="clock-item-library__item-content">
-                    <div className="clock-item-library__item-title">
-                      {subcategory.name}
-                    </div>
-                  </div>
-                  <div className="clock-item-library__item-description">
-                    {subcategory.averageDuration?.formatted
-                      ? `~${subcategory.averageDuration.formatted}`
-                      : ''}
-                  </div>
-                  <div className="clock-item-library__item-drag">
-                    <GripVerticalIcon size={16} />
+                <div className="clock-item-library__item-icon">
+                  <CategoryIcon size={16} />
+                </div>
+                <div className="clock-item-library__item-content">
+                  <div className="clock-item-library__item-title">
+                    {subcategory.name}
                   </div>
                 </div>
-              </DraggableLibraryItem>
+                <div className="clock-item-library__item-description">
+                  {subcategory.averageDuration?.formatted
+                    ? `~${subcategory.averageDuration.formatted}`
+                    : ''}
+                </div>
+              </div>
             ))}
         </div>
       </>

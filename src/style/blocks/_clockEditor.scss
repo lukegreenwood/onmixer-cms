@@ -245,6 +245,13 @@
     align-items: center;
   }
 
+  &__item-action {
+    margin-inline-start: auto;
+    color: palette.$gray-400;
+    display: flex;
+    align-items: center;
+  }
+
   &__item:hover &__item-drag {
     opacity: 1;
   }
