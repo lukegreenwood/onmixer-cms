@@ -1,12 +1,11 @@
-import { GetMusicClockQuery } from '@/graphql/__generated__/graphql';
-
 import {
-  MusicClockItem,
-  TrackClockItem,
-  SubcategoryClockItem,
   GenreClockItem,
+  GetMusicClockQuery,
+  MusicClockItem,
   NoteClockItem,
-} from './types';
+  SubcategoryClockItem,
+  TrackClockItem,
+} from '@/graphql/__generated__/graphql';
 
 /**
  * Duration formatting utilities
@@ -51,28 +50,31 @@ export const calculateClockRuntime = (
 /**
  * Type guard functions for clock items
  */
+type UnknownMusicClockItem = Pick<MusicClockItem, '__typename'> & {
+  [key: string]: unknown;
+};
 export const isTrackClockItem = (
-  item: MusicClockItem,
+  item: UnknownMusicClockItem,
 ): item is TrackClockItem => {
-  return 'trackId' in item && 'track' in item;
+  return item.__typename === 'TrackClockItem';
 };
 
 export const isSubcategoryClockItem = (
-  item: MusicClockItem,
+  item: UnknownMusicClockItem,
 ): item is SubcategoryClockItem => {
-  return 'subcategoryId' in item && 'subcategory' in item;
+  return item.__typename === 'SubcategoryClockItem';
 };
 
 export const isGenreClockItem = (
-  item: MusicClockItem,
+  item: UnknownMusicClockItem,
 ): item is GenreClockItem => {
-  return 'genreId' in item && 'genre' in item;
+  return item.__typename === 'GenreClockItem';
 };
 
 export const isNoteClockItem = (
-  item: MusicClockItem,
+  item: UnknownMusicClockItem,
 ): item is NoteClockItem => {
-  return 'content' in item;
+  return item.__typename === 'NoteClockItem';
 };
 
 /**
@@ -89,10 +91,10 @@ export const getClockItemDisplayName = (item: MusicClockItem): string => {
     return item.genre.name;
   }
   if (isNoteClockItem(item)) {
-    return item.name || 'Note';
+    return item.label || 'Note';
   }
   // This should never happen if all union types are handled above
-  return (item as { name?: string }).name || 'Unknown Item';
+  return 'label' in item ? (item.label as string) : 'Unknown Item';
 };
 
 export const getClockItemType = (item: MusicClockItem): string => {
