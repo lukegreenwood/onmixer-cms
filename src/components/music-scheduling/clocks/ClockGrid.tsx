@@ -34,8 +34,6 @@ interface ClockGridProps {
     data: Record<string, unknown>,
     position?: number,
   ) => void;
-  activeId?: string;
-  overId?: string | null;
 }
 
 interface SortableItemProps {
@@ -68,6 +66,15 @@ function SortableItem({
     transition,
     opacity: isDragging ? 0.5 : 1,
   };
+  
+  // Skip rendering temp preview items
+  if (item.id.startsWith('temp-preview-')) {
+    return (
+      <div className="clock-grid__insertion-placeholder">
+        <div className="clock-grid__insertion-line" />
+      </div>
+    );
+  }
 
   const getItemIcon = (item: ClockItem) => {
     switch (item.__typename) {
@@ -293,15 +300,21 @@ function SortableItem({
   );
 }
 
-// Droppable zone component for the end of the list
-const DropZone = ({ id }: { id: string }) => {
-  const { setNodeRef } = useDroppable({ id });
+// Droppable zone component
+const DropZone = ({ id, children }: { id: string; children?: React.ReactNode }) => {
+  const { setNodeRef, isOver } = useDroppable({ id });
   
   return (
     <div 
       ref={setNodeRef}
-      style={{ height: '20px', minHeight: '20px' }}
-    />
+      style={{ 
+        minHeight: children ? 'auto' : '20px',
+        backgroundColor: isOver ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
+        transition: 'background-color 0.2s ease'
+      }}
+    >
+      {children}
+    </div>
   );
 };
 
@@ -309,8 +322,6 @@ export const ClockGrid = ({
   items,
   onItemEdit,
   onItemDelete,
-  activeId,
-  overId,
 }: ClockGridProps) => {
   return (
     <div className="clock-grid">
@@ -325,41 +336,17 @@ export const ClockGrid = ({
       </div>
 
       <div className="clock-grid__body">
-        {items.map((item, index) => {
-          const isOverCurrent = overId === item.id;
-          const isDraggingLibraryItem = activeId && activeId.startsWith('library-');
-          
-          // Debug logging
-          if (isDraggingLibraryItem) {
-            console.log('Dragging library item:', { activeId, overId, isOverCurrent, itemId: item.id });
-          }
-          
-          return (
-            <React.Fragment key={item.id}>
-              {/* Show insertion placeholder above current item when dragging library item */}
-              {isDraggingLibraryItem && isOverCurrent && (
-                <div className="clock-grid__insertion-placeholder">
-                  <div className="clock-grid__insertion-line" />
-                </div>
-              )}
-              
-              <SortableItem
-                item={item}
-                index={index}
-                items={items}
-                onItemEdit={onItemEdit}
-                onItemDelete={onItemDelete}
-              />
-            </React.Fragment>
-          );
-        })}
-        
-        {/* Show insertion placeholder at end when dragging over empty space */}
-        {activeId && activeId.startsWith('library-') && overId === 'clock-grid-end' && (
-          <div className="clock-grid__insertion-placeholder">
-            <div className="clock-grid__insertion-line" />
-          </div>
-        )}
+        {items.map((item, index) => (
+          <DropZone key={`${item.id}-zone`} id={`clock-item-${item.id}`}>
+            <SortableItem
+              item={item}
+              index={index}
+              items={items}
+              onItemEdit={onItemEdit}
+              onItemDelete={onItemDelete}
+            />
+          </DropZone>
+        ))}
         
         {/* Droppable zone at the end for dropping at the end of the list */}
         <DropZone id="clock-grid-end" />
