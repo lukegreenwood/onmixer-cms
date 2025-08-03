@@ -96,6 +96,7 @@
     font-weight: 700;
     font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
     letter-spacing: 0.05em;
+    font-variant-numeric: tabular-nums;
   }
 
   &__overtime {
@@ -385,6 +386,32 @@
       opacity: 0.5;
       background: palette.$blue-50;
     }
+
+    &--drag-over {
+      border-top: 3px solid palette.$blue-500;
+      background: palette.$blue-50;
+    }
+  }
+
+  &__placeholder {
+    display: grid;
+    grid-template-columns: 100px 180px 1fr 180px 80px 80px 60px;
+    gap: mixins.spacing(2);
+    padding: mixins.spacing(3) mixins.spacing(4);
+    border: 2px dashed palette.$blue-300;
+    background: palette.$blue-50;
+    min-height: 48px;
+    margin: mixins.spacing(1) 0;
+    border-radius: sizing.$radius-sm;
+    align-items: center;
+
+    &-content {
+      grid-column: 1 / -1;
+      text-align: center;
+      font-size: 0.875rem;
+      color: palette.$blue-700;
+      font-weight: 500;
+    }
   }
 
   &__cell {
@@ -417,6 +444,7 @@
     &--duration {
       font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
       color: palette.$gray-600;
+      font-variant-numeric: tabular-nums;
     }
 
     &--item-id {

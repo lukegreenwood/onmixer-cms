@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { Badge, Button, DropdownMenu } from '@soundwaves/components';
 import { useState } from 'react';
 
@@ -26,7 +27,7 @@ interface ClockGridProps {
   onItemEdit: (item: ClockItem) => void;
   onItemDelete: (itemId: string) => void;
   onItemReorder: (fromIndex: number, toIndex: number) => void;
-  onItemAdd: (itemType: string, data: Record<string, unknown>) => void;
+  onItemAdd: (itemType: string, data: Record<string, unknown>, position?: number) => void;
 }
 
 export const ClockGrid = ({
@@ -37,6 +38,9 @@ export const ClockGrid = ({
   onItemAdd,
 }: ClockGridProps) => {
   const [draggedItem, setDraggedItem] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const [isDraggingFromLibrary, setIsDraggingFromLibrary] = useState(false);
+  const [libraryDragData, setLibraryDragData] = useState<{itemType: string, data: Record<string, unknown>} | null>(null);
 
   const getItemIcon = (item: ClockItem) => {
     switch (item.__typename) {
@@ -47,10 +51,13 @@ export const ClockGrid = ({
       case 'GenreClockItem':
         return GenreIcon;
       case 'NoteClockItem':
+      case 'LibraryNoteClockItem':
         return NoteIcon;
       case 'CommandClockItem':
+      case 'LibraryCommandClockItem':
         return CommandIcon;
       case 'AdBreakClockItem':
+      case 'LibraryAdBreakClockItem':
         return AdIcon;
       default:
         return AudioIcon;
@@ -71,8 +78,37 @@ export const ClockGrid = ({
         return 'Command';
       case 'AdBreakClockItem':
         return 'Commercial';
+      case 'LibraryNoteClockItem':
+        return 'Library Note';
+      case 'LibraryCommandClockItem':
+        return 'Library Command';
+      case 'LibraryAdBreakClockItem':
+        return 'Library Ad Break';
       default:
         return 'Unknown';
+    }
+  };
+
+  const getItemSourceId = (item: ClockItem) => {
+    switch (item.__typename) {
+      case 'TrackClockItem':
+        return item.track?.id || item.id;
+      case 'SubcategoryClockItem':
+        return item.subcategory?.id || item.id;
+      case 'GenreClockItem':
+        return item.genre?.id || item.id;
+      case 'LibraryNoteClockItem':
+        return 'note' in item ? (item.note as any)?.id || item.id : item.id;
+      case 'LibraryCommandClockItem':
+        return 'libraryCommand' in item ? (item.libraryCommand as any)?.id || item.id : item.id;
+      case 'LibraryAdBreakClockItem':
+        return 'adBreak' in item ? (item.adBreak as any)?.id || item.id : item.id;
+      case 'NoteClockItem':
+      case 'CommandClockItem':
+      case 'AdBreakClockItem':
+        return item.id;
+      default:
+        return item.id;
     }
   };
 
@@ -90,15 +126,20 @@ export const ClockGrid = ({
         return item.command || 'Command';
       case 'AdBreakClockItem':
         return item.scheduledStartTime || '00:00';
+      case 'LibraryNoteClockItem':
+        return 'note' in item ? (item.note as any)?.content || (item.note as any)?.label || 'Library Note' : 'Library Note';
+      case 'LibraryCommandClockItem':
+        return 'libraryCommand' in item ? (item.libraryCommand as any)?.command || 'Library Command' : 'Library Command';
+      case 'LibraryAdBreakClockItem':
+        return 'adBreak' in item ? (item.adBreak as any)?.scheduledStartTime || '00:00' : '00:00';
       default:
         return 'Unknown';
     }
   };
 
-  const getItemArtist = (item: ClockItem) => {
-    if (item.__typename === 'TrackClockItem' && item.track?.artist) {
-      return item.track.artist;
-    }
+  const getItemArtist = (_item: ClockItem) => {
+    // Note: Track artist field may not be available in the current GraphQL schema
+    // This would require updating the GraphQL query to include artist information
     return '';
   };
 
@@ -109,10 +150,13 @@ export const ClockGrid = ({
       case 'GenreClockItem':
         return 'blue';
       case 'NoteClockItem':
+      case 'LibraryNoteClockItem':
         return 'gray';
       case 'CommandClockItem':
+      case 'LibraryCommandClockItem':
         return 'purple';
       case 'AdBreakClockItem':
+      case 'LibraryAdBreakClockItem':
         return 'red';
       default:
         return 'blue';
@@ -122,7 +166,7 @@ export const ClockGrid = ({
   const calculateAirTime = (index: number) => {
     let totalSeconds = 0;
     for (let i = 0; i < index; i++) {
-      totalSeconds += items[i].duration;
+      totalSeconds += Math.floor(Math.abs(items[i].duration));
     }
     return formatDuration(totalSeconds);
   };
@@ -132,9 +176,25 @@ export const ClockGrid = ({
     e.dataTransfer.effectAllowed = 'move';
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleDragOver = (e: React.DragEvent, index?: number) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
+    
+    if (index !== undefined) {
+      setDragOverIndex(index);
+    }
+    
+    // Check if dragging from library
+    const dragData = e.dataTransfer.getData('application/json');
+    if (dragData && !isDraggingFromLibrary) {
+      try {
+        const parsed = JSON.parse(dragData);
+        setIsDraggingFromLibrary(true);
+        setLibraryDragData(parsed);
+      } catch {
+        // Ignore parse errors
+      }
+    }
   };
 
   const handleDrop = (e: React.DragEvent, dropIndex: number) => {
@@ -144,6 +204,9 @@ export const ClockGrid = ({
     if (draggedItem !== null && draggedItem !== dropIndex) {
       onItemReorder(draggedItem, dropIndex);
       setDraggedItem(null);
+      setDragOverIndex(null);
+      setIsDraggingFromLibrary(false);
+      setLibraryDragData(null);
       return;
     }
 
@@ -152,13 +215,16 @@ export const ClockGrid = ({
       const dragData = e.dataTransfer.getData('application/json');
       if (dragData) {
         const { itemType, data } = JSON.parse(dragData);
-        onItemAdd(itemType, data);
+        onItemAdd(itemType, data, dropIndex);
       }
     } catch (error) {
       console.error('Error parsing drag data:', error);
     }
 
     setDraggedItem(null);
+    setDragOverIndex(null);
+    setIsDraggingFromLibrary(false);
+    setLibraryDragData(null);
   };
 
   const handleGridDrop = (e: React.DragEvent) => {
@@ -174,13 +240,28 @@ export const ClockGrid = ({
     } catch (error) {
       console.error('Error parsing drag data:', error);
     }
+    
+    setDraggedItem(null);
+    setDragOverIndex(null);
+    setIsDraggingFromLibrary(false);
+    setLibraryDragData(null);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    // Only reset if leaving the grid entirely
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setDragOverIndex(null);
+      setIsDraggingFromLibrary(false);
+      setLibraryDragData(null);
+    }
   };
 
   return (
     <div
       className="clock-grid"
-      onDragOver={handleDragOver}
+      onDragOver={(e) => handleDragOver(e)}
       onDrop={handleGridDrop}
+      onDragLeave={handleDragLeave}
     >
       <div className="clock-grid__header">
         <div className="clock-grid__column">Air Time</div>
@@ -194,21 +275,52 @@ export const ClockGrid = ({
 
       <div className="clock-grid__body">
         {items.map((item, index) => {
-          const Icon = getItemIcon(item);
-          const airTime = calculateAirTime(index);
-          const badgeColor = getItemBadgeColor(item);
-
+          const shouldShowPlaceholder = isDraggingFromLibrary && dragOverIndex === index;
+          
           return (
-            <div
-              key={item.id}
-              className={`clock-grid__row ${
-                draggedItem === index ? 'clock-grid__row--dragging' : ''
-              }`}
-              draggable
-              onDragStart={(e) => handleDragStart(e, index)}
-              onDragOver={handleDragOver}
-              onDrop={(e) => handleDrop(e, index)}
-            >
+            <React.Fragment key={`${item.id}-fragment`}>
+              {shouldShowPlaceholder && libraryDragData && (
+                <div className="clock-grid__placeholder" key={`placeholder-${index}`}>
+                  <div className="clock-grid__placeholder-content">
+                    Dropping: {libraryDragData.data.name || 'New Item'}
+                  </div>
+                </div>
+              )}
+              {renderClockItem(item, index)}
+            </React.Fragment>
+          );
+        })}
+        
+        {/* Show placeholder at end if dragging over end */}
+        {isDraggingFromLibrary && dragOverIndex === items.length && libraryDragData && (
+          <div className="clock-grid__placeholder">
+            <div className="clock-grid__placeholder-content">
+              Dropping: {libraryDragData.data.name || 'New Item'}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+  
+  function renderClockItem(item: ClockItem, index: number) {
+    const Icon = getItemIcon(item);
+    const airTime = calculateAirTime(index);
+    const badgeColor = getItemBadgeColor(item);
+
+    return (
+      <div
+        key={item.id}
+        className={`clock-grid__row ${
+          draggedItem === index ? 'clock-grid__row--dragging' : ''
+        } ${
+          dragOverIndex === index ? 'clock-grid__row--drag-over' : ''
+        }`}
+        draggable
+        onDragStart={(e) => handleDragStart(e, index)}
+        onDragOver={(e) => handleDragOver(e, index)}
+        onDrop={(e) => handleDrop(e, index)}
+      >
               <div className="clock-grid__cell clock-grid__cell--air-time">
                 <GripVerticalIcon
                   className="clock-grid__drag-handle"
@@ -244,13 +356,11 @@ export const ClockGrid = ({
               </div>
 
               <div className="clock-grid__cell clock-grid__cell--duration">
-                {item.duration > 0
-                  ? formatDuration(item.duration)
-                  : '-' + formatDuration(Math.abs(item.duration))}
+                {formatDuration(Math.floor(Math.abs(item.duration)))}
               </div>
 
               <div className="clock-grid__cell clock-grid__cell--item-id">
-                {item.id.slice(-6)}
+                {getItemSourceId(item).slice(-6)}
               </div>
 
               <div className="clock-grid__cell clock-grid__cell--actions">
@@ -275,10 +385,7 @@ export const ClockGrid = ({
                   </DropdownMenu.Content>
                 </DropdownMenu>
               </div>
-            </div>
-          );
-        })}
       </div>
-    </div>
-  );
+    );
+  }
 };

@@ -3,13 +3,13 @@
 import { useMutation } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Dialog, Input, Textarea, Badge } from '@soundwaves/components';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { FloatingBar } from '@/components/common';
 import { ClockIcon, EditIcon } from '@/components/icons';
-import { GetMusicClockQuery } from '@/graphql/__generated__/graphql';
+import { GetMusicClockQuery, MusicClockItemInput, MusicClockItemType } from '@/graphql/__generated__/graphql';
 import { UPDATE_MUSIC_CLOCK } from '@/graphql/mutations/updateMusicClock';
 import { useNetwork } from '@/hooks';
 import { toast } from '@/lib/toast';
@@ -51,6 +51,122 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
   const [updateClock, { loading: updateLoading }] =
     useMutation(UPDATE_MUSIC_CLOCK);
 
+  // Convert ClockItem to MusicClockItemInput for API
+  const convertClockItemToInput = useCallback((item: ClockItem): MusicClockItemInput => {
+    const baseInput = {
+      // Use empty string for new items, real ID for existing items
+      id: item.id.startsWith('temp-') ? '' : item.id,
+      orderIndex: item.orderIndex,
+      duration: Math.floor(Math.abs(item.duration)),
+    };
+
+    switch (item.__typename) {
+      case 'TrackClockItem':
+        return {
+          ...baseInput,
+          type: MusicClockItemType.Track,
+          itemId: item.track?.id,
+        };
+      case 'SubcategoryClockItem':
+        return {
+          ...baseInput,
+          type: MusicClockItemType.Subcategory,
+          itemId: item.subcategory?.id,
+        };
+      case 'GenreClockItem':
+        return {
+          ...baseInput,
+          type: MusicClockItemType.Genre,
+          itemId: item.genre?.id,
+        };
+      case 'NoteClockItem':
+        return {
+          ...baseInput,
+          type: MusicClockItemType.Note,
+          content: item.content,
+          label: item.label,
+        };
+      case 'LibraryNoteClockItem':
+        return {
+          ...baseInput,
+          type: MusicClockItemType.LibraryNote,
+          itemId: 'note' in item ? (item.note as { id: string }).id : undefined,
+        };
+      case 'LibraryCommandClockItem':
+        return {
+          ...baseInput,
+          type: MusicClockItemType.LibraryCommand,
+          itemId: 'libraryCommand' in item ? (item.libraryCommand as { id: string }).id : undefined,
+        };
+      case 'LibraryAdBreakClockItem':
+        return {
+          ...baseInput,
+          type: MusicClockItemType.LibraryAdBreak,
+          itemId: 'adBreak' in item ? (item.adBreak as { id: string }).id : undefined,
+        };
+      case 'CommandClockItem':
+        return {
+          ...baseInput,
+          type: MusicClockItemType.Command,
+          command: item.command,
+        };
+      case 'AdBreakClockItem':
+        return {
+          ...baseInput,
+          type: MusicClockItemType.AdBreak,
+          scheduledStartTime: item.scheduledStartTime,
+        };
+      default:
+        throw new Error(`Unsupported clock item type: ${item.__typename}`);
+    }
+  }, []);
+
+  // Auto-save clock items whenever they change
+  const saveClockItems = useCallback(async () => {
+    if (!clock?.id || !isEditing) return;
+
+    try {
+      const items = clockItems.map(convertClockItemToInput);
+      const result = await updateClock({
+        variables: {
+          input: {
+            id: clock.id,
+            items,
+          },
+        },
+        onError: (error) => {
+          console.error('Failed to save clock items:', error);
+          toast('Failed to save changes', 'error');
+        },
+      });
+
+      // Update local state with new IDs from the API response
+      if (result.data?.updateMusicClock?.clock?.items) {
+        const updatedItems = result.data.updateMusicClock.clock.items;
+        setClockItems(updatedItems);
+      }
+    } catch (error) {
+      console.error('Error saving clock items:', error);
+      toast('Failed to save changes', 'error');
+    }
+  }, [clock?.id, clockItems, convertClockItemToInput, isEditing, updateClock]);
+
+  // Auto-save when clock items change
+  useEffect(() => {
+    if (clockItems.length === 0 && clock?.items?.length === 0) {
+      // Skip saving on initial load
+      return;
+    }
+    
+    const timeoutId = setTimeout(() => {
+      saveClockItems();
+    }, 500); // Debounce saves by 500ms
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [clockItems, saveClockItems, clock?.items?.length]);
+
   const methods = useForm<ClockFormData>({
     resolver: zodResolver(clockFormSchema),
     defaultValues: {
@@ -62,17 +178,120 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
   });
 
   const handleAddItem = useCallback(
-    (_itemType: string, data: Record<string, unknown>) => {
-      const newItem: ClockItem = {
-        id: `temp-${Date.now()}`,
-        orderIndex: clockItems.length,
-        duration: data.duration || 0,
-        ...data,
-      } as ClockItem;
+    (itemType: string, data: Record<string, unknown>, position?: number) => {
+      let newItem: ClockItem;
+      const baseId = `temp-${Date.now()}`;
+      const currentTime = new Date().toISOString();
+      const baseProps = {
+        id: baseId,
+        clockId: clock?.id || '',
+        createdAt: currentTime,
+        updatedAt: currentTime,
+        orderIndex: position ?? clockItems.length,
+        duration: Number(data.duration) || 0,
+      };
 
-      setClockItems((prev) => [...prev, newItem]);
+      switch (itemType) {
+        case 'track':
+          newItem = {
+            ...baseProps,
+            __typename: 'TrackClockItem',
+            track: {
+              __typename: 'Track',
+              id: data.trackId as string,
+              title: (data.name as string) || 'Unknown Track',
+            },
+          } as ClockItem;
+          break;
+        case 'subcategory':
+          newItem = {
+            ...baseProps,
+            __typename: 'SubcategoryClockItem',
+            subcategory: {
+              __typename: 'Subcategory',
+              id: data.subcategoryId as string,
+              name: data.name as string,
+            },
+          } as ClockItem;
+          break;
+        case 'genre':
+          newItem = {
+            ...baseProps,
+            __typename: 'GenreClockItem',
+            genre: {
+              __typename: 'Genre',
+              id: data.genreId as string,
+              name: data.name as string,
+            },
+          } as ClockItem;
+          break;
+        case 'note':
+        case 'library_note':
+          newItem = {
+            ...baseProps,
+            __typename: 'LibraryNoteClockItem',
+            note: {
+              __typename: 'MusicClockLibraryNote',
+              id: data.libraryItemId as string,
+              duration: Number(data.duration) || 0,
+              label: data.name as string,
+              content: data.content as string,
+            },
+          } as ClockItem;
+          break;
+        case 'command':
+        case 'library_command':
+          newItem = {
+            ...baseProps,
+            __typename: 'LibraryCommandClockItem',
+            libraryCommand: {
+              __typename: 'MusicClockLibraryCommand',
+              id: data.libraryItemId as string,
+              duration: Number(data.duration) || 0,
+              command: data.command as string,
+            },
+          } as ClockItem;
+          break;
+        case 'ad_break':
+        case 'library_ad_break':
+          newItem = {
+            ...baseProps,
+            __typename: 'LibraryAdBreakClockItem',
+            adBreak: {
+              __typename: 'MusicClockLibraryAdBreak',
+              id: data.libraryItemId as string,
+              duration: Number(data.duration) || 180,
+              scheduledStartTime: data.scheduledStartTime as string,
+            },
+          } as ClockItem;
+          break;
+        default:
+          console.warn('Unknown item type:', itemType);
+          newItem = {
+            ...baseProps,
+            __typename: 'NoteClockItem',
+            content: 'Unknown item',
+            duration: 0,
+          } as ClockItem;
+      }
+
+      if (position !== undefined && position < clockItems.length) {
+        // Insert at specific position
+        setClockItems((prev) => {
+          const newItems = [...prev];
+          newItems.splice(position, 0, newItem);
+          // Update order indices
+          return newItems.map((item, index) => ({
+            ...item,
+            orderIndex: index,
+          }));
+        });
+      } else {
+        // Add to end
+        setClockItems((prev) => [...prev, newItem]);
+      }
     },
-    [clockItems.length],
+    [clockItems.length, clock?.id],
   );
 
   const handleItemEdit = useCallback((item: ClockItem) => {

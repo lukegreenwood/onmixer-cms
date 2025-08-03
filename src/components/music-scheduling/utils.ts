@@ -14,14 +14,15 @@ import {
 export const formatDuration = (seconds: number): string => {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
-  const secs = seconds % 60;
-
+  const secs = Math.floor(seconds % 60);
   if (hours > 0) {
     return `${hours}:${minutes.toString().padStart(2, '0')}:${secs
       .toString()
       .padStart(2, '0')}`;
   }
-  return `${minutes}:${secs.toString().padStart(2, '0')}`;
+  return `${minutes.toString().padStart(2, '0')}:${secs
+    .toString()
+    .padStart(2, '0')}`;
 };
 
 export const parseDuration = (timeString: string): number => {
@@ -41,7 +42,10 @@ export const parseDuration = (timeString: string): number => {
 export const calculateClockRuntime = (
   items: NonNullable<GetMusicClockQuery['musicClock']>['items'],
 ): number => {
-  return items.reduce((total, item) => total + item.duration, 0);
+  return items.reduce(
+    (total, item) => total + Math.floor(Math.abs(item.duration)),
+    0,
+  );
 };
 
 /**
