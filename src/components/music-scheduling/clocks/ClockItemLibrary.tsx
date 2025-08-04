@@ -70,7 +70,7 @@ function DraggableLibraryItem({
   onDelete,
   style,
 }: DraggableLibraryItemProps) {
-  const { attributes, listeners, setNodeRef, transform, isDragging } =
+  const { attributes, listeners, setNodeRef } =
     useDraggable({
       id,
       data: {
@@ -80,18 +80,14 @@ function DraggableLibraryItem({
       },
     });
 
-  const dragStyle = transform
-    ? {
-        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-      }
-    : undefined;
+  // For library items, we don't want to apply transform (keeps original in place)
+  // The drag overlay will handle the visual feedback
+  const dragStyle = undefined;
 
   return (
     <div
       ref={setNodeRef}
-      className={`clock-item-library__item clock-item-library__item--draggable ${
-        isDragging ? 'is-dragging' : ''
-      }`}
+      className={`clock-item-library__item clock-item-library__item--draggable`}
       style={{ ...style, ...dragStyle }}
       {...attributes}
       {...listeners}
