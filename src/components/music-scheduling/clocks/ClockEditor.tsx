@@ -540,7 +540,10 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
 
       // Handle dragging from library to grid
       if (isLibraryItemDrag(activeData)) {
-        if (overId === 'clock-grid') {
+        // If hovering over library, don't show insertion preview
+        if (overId === 'library') {
+          setInsertionIndex(null);
+        } else if (overId === 'clock-grid') {
           // Dropping at the end
           setInsertionIndex(clockItems.length);
         } else {
@@ -573,6 +576,11 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
 
       // Handle dropping library item into grid
       if (isLibraryItemDrag(activeData)) {
+        // If dropped back on library, do nothing (cancel the drag)
+        if (overId === 'library') {
+          return;
+        }
+
         let position: number | undefined;
 
         if (overId === 'clock-grid') {

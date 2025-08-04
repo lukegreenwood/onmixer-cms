@@ -667,12 +667,13 @@
     }
   }
 
-  .clock-grid {
-    &__header,
-    &__row {
-      // grid-template-columns: 80px 120px 200px 1fr 200px 100px 100px 80px;
-    }
-  }
+  // Commented out - using default grid template columns
+  // .clock-grid {
+  //   &__header,
+  //   &__row {
+  //     grid-template-columns: 80px 120px 200px 1fr 200px 100px 100px 80px;
+  //   }
+  // }
 }
 
 @keyframes fadeIn {
