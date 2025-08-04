@@ -22,7 +22,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Input, Autocomplete, Loading } from '@soundwaves/components';
-import { useMemo, useReducer } from 'react';
+import { useState, useMemo } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -46,8 +46,6 @@ import {
   isSubcategoryClockItem,
   isGenreClockItem,
   isNoteClockItem,
-  clockItemEditorReducer,
-  initialClockItemEditorState,
 } from './utils';
 
 import type {
@@ -461,7 +459,9 @@ export const ClockItemEditor = ({
   items,
   onItemsChange,
 }: ClockItemEditorProps) => {
-  const [state, dispatch] = useReducer(clockItemEditorReducer, initialClockItemEditorState);
+  const [editingItem, setEditingItem] = useState<QueryMusicClockItem | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const { data: categoriesData, loading: categoriesLoading } =
     useQuery(GET_CATEGORIES);
@@ -474,11 +474,11 @@ export const ClockItemEditor = ({
   );
 
   const handleDragStart = (event: DragStartEvent) => {
-    dispatch({ type: 'SET_ACTIVE_ID', payload: event.active.id.toString() });
+    setActiveId(event.active.id.toString());
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
-    dispatch({ type: 'SET_ACTIVE_ID', payload: null });
+    setActiveId(null);
     const { active, over } = event;
 
     if (!over) return;
@@ -598,7 +598,7 @@ export const ClockItemEditor = ({
   };
 
   const handleEditItem = (item: QueryMusicClockItem) => {
-    dispatch({ type: 'SET_EDITING_ITEM', payload: item });
+    setEditingItem(item);
   };
 
   const handleSaveItem = (updatedItem: QueryMusicClockItem) => {
@@ -606,7 +606,7 @@ export const ClockItemEditor = ({
       item.id === updatedItem.id ? updatedItem : item,
     );
     onItemsChange(newItems);
-    dispatch({ type: 'SET_EDITING_ITEM', payload: null });
+    setEditingItem(null);
   };
 
   const handleRemoveItem = (itemId: string) => {
@@ -620,7 +620,7 @@ export const ClockItemEditor = ({
     [categoriesData?.categories],
   );
   const selectedCategoryData = categories.find(
-    (cat) => cat.id === state.selectedCategory,
+    (cat) => cat.id === selectedCategory,
   );
   const subcategories = selectedCategoryData?.subcategories || [];
 
@@ -665,12 +665,12 @@ export const ClockItemEditor = ({
     },
   ];
 
-  if (state.editingItem) {
+  if (editingItem) {
     return (
       <ClockItemForm
-        item={state.editingItem}
+        item={editingItem}
         onSave={handleSaveItem}
-        onCancel={() => dispatch({ type: 'SET_EDITING_ITEM', payload: null })}
+        onCancel={() => setEditingItem(null)}
       />
     );
   }
@@ -697,10 +697,10 @@ export const ClockItemEditor = ({
               <Autocomplete
                 label="Select Music Category"
                 placeholder="Choose a category to see subcategories..."
-                value={state.selectedCategory || undefined}
+                value={selectedCategory || undefined}
                 onChange={(value) => {
                   console.log(value);
-                  dispatch({ type: 'SET_SELECTED_CATEGORY', payload: value });
+                  setSelectedCategory(value);
                 }}
                 options={categoryOptions}
                 after={categoriesLoading ? <Loading size="xs" /> : undefined}
@@ -709,7 +709,7 @@ export const ClockItemEditor = ({
             </div>
 
             {/* Subcategory Placeholders */}
-            {state.selectedCategory && (
+            {selectedCategory && (
               <div className="clock-item-editor__subcategories">
                 <h5 className="clock-item-editor__subsection-title">
                   Drag {selectedCategoryData?.name} subcategories:
@@ -775,11 +775,11 @@ export const ClockItemEditor = ({
         </div>
 
         <DragOverlay>
-          {state.activeId
-            ? state.activeId.startsWith('subcategory-')
+          {activeId
+            ? activeId.startsWith('subcategory-')
               ? // Render preview for subcategories
                 (() => {
-                  const subcategoryId = state.activeId?.replace('subcategory-', '') || '';
+                  const subcategoryId = activeId?.replace('subcategory-', '') || '';
                   const subcategory = categories
                     .flatMap((cat) => cat.subcategories)
                     .find((sub) => sub.id === subcategoryId);
@@ -805,10 +805,10 @@ export const ClockItemEditor = ({
                   }
                   return null;
                 })()
-              : state.activeId.startsWith('type-')
+              : activeId.startsWith('type-')
               ? // Render preview for type blocks
                 (() => {
-                  const type = state.activeId?.replace('type-', '') || '';
+                  const type = activeId?.replace('type-', '') || '';
                   const typeBlock = typeBlocks.find(
                     (block) => block.type === type,
                   );
@@ -840,7 +840,7 @@ export const ClockItemEditor = ({
                 })()
               : // Render preview for existing items
                 (() => {
-                  const item = items.find((item) => item.id === state.activeId);
+                  const item = items.find((item) => item.id === activeId);
                   if (item) {
                     const getItemTypeIcon = (item: QueryMusicClockItem) => {
                       if (isTrackClockItem(item)) {

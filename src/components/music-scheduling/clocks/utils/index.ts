@@ -18,7 +18,3 @@ export * from './dragHelpers';
 
 // Display info helpers
 export * from './displayInfo';
-
-// Reducers
-export * from './clockItemEditorReducer';
-export * from './clockEditorReducer';

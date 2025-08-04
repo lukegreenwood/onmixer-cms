@@ -18,7 +18,7 @@ import { arrayMove } from '@dnd-kit/sortable';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Dialog, Input, Textarea, Badge } from '@soundwaves/components';
 import { useDebouncedCallback } from '@tanstack/react-pacer';
-import { useState, useCallback, useRef, useMemo, useReducer } from 'react';
+import { useState, useCallback, useRef, useMemo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -51,9 +51,7 @@ import {
   isGridItemDrag, 
   isLibraryItemDrag, 
   getDisplayInfo, 
-  getLibraryDisplayInfo,
-  clockEditorReducer,
-  createInitialClockEditorState
+  getLibraryDisplayInfo
 } from './utils';
 
 // Drag overlay component to show the item being dragged
@@ -130,10 +128,11 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
   const { currentNetwork } = useNetwork();
   const isEditing = !!clock;
 
-  const [state, dispatch] = useReducer(
-    clockEditorReducer, 
-    createInitialClockEditorState(clock?.items || [])
-  );
+  const [clockItems, setClockItems] = useState<QueryMusicClockItem[]>(clock?.items || []);
+  const [isClockDialogOpen, setIsClockDialogOpen] = useState(false);
+  const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
+  const [activeItem, setActiveItem] = useState<DragData | null>(null);
+  const [insertionIndex, setInsertionIndex] = useState<number | null>(null);
   const lastOverId = useRef<UniqueIdentifier | null>(null);
   const recentlyMovedToNewContainer = useRef(false);
   const draggableContainers = useMemo(
