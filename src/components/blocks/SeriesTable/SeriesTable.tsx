@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery, useSuspenseQuery } from '@apollo/client';
-import { Alert, Badge, Tag } from '@soundwaves/components';
+import { Alert, Badge } from '@soundwaves/components';
 import { useDebouncer } from '@tanstack/react-pacer';
 import { createColumnHelper } from '@tanstack/react-table';
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table';

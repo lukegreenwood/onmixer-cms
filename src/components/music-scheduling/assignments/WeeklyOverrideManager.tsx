@@ -1,17 +1,25 @@
 'use client';
-
-import { useMutation, useQuery } from '@apollo/client';
+// TODO refactor or remove file
+import { DocumentNode, useMutation, useQuery } from '@apollo/client';
 import { Button, Input } from '@soundwaves/components';
 import { useState, useCallback } from 'react';
 
 import { ClockIcon } from '@/components/icons';
-import { CREATE_WEEKLY_OVERRIDE, DELETE_WEEKLY_OVERRIDE } from '@/graphql/mutations/createWeeklyOverride';
+import {
+  CREATE_WEEKLY_OVERRIDE,
+  DELETE_WEEKLY_OVERRIDE,
+} from '@/graphql/mutations/createWeeklyOverride';
 import { GET_WEEKLY_OVERRIDES } from '@/graphql/queries/musicSchedules';
 import { toast } from '@/lib/toast';
 
 import { ClockSelector } from '../templates/ClockSelector';
 import { TemplateGrid } from '../templates/TemplateGrid';
-import { formatWeekCommencing, getWeekCommencing, getDayName, formatHour } from '../utils';
+import {
+  formatWeekCommencing,
+  getWeekCommencing,
+  getDayName,
+  formatHour,
+} from '../utils';
 
 import type { MusicClock, TemplateAssignment } from '../types';
 
@@ -28,15 +36,24 @@ export const WeeklyOverrideManager = ({
   clocks,
   baseAssignments,
 }: WeeklyOverrideManagerProps) => {
-  const [selectedWeek, setSelectedWeek] = useState(() => getWeekCommencing(new Date()));
-  const [selectedSlots, setSelectedSlots] = useState<Array<{ dayOfWeek: number; hour: number }>>([]);
+  const [selectedWeek, setSelectedWeek] = useState(() =>
+    getWeekCommencing(new Date()),
+  );
+  const [selectedSlots, setSelectedSlots] = useState<
+    Array<{ dayOfWeek: number; hour: number }>
+  >([]);
   const [showClockSelector, setShowClockSelector] = useState(false);
-
-  const { data: overridesData, refetch: refetchOverrides } = useQuery(GET_WEEKLY_OVERRIDES, {
-    variables: { networkId, templateId, weekCommencing: selectedWeek },
-  });
-
-  const [createOverride, { loading: createLoading }] = useMutation(CREATE_WEEKLY_OVERRIDE);
+  // TODO FIX WHEN IMPLEMENTING PAGe
+  const { data: overridesData, refetch: refetchOverrides } = useQuery(
+    GET_WEEKLY_OVERRIDES as DocumentNode,
+    {
+      variables: { networkId, templateId, weekCommencing: selectedWeek },
+    },
+  );
+  // TODO FIX WHEN IMPLEMENTING PAGe
+  const [createOverride, { loading: createLoading }] = useMutation(
+    CREATE_WEEKLY_OVERRIDE as DocumentNode,
+  );
   const [deleteOverride] = useMutation(DELETE_WEEKLY_OVERRIDE);
 
   const overrides = overridesData?.musicClockWeeklyOverrides || [];
@@ -44,15 +61,16 @@ export const WeeklyOverrideManager = ({
   // Merge base assignments with weekly overrides
   const effectiveAssignments = useCallback(() => {
     const assignments = new Map<string, TemplateAssignment>();
-    
+
     // Start with base template assignments
-    baseAssignments.forEach(assignment => {
+    baseAssignments.forEach((assignment) => {
       const key = `${assignment.dayOfWeek}-${assignment.hour}`;
       assignments.set(key, assignment);
     });
 
     // Apply weekly overrides
-    overrides.forEach(override => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    overrides.forEach((override: any) => {
       const key = `${override.dayOfWeek}-${override.hour}`;
       if (override.clockId && override.clock) {
         // Override with a different clock
@@ -73,63 +91,83 @@ export const WeeklyOverrideManager = ({
     return Array.from(assignments.values());
   }, [baseAssignments, overrides]);
 
-  const handleSlotClick = useCallback((dayOfWeek: number, hour: number) => {
-    const isSelected = selectedSlots.some(slot => 
-      slot.dayOfWeek === dayOfWeek && slot.hour === hour
-    );
-
-    if (isSelected) {
-      setSelectedSlots(prev => prev.filter(slot => 
-        !(slot.dayOfWeek === dayOfWeek && slot.hour === hour)
-      ));
-    } else {
-      setSelectedSlots(prev => [...prev, { dayOfWeek, hour }]);
-    }
-  }, [selectedSlots]);
-
-  const handleClockSelect = useCallback(async (clockId: string) => {
-    if (selectedSlots.length === 0) return;
-
-    try {
-      await Promise.all(
-        selectedSlots.map(slot =>
-          createOverride({
-            variables: {
-              input: {
-                networkId,
-                templateId,
-                clockId,
-                weekCommencing: selectedWeek,
-                dayOfWeek: slot.dayOfWeek,
-                hour: slot.hour,
-                reason: `Manual override for ${getDayName(slot.dayOfWeek)} ${formatHour(slot.hour)}`,
-              },
-            },
-          })
-        )
+  const handleSlotClick = useCallback(
+    (dayOfWeek: number, hour: number) => {
+      const isSelected = selectedSlots.some(
+        (slot) => slot.dayOfWeek === dayOfWeek && slot.hour === hour,
       );
 
-      toast('Weekly overrides created successfully', 'success');
-      setSelectedSlots([]);
-      setShowClockSelector(false);
-      refetchOverrides();
-    } catch {
-      toast('Failed to create weekly overrides', 'error');
-    }
-  }, [selectedSlots, networkId, templateId, selectedWeek, createOverride, refetchOverrides]);
+      if (isSelected) {
+        setSelectedSlots((prev) =>
+          prev.filter(
+            (slot) => !(slot.dayOfWeek === dayOfWeek && slot.hour === hour),
+          ),
+        );
+      } else {
+        setSelectedSlots((prev) => [...prev, { dayOfWeek, hour }]);
+      }
+    },
+    [selectedSlots],
+  );
 
-  const handleRemoveOverride = useCallback(async (overrideId: string) => {
-    try {
-      await deleteOverride({
-        variables: { id: overrideId },
-      });
+  const handleClockSelect = useCallback(
+    async (clockId: string) => {
+      if (selectedSlots.length === 0) return;
 
-      toast('Weekly override removed successfully', 'success');
-      refetchOverrides();
-    } catch {
-      toast('Failed to remove weekly override', 'error');
-    }
-  }, [deleteOverride, refetchOverrides]);
+      try {
+        await Promise.all(
+          selectedSlots.map((slot) =>
+            createOverride({
+              variables: {
+                input: {
+                  networkId,
+                  templateId,
+                  clockId,
+                  weekCommencing: selectedWeek,
+                  dayOfWeek: slot.dayOfWeek,
+                  hour: slot.hour,
+                  reason: `Manual override for ${getDayName(
+                    slot.dayOfWeek,
+                  )} ${formatHour(slot.hour)}`,
+                },
+              },
+            }),
+          ),
+        );
+
+        toast('Weekly overrides created successfully', 'success');
+        setSelectedSlots([]);
+        setShowClockSelector(false);
+        refetchOverrides();
+      } catch {
+        toast('Failed to create weekly overrides', 'error');
+      }
+    },
+    [
+      selectedSlots,
+      networkId,
+      templateId,
+      selectedWeek,
+      createOverride,
+      refetchOverrides,
+    ],
+  );
+
+  const handleRemoveOverride = useCallback(
+    async (overrideId: string) => {
+      try {
+        await deleteOverride({
+          variables: { id: overrideId },
+        });
+
+        toast('Weekly override removed successfully', 'success');
+        refetchOverrides();
+      } catch {
+        toast('Failed to remove weekly override', 'error');
+      }
+    },
+    [deleteOverride, refetchOverrides],
+  );
 
   const handleClearSlots = useCallback(() => {
     setSelectedSlots([]);
@@ -140,7 +178,7 @@ export const WeeklyOverrideManager = ({
 
     try {
       await Promise.all(
-        selectedSlots.map(slot =>
+        selectedSlots.map((slot) =>
           createOverride({
             variables: {
               input: {
@@ -150,11 +188,13 @@ export const WeeklyOverrideManager = ({
                 weekCommencing: selectedWeek,
                 dayOfWeek: slot.dayOfWeek,
                 hour: slot.hour,
-                reason: `Remove assignment for ${getDayName(slot.dayOfWeek)} ${formatHour(slot.hour)}`,
+                reason: `Remove assignment for ${getDayName(
+                  slot.dayOfWeek,
+                )} ${formatHour(slot.hour)}`,
               },
             },
-          })
-        )
+          }),
+        ),
       );
 
       toast('Selected slots cleared successfully', 'success');
@@ -163,7 +203,14 @@ export const WeeklyOverrideManager = ({
     } catch {
       toast('Failed to clear selected slots', 'error');
     }
-  }, [selectedSlots, networkId, templateId, selectedWeek, createOverride, refetchOverrides]);
+  }, [
+    selectedSlots,
+    networkId,
+    templateId,
+    selectedWeek,
+    createOverride,
+    refetchOverrides,
+  ]);
 
   return (
     <div className="weekly-override-manager">
@@ -182,7 +229,9 @@ export const WeeklyOverrideManager = ({
           <Input
             type="date"
             value={selectedWeek}
-            onChange={(e) => setSelectedWeek((e.target as HTMLInputElement).value)}
+            onChange={(e) =>
+              setSelectedWeek((e.target as HTMLInputElement).value)
+            }
             className="week-selector"
           />
           <div className="form-help-text">
@@ -194,7 +243,8 @@ export const WeeklyOverrideManager = ({
           {selectedSlots.length > 0 && (
             <>
               <div className="selection-info">
-                {selectedSlots.length} slot{selectedSlots.length !== 1 ? 's' : ''} selected
+                {selectedSlots.length} slot
+                {selectedSlots.length !== 1 ? 's' : ''} selected
               </div>
               <Button
                 variant="secondary"
@@ -213,11 +263,7 @@ export const WeeklyOverrideManager = ({
               >
                 Clear Slots
               </Button>
-              <Button
-                variant="tertiary"
-                size="sm"
-                onClick={handleClearSlots}
-              >
+              <Button variant="tertiary" size="sm" onClick={handleClearSlots}>
                 Cancel
               </Button>
             </>

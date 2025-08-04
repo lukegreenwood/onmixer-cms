@@ -81,21 +81,21 @@ export const REMOVE_CLOCK_FROM_TEMPLATE = gql(`
 
 export const CREATE_WEEKLY_OVERRIDE = gql(`
   mutation CreateWeeklyOverride($input: CreateWeeklyOverrideInput!) {
-    createWeeklyOverride(input: $input) {
-      success
-      message
-      override {
-        id
-        weekCommencing
-        dayOfWeek
-        hour
-        reason
-        clock {
-          id
-          name
-        }
-      }
-    }
+    # createWeeklyOverride(input: $input) {
+    #   success
+    #   message
+    #   override {
+    #     id
+    #     weekCommencing
+    #     dayOfWeek
+    #     hour
+    #     reason
+    #     clock {
+    #       id
+    #       name
+    #     }
+    #   }
+    # }
   }
 `);
 
