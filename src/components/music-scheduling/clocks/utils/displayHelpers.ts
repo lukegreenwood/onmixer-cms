@@ -11,7 +11,12 @@ import {
   isLibraryAdBreakClockItem,
 } from './typeGuards';
 
-import type { QueryMusicClockItem, LibraryItemType, LibraryItemData, BadgeColor } from '../types';
+import type {
+  QueryMusicClockItem,
+  LibraryItemType,
+  LibraryItemData,
+  BadgeColor,
+} from '../types';
 
 /**
  * Get the display title for a clock item
@@ -68,7 +73,8 @@ export const getBadgeColor = (item: QueryMusicClockItem): BadgeColor => {
   if (isSubcategoryClockItem(item)) return 'green';
   if (isGenreClockItem(item)) return 'blue';
   if (isNoteClockItem(item) || isLibraryNoteClockItem(item)) return 'gray';
-  if (isCommandClockItem(item) || isLibraryCommandClockItem(item)) return 'purple';
+  if (isCommandClockItem(item) || isLibraryCommandClockItem(item))
+    return 'purple';
   if (isAdBreakClockItem(item) || isLibraryAdBreakClockItem(item)) return 'red';
   return 'blue'; // Default fallback
 };
@@ -81,7 +87,8 @@ export const getSourceId = (item: QueryMusicClockItem): string => {
   if (isSubcategoryClockItem(item)) return item.subcategory?.id || item.id;
   if (isGenreClockItem(item)) return item.genre?.id || item.id;
   if (isLibraryNoteClockItem(item)) return item.note?.id || item.id;
-  if (isLibraryCommandClockItem(item)) return item.libraryCommand?.id || item.id;
+  if (isLibraryCommandClockItem(item))
+    return item.libraryCommand?.id || item.id;
   if (isLibraryAdBreakClockItem(item)) return item.adBreak?.id || item.id;
   return item.id; // Fallback to clock item ID
 };
@@ -90,20 +97,28 @@ export const getSourceId = (item: QueryMusicClockItem): string => {
  * Get the description for a clock item (used in drag overlay and other places)
  */
 export const getDescription = (item: QueryMusicClockItem): string => {
-  if (isTrackClockItem(item) || isAdBreakClockItem(item) || isLibraryAdBreakClockItem(item)) {
+  if (
+    isTrackClockItem(item) ||
+    isAdBreakClockItem(item) ||
+    isLibraryAdBreakClockItem(item)
+  ) {
     return formatDuration(Math.floor(Math.abs(item.duration || 0)));
   }
   if (isSubcategoryClockItem(item)) return 'Category';
   if (isGenreClockItem(item)) return 'Genre';
   if (isNoteClockItem(item) || isLibraryNoteClockItem(item)) return 'Note';
-  if (isCommandClockItem(item) || isLibraryCommandClockItem(item)) return 'Command';
+  if (isCommandClockItem(item) || isLibraryCommandClockItem(item))
+    return 'Command';
   return '';
 };
 
 /**
  * Get the type label for a library item
  */
-export const getLibraryTypeLabel = (itemType: LibraryItemType, data: LibraryItemData): string => {
+export const getLibraryTypeLabel = (
+  itemType: LibraryItemType,
+  data: LibraryItemData,
+): string => {
   switch (itemType) {
     case 'track':
       return 'Track';
@@ -128,7 +143,10 @@ export const getLibraryTypeLabel = (itemType: LibraryItemType, data: LibraryItem
 /**
  * Get the description for a library item
  */
-export const getLibraryDescription = (itemType: LibraryItemType, data: LibraryItemData): string => {
+export const getLibraryDescription = (
+  itemType: LibraryItemType,
+  data: LibraryItemData,
+): string => {
   switch (itemType) {
     case 'track':
       return formatDuration((data.duration as number) || 0);

@@ -172,7 +172,8 @@ function SortableClockItem({
           size="sm"
           before={<Icon size={16} />}
           className={
-            item.__typename === 'SubcategoryClockItem' && item.subcategory?.color
+            item.__typename === 'SubcategoryClockItem' &&
+            item.subcategory?.color
               ? `badge--${getContrastColor(item.subcategory.color)}`
               : undefined
           }
@@ -210,7 +211,7 @@ function SortableClockItem({
         <DropdownMenu>
           <DropdownMenu.Trigger asChild>
             <Button variant="transparent" size="sm" isIconOnly>
-              <MoreHorizontalIcon size={16} />
+              <MoreHorizontalIcon />
             </Button>
           </DropdownMenu.Trigger>
           <DropdownMenu.Content align="end">
@@ -220,7 +221,7 @@ function SortableClockItem({
             </DropdownMenu.Item>
             <DropdownMenu.Item
               onClick={() => onItemDelete(item.id)}
-              className="text-red-600"
+              destructive
             >
               <DeleteIcon size={16} />
               Remove
@@ -253,7 +254,7 @@ export const ClockGrid = ({
         <div className="clock-grid__column">Artist</div>
         <div className="clock-grid__column">Duration</div>
         <div className="clock-grid__column">Item ID</div>
-        <div className="clock-grid__column">Actions</div>
+        <div className="clock-grid__column clock-grid__column--actions"></div>
       </div>
 
       <div className="clock-grid__body">

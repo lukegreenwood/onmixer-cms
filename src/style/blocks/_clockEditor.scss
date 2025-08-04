@@ -390,8 +390,8 @@
 // Clock grid
 .clock-grid {
   display: grid;
-  grid-template-columns: 48px 10ch 180px 1fr 180px 80px 80px 60px;
-  // height: 100%;
+  grid-template-columns: 48px 10ch max-content 1fr 1fr 1fr 1fr 60px;
+  overflow-y: auto;
 
   &__header {
     display: grid;
@@ -406,17 +406,26 @@
     color: palette.$gray-600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    position: sticky;
+    top: 0;
   }
 
   &__column {
-    padding: mixins.spacing(1);
+    display: flex;
+    align-items: center;
+
+    &--actions {
+      padding-inline-end: mixins.spacing(2);
+    }
   }
 
   &__body {
     display: grid;
     grid-template-columns: subgrid;
     grid-column: 1 / -1;
-    overflow-y: auto;
+    // overflow-y: auto;
+    // overflow-x: hidden;
+    padding-block-end: mixins.spacing(16);
   }
 
   &__row {
@@ -457,7 +466,8 @@
 
   &__placeholder {
     display: grid;
-    grid-template-columns: 60px 100px 180px 1fr 180px 80px 80px 60px;
+    grid-template-columns: subgrid;
+    grid-column: 1 / -1;
     gap: mixins.spacing(2);
     padding: mixins.spacing(3) mixins.spacing(4);
     border: 2px dashed palette.$blue-300;
@@ -477,6 +487,7 @@
   }
 
   &__insertion-placeholder {
+    grid-column: 1 / -1;
     height: 8px;
     margin: mixins.spacing(1) mixins.spacing(4);
     display: flex;
@@ -500,6 +511,7 @@
     font-size: 0.875rem;
     color: palette.$gray-900;
     min-height: 42px;
+    padding: mixins.spacing(3) 0;
 
     &--air-time {
       gap: mixins.spacing(2);
@@ -561,10 +573,12 @@
 
     &--actions {
       justify-content: flex-end;
+      padding-inline-end: mixins.spacing(2);
     }
 
     &--drag-handle {
       justify-content: center;
+      // padding-left: mixins.spacing(4);
     }
   }
 
@@ -656,7 +670,7 @@
   .clock-grid {
     &__header,
     &__row {
-      grid-template-columns: 80px 120px 200px 1fr 200px 100px 100px 80px;
+      // grid-template-columns: 80px 120px 200px 1fr 200px 100px 100px 80px;
     }
   }
 }
