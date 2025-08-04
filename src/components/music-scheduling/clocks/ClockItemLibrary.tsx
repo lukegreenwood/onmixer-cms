@@ -82,13 +82,12 @@ function DraggableLibraryItem({
 
   // For library items, we don't want to apply transform (keeps original in place)
   // The drag overlay will handle the visual feedback
-  const dragStyle = undefined;
 
   return (
     <div
       ref={setNodeRef}
       className={`clock-item-library__item clock-item-library__item--draggable`}
-      style={{ ...style, ...dragStyle }}
+      style={style}
       {...attributes}
       {...listeners}
     >

@@ -167,3 +167,25 @@ export const getLibraryDescription = (
       return '';
   }
 };
+
+/**
+ * Get the editable name for a clock item (for form inputs)
+ */
+export const getEditableName = (item: QueryMusicClockItem): string => {
+  if (isNoteClockItem(item)) {
+    return item.label || '';
+  }
+  // For other types, names are not editable (they come from referenced data)
+  return '';
+};
+
+/**
+ * Update a clock item with an editable name (only for items that support it)
+ */
+export const updateItemWithEditableName = (item: QueryMusicClockItem, name: string): QueryMusicClockItem => {
+  if (isNoteClockItem(item)) {
+    return { ...item, label: name };
+  }
+  // For other types, return the item unchanged since names aren't editable
+  return item;
+};
