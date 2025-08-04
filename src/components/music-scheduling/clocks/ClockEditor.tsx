@@ -554,17 +554,9 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
           }
         }
       } else if (isGridItemDrag(activeData)) {
-        // For grid item reordering, show ghost insertion preview
-        if (overId === 'clock-grid') {
-          // Dropping at the end
-          setInsertionIndex(clockItems.length);
-        } else {
-          // Find the item we're over
-          const overIndex = clockItems.findIndex((item) => item.id === overId);
-          if (overIndex !== -1) {
-            setInsertionIndex(overIndex);
-          }
-        }
+        // For grid item reordering, don't show ghost insertion preview
+        // Let the natural transform movement provide visual feedback
+        setInsertionIndex(null);
       }
     },
     [clockItems],

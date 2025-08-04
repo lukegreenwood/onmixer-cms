@@ -142,7 +142,7 @@ function SortableClockItem({
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0 : 1,
+    opacity: isDragging ? 0.8 : 1,
   };
 
   // Get display information using the centralized helper
@@ -264,9 +264,10 @@ export const ClockGrid = ({
         >
           {items.map((item, index) => {
             const showGhostBefore = insertionIndex === index;
+            const shouldShowGhost = showGhostBefore && draggedItem && isLibraryItemDrag(draggedItem);
             return (
               <React.Fragment key={item.id}>
-                {showGhostBefore && draggedItem && (
+                {shouldShowGhost && (
                   <GhostClockItem draggedItem={draggedItem} />
                 )}
                 <SortableClockItem
@@ -279,7 +280,7 @@ export const ClockGrid = ({
               </React.Fragment>
             );
           })}
-          {insertionIndex === items.length && draggedItem && (
+          {insertionIndex === items.length && draggedItem && isLibraryItemDrag(draggedItem) && (
             <GhostClockItem draggedItem={draggedItem} />
           )}
         </SortableContext>
