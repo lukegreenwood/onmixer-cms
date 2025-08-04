@@ -554,9 +554,17 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
           }
         }
       } else if (isGridItemDrag(activeData)) {
-        // For grid item reordering, don't show ghost insertion preview
-        // The drag overlay already shows what's being moved
-        setInsertionIndex(null);
+        // For grid item reordering, show ghost insertion preview
+        if (overId === 'clock-grid') {
+          // Dropping at the end
+          setInsertionIndex(clockItems.length);
+        } else {
+          // Find the item we're over
+          const overIndex = clockItems.findIndex((item) => item.id === overId);
+          if (overIndex !== -1) {
+            setInsertionIndex(overIndex);
+          }
+        }
       }
     },
     [clockItems],
@@ -837,7 +845,7 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
         </div>
 
         <DragOverlay>
-          {activeId && activeItem ? (
+          {activeId && activeItem && isLibraryItemDrag(activeItem) ? (
             <DragOverlayItem activeItem={activeItem} />
           ) : null}
         </DragOverlay>
