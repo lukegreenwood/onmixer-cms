@@ -389,13 +389,14 @@
 
 // Clock grid
 .clock-grid {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
+  display: grid;
+  grid-template-columns: 48px 10ch 180px 1fr 180px 80px 80px 60px;
+  // height: 100%;
 
   &__header {
     display: grid;
-    grid-template-columns: 60px 100px 180px 1fr 180px 80px 80px 60px;
+    grid-template-columns: subgrid;
+    grid-column: 1 / -1;
     gap: mixins.spacing(2);
     padding: mixins.spacing(3) mixins.spacing(4);
     background: palette.$gray-50;
@@ -412,15 +413,18 @@
   }
 
   &__body {
-    flex: 1;
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-column: 1 / -1;
     overflow-y: auto;
   }
 
   &__row {
     display: grid;
-    grid-template-columns: 60px 100px 180px 1fr 180px 80px 80px 60px;
+    grid-template-columns: subgrid;
+    grid-column: 1 / -1;
     gap: mixins.spacing(2);
-    padding: mixins.spacing(3) mixins.spacing(4);
+    // padding: mixins.spacing(3) mixins.spacing(4);
     border-bottom: 1px solid palette.$gray-100;
     transition: background-color 0.15s ease;
     min-height: 48px;
@@ -506,6 +510,32 @@
     &--type {
       .badge {
         max-width: 100%;
+
+        // Use custom badge color as background when set
+        &[style*='--badge-color'] {
+          background-color: var(--badge-color, inherit);
+          border-color: var(--badge-color, inherit);
+
+          // Light backgrounds get dark text
+          &.badge--dark {
+            color: palette.$gray-800;
+
+            svg,
+            span {
+              color: palette.$gray-800;
+            }
+          }
+
+          // Dark backgrounds get light text
+          &.badge--light {
+            color: palette.$white-900;
+
+            svg,
+            span {
+              color: palette.$white-900;
+            }
+          }
+        }
       }
     }
 

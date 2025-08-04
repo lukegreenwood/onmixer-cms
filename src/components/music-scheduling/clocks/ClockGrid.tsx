@@ -21,12 +21,13 @@ import {
 import { formatDuration } from '../utils';
 
 import { QueryMusicClockItem, DragData } from './types';
-import { 
-  isGridItemDrag, 
-  isLibraryItemDrag, 
-  getDisplayInfo, 
-  getLibraryDisplayInfo, 
-  calculateAirTime 
+import {
+  isGridItemDrag,
+  isLibraryItemDrag,
+  getDisplayInfo,
+  getLibraryDisplayInfo,
+  calculateAirTime,
+  getContrastColor,
 } from './utils';
 
 type ClockItem = QueryMusicClockItem;
@@ -47,7 +48,10 @@ function GhostClockItem({ draggedItem }: { draggedItem: DragData }) {
     description = displayInfo.description || formatDuration(180);
   } else if (isLibraryItemDrag(draggedItem)) {
     // Handle library items
-    const displayInfo = getLibraryDisplayInfo(draggedItem.itemType, draggedItem.data);
+    const displayInfo = getLibraryDisplayInfo(
+      draggedItem.itemType,
+      draggedItem.data,
+    );
     Icon = displayInfo.icon;
     typeLabel = displayInfo.typeLabel;
     title = displayInfo.title;
@@ -167,11 +171,17 @@ function SortableClockItem({
           color={displayInfo.badgeColor}
           size="sm"
           before={<Icon size={16} />}
+          className={
+            item.__typename === 'SubcategoryClockItem' && item.subcategory?.color
+              ? `badge--${getContrastColor(item.subcategory.color)}`
+              : undefined
+          }
           style={
             {
               '--badge-color':
-                item.__typename === 'SubcategoryClockItem'
-                  ? `var(--subcategory-color, var(--green-500))`
+                item.__typename === 'SubcategoryClockItem' &&
+                item.subcategory?.color
+                  ? item.subcategory.color
                   : undefined,
             } as React.CSSProperties
           }

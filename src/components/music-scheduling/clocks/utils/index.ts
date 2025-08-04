@@ -18,3 +18,6 @@ export * from './dragHelpers';
 
 // Display info helpers
 export * from './displayInfo';
+
+// Color helpers
+export * from './colorHelpers';
