@@ -1,0 +1,151 @@
+import { formatDuration } from './formatting';
+import {
+  isTrackClockItem,
+  isSubcategoryClockItem,
+  isGenreClockItem,
+  isNoteClockItem,
+  isCommandClockItem,
+  isAdBreakClockItem,
+  isLibraryNoteClockItem,
+  isLibraryCommandClockItem,
+  isLibraryAdBreakClockItem,
+} from './typeGuards';
+
+import type { QueryMusicClockItem, LibraryItemType, LibraryItemData, BadgeColor } from '../types';
+
+/**
+ * Get the display title for a clock item
+ */
+export const getTitle = (item: QueryMusicClockItem): string => {
+  if (isTrackClockItem(item)) {
+    return item.track?.title || 'Unknown Track';
+  }
+  if (isSubcategoryClockItem(item) || isGenreClockItem(item)) {
+    return 'Unscheduled position';
+  }
+  if (isNoteClockItem(item)) {
+    return item.content || 'Note';
+  }
+  if (isCommandClockItem(item)) {
+    return item.command || 'Command';
+  }
+  if (isAdBreakClockItem(item)) {
+    return item.scheduledStartTime || '00:00';
+  }
+  if (isLibraryNoteClockItem(item)) {
+    return item.note?.content || item.note?.label || 'Library Note';
+  }
+  if (isLibraryCommandClockItem(item)) {
+    return item.libraryCommand?.command || 'Library Command';
+  }
+  if (isLibraryAdBreakClockItem(item)) {
+    return item.adBreak?.scheduledStartTime || '00:00';
+  }
+  return 'Unknown';
+};
+
+/**
+ * Get the type label for a clock item
+ */
+export const getTypeLabel = (item: QueryMusicClockItem): string => {
+  if (isTrackClockItem(item)) return 'Track';
+  if (isSubcategoryClockItem(item)) return item.subcategory?.name || 'Category';
+  if (isGenreClockItem(item)) return item.genre?.name || 'Genre';
+  if (isNoteClockItem(item)) return 'Note';
+  if (isCommandClockItem(item)) return 'Command';
+  if (isAdBreakClockItem(item)) return 'Commercial';
+  if (isLibraryNoteClockItem(item)) return 'Library Note';
+  if (isLibraryCommandClockItem(item)) return 'Library Command';
+  if (isLibraryAdBreakClockItem(item)) return 'Library Ad Break';
+  return 'Unknown';
+};
+
+/**
+ * Get the badge color for a clock item
+ */
+export const getBadgeColor = (item: QueryMusicClockItem): BadgeColor => {
+  if (isTrackClockItem(item)) return 'blue';
+  if (isSubcategoryClockItem(item)) return 'green';
+  if (isGenreClockItem(item)) return 'blue';
+  if (isNoteClockItem(item) || isLibraryNoteClockItem(item)) return 'gray';
+  if (isCommandClockItem(item) || isLibraryCommandClockItem(item)) return 'purple';
+  if (isAdBreakClockItem(item) || isLibraryAdBreakClockItem(item)) return 'red';
+  return 'blue'; // Default fallback
+};
+
+/**
+ * Get the source ID for a clock item (for display purposes)
+ */
+export const getSourceId = (item: QueryMusicClockItem): string => {
+  if (isTrackClockItem(item)) return item.track?.id || item.id;
+  if (isSubcategoryClockItem(item)) return item.subcategory?.id || item.id;
+  if (isGenreClockItem(item)) return item.genre?.id || item.id;
+  if (isLibraryNoteClockItem(item)) return item.note?.id || item.id;
+  if (isLibraryCommandClockItem(item)) return item.libraryCommand?.id || item.id;
+  if (isLibraryAdBreakClockItem(item)) return item.adBreak?.id || item.id;
+  return item.id; // Fallback to clock item ID
+};
+
+/**
+ * Get the description for a clock item (used in drag overlay and other places)
+ */
+export const getDescription = (item: QueryMusicClockItem): string => {
+  if (isTrackClockItem(item) || isAdBreakClockItem(item) || isLibraryAdBreakClockItem(item)) {
+    return formatDuration(Math.floor(Math.abs(item.duration || 0)));
+  }
+  if (isSubcategoryClockItem(item)) return 'Category';
+  if (isGenreClockItem(item)) return 'Genre';
+  if (isNoteClockItem(item) || isLibraryNoteClockItem(item)) return 'Note';
+  if (isCommandClockItem(item) || isLibraryCommandClockItem(item)) return 'Command';
+  return '';
+};
+
+/**
+ * Get the type label for a library item
+ */
+export const getLibraryTypeLabel = (itemType: LibraryItemType, data: LibraryItemData): string => {
+  switch (itemType) {
+    case 'track':
+      return 'Track';
+    case 'genre':
+      return data.name || 'Genre';
+    case 'subcategory':
+      return data.name || 'Category';
+    case 'note':
+    case 'library_note':
+      return 'Note';
+    case 'command':
+    case 'library_command':
+      return 'Command';
+    case 'ad_break':
+    case 'library_ad_break':
+      return 'Commercial';
+    default:
+      return 'Unknown';
+  }
+};
+
+/**
+ * Get the description for a library item
+ */
+export const getLibraryDescription = (itemType: LibraryItemType, data: LibraryItemData): string => {
+  switch (itemType) {
+    case 'track':
+      return formatDuration((data.duration as number) || 0);
+    case 'genre':
+      return 'Genre';
+    case 'subcategory':
+      return 'Category';
+    case 'note':
+    case 'library_note':
+      return 'Note';
+    case 'command':
+    case 'library_command':
+      return 'Command';
+    case 'ad_break':
+    case 'library_ad_break':
+      return `${(data.duration as number) || 180}s`;
+    default:
+      return '';
+  }
+};

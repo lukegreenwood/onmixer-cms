@@ -12,124 +12,46 @@ import React from 'react';
 
 import {
   AudioIcon,
-  AdIcon,
-  CategoryIcon,
   MoreHorizontalIcon,
-  NoteIcon,
-  CommandIcon,
-  GenreIcon,
   EditIcon,
   DeleteIcon,
   GripVerticalIcon,
 } from '@/components/icons';
-import type { GetMusicClockQuery } from '@/graphql/__generated__/graphql';
 
 import { formatDuration } from '../utils';
 
-type ClockItem = NonNullable<GetMusicClockQuery['musicClock']>['items'][number];
+import { QueryMusicClockItem, DragData } from './types';
+import { 
+  isGridItemDrag, 
+  isLibraryItemDrag, 
+  getDisplayInfo, 
+  getLibraryDisplayInfo, 
+  calculateAirTime 
+} from './utils';
+
+type ClockItem = QueryMusicClockItem;
 
 // Ghost item component to show preview of dragged item
-function GhostClockItem({
-  draggedItem,
-}: {
-  draggedItem: {
-    type?: string;
-    itemType?: string;
-    data?: Record<string, unknown>;
-    item?: any;
-  };
-}) {
+function GhostClockItem({ draggedItem }: { draggedItem: DragData }) {
   let Icon = AudioIcon;
   let typeLabel = 'Unknown';
   let title = 'Item';
   let description = '';
 
   // Handle grid item reordering
-  if (draggedItem.type === 'grid-item' && draggedItem.item) {
-    const gridItem = draggedItem.item;
-
-    switch (gridItem.__typename) {
-      case 'TrackClockItem':
-        Icon = AudioIcon;
-        typeLabel = 'Track';
-        title = gridItem.track?.title || 'Track';
-        description = formatDuration(
-          Math.floor(Math.abs(gridItem.duration || 0)),
-        );
-        break;
-      case 'NoteClockItem':
-        Icon = NoteIcon;
-        typeLabel = 'Note';
-        title = gridItem.content || 'Note';
-        break;
-      case 'CommandClockItem':
-        Icon = CommandIcon;
-        typeLabel = 'Command';
-        title = gridItem.command || 'Command';
-        break;
-      case 'AdBreakClockItem':
-        Icon = AdIcon;
-        typeLabel = 'Commercial';
-        title = gridItem.scheduledStartTime || '00:00';
-        description = formatDuration(
-          Math.floor(Math.abs(gridItem.duration || 180)),
-        );
-        break;
-      case 'SubcategoryClockItem':
-        Icon = CategoryIcon;
-        typeLabel = gridItem.subcategory?.name || 'Category';
-        title = 'Unscheduled position';
-        break;
-      case 'GenreClockItem':
-        Icon = GenreIcon;
-        typeLabel = gridItem.genre?.name || 'Genre';
-        title = 'Unscheduled position';
-        break;
-      case 'LibraryNoteClockItem':
-        Icon = NoteIcon;
-        typeLabel = 'Library Note';
-        title = (gridItem as any).note?.content || 'Library Note';
-        break;
-      case 'LibraryCommandClockItem':
-        Icon = CommandIcon;
-        typeLabel = 'Library Command';
-        title = (gridItem as any).libraryCommand?.command || 'Library Command';
-        break;
-      case 'LibraryAdBreakClockItem':
-        Icon = AdIcon;
-        typeLabel = 'Library Ad Break';
-        title = (gridItem as any).adBreak?.scheduledStartTime || '00:00';
-        description = formatDuration(
-          Math.floor(Math.abs(gridItem.duration || 180)),
-        );
-        break;
-    }
-  } else {
+  if (isGridItemDrag(draggedItem)) {
+    const displayInfo = getDisplayInfo(draggedItem.item);
+    Icon = displayInfo.icon;
+    typeLabel = displayInfo.typeLabel;
+    title = displayInfo.title;
+    description = displayInfo.description || formatDuration(180);
+  } else if (isLibraryItemDrag(draggedItem)) {
     // Handle library items
-    const { itemType, data } = draggedItem;
-    title = (data?.name as string) || 'Item';
-
-    if (itemType === 'track') {
-      Icon = AudioIcon;
-      typeLabel = 'Track';
-      description = `${formatDuration((data?.duration as number) || 0)}`;
-    } else if (itemType === 'genre') {
-      Icon = GenreIcon;
-      typeLabel = (data?.name as string) || 'Genre';
-    } else if (itemType === 'subcategory') {
-      Icon = CategoryIcon;
-      typeLabel = (data?.name as string) || 'Category';
-    } else if (itemType === 'note' || itemType === 'library_note') {
-      Icon = NoteIcon;
-      typeLabel = 'Note';
-    } else if (itemType === 'command' || itemType === 'library_command') {
-      Icon = CommandIcon;
-      typeLabel = 'Command';
-    } else if (itemType === 'ad_break' || itemType === 'library_ad_break') {
-      Icon = AdIcon;
-      typeLabel = 'Commercial';
-      description = `${(data?.duration as number) || 180}s`;
-    }
+    const displayInfo = getLibraryDisplayInfo(draggedItem.itemType, draggedItem.data);
+    Icon = displayInfo.icon;
+    typeLabel = displayInfo.typeLabel;
+    title = displayInfo.title;
+    description = displayInfo.description;
   }
 
   return (
@@ -175,17 +97,12 @@ interface ClockGridProps {
   onItemDelete: (itemId: string) => void;
   onItemReorder?: (fromIndex: number, toIndex: number) => void;
   onItemAdd?: (
-    itemType: string,
-    data: Record<string, unknown>,
+    itemType: import('./types').LibraryItemType,
+    data: import('./types').LibraryItemData,
     position?: number,
   ) => void;
   insertionIndex?: number | null;
-  draggedItem?: {
-    type?: string;
-    itemType?: string;
-    data?: Record<string, unknown>;
-    item?: any;
-  } | null;
+  draggedItem?: DragData | null;
 }
 
 interface SortableItemProps {
@@ -224,151 +141,10 @@ function SortableClockItem({
     opacity: isDragging ? 0.5 : 1,
   };
 
-  const getItemIcon = (item: ClockItem) => {
-    switch (item.__typename) {
-      case 'TrackClockItem':
-        return AudioIcon;
-      case 'SubcategoryClockItem':
-        return CategoryIcon;
-      case 'GenreClockItem':
-        return GenreIcon;
-      case 'NoteClockItem':
-      case 'LibraryNoteClockItem':
-        return NoteIcon;
-      case 'CommandClockItem':
-      case 'LibraryCommandClockItem':
-        return CommandIcon;
-      case 'AdBreakClockItem':
-      case 'LibraryAdBreakClockItem':
-        return AdIcon;
-      default:
-        return AudioIcon;
-    }
-  };
-
-  const getItemTypeLabel = (item: ClockItem) => {
-    switch (item.__typename) {
-      case 'TrackClockItem':
-        return 'Track';
-      case 'SubcategoryClockItem':
-        return item.subcategory?.name || 'Category';
-      case 'GenreClockItem':
-        return item.genre?.name || 'Genre';
-      case 'NoteClockItem':
-        return 'Note';
-      case 'CommandClockItem':
-        return 'Command';
-      case 'AdBreakClockItem':
-        return 'Commercial';
-      case 'LibraryNoteClockItem':
-        return 'Library Note';
-      case 'LibraryCommandClockItem':
-        return 'Library Command';
-      case 'LibraryAdBreakClockItem':
-        return 'Library Ad Break';
-      default:
-        return 'Unknown';
-    }
-  };
-
-  const getItemSourceId = (item: ClockItem) => {
-    switch (item.__typename) {
-      case 'TrackClockItem':
-        return item.track?.id || item.id;
-      case 'SubcategoryClockItem':
-        return item.subcategory?.id || item.id;
-      case 'GenreClockItem':
-        return item.genre?.id || item.id;
-      case 'LibraryNoteClockItem':
-        return (item as { note?: { id: string } }).note?.id || item.id;
-      case 'LibraryCommandClockItem':
-        return (
-          (item as { libraryCommand?: { id: string } }).libraryCommand?.id ||
-          item.id
-        );
-      case 'LibraryAdBreakClockItem':
-        return (item as { adBreak?: { id: string } }).adBreak?.id || item.id;
-      case 'NoteClockItem':
-      case 'CommandClockItem':
-      case 'AdBreakClockItem':
-        return item.id;
-      default:
-        return item.id;
-    }
-  };
-
-  const getItemTitle = (item: ClockItem) => {
-    switch (item.__typename) {
-      case 'TrackClockItem':
-        return item.track?.title || 'Unknown Track';
-      case 'SubcategoryClockItem':
-        return 'Unscheduled position';
-      case 'GenreClockItem':
-        return 'Unscheduled position';
-      case 'NoteClockItem':
-        return item.content || 'Note';
-      case 'CommandClockItem':
-        return item.command || 'Command';
-      case 'AdBreakClockItem':
-        return item.scheduledStartTime || '00:00';
-      case 'LibraryNoteClockItem':
-        return (
-          (item as { note?: { content?: string; label?: string } }).note
-            ?.content ||
-          (item as { note?: { content?: string; label?: string } }).note
-            ?.label ||
-          'Library Note'
-        );
-      case 'LibraryCommandClockItem':
-        return (
-          (item as { libraryCommand?: { command?: string } }).libraryCommand
-            ?.command || 'Library Command'
-        );
-      case 'LibraryAdBreakClockItem':
-        return (
-          (item as { adBreak?: { scheduledStartTime?: string } }).adBreak
-            ?.scheduledStartTime || '00:00'
-        );
-      default:
-        return 'Unknown';
-    }
-  };
-
-  const getItemArtist = (_item: ClockItem) => {
-    return '';
-  };
-
-  const getItemBadgeColor = (item: ClockItem) => {
-    switch (item.__typename) {
-      case 'SubcategoryClockItem':
-        return 'green';
-      case 'GenreClockItem':
-        return 'blue';
-      case 'NoteClockItem':
-      case 'LibraryNoteClockItem':
-        return 'gray';
-      case 'CommandClockItem':
-      case 'LibraryCommandClockItem':
-        return 'purple';
-      case 'AdBreakClockItem':
-      case 'LibraryAdBreakClockItem':
-        return 'red';
-      default:
-        return 'blue';
-    }
-  };
-
-  const calculateAirTime = (index: number, items: ClockItem[]) => {
-    let totalSeconds = 0;
-    for (let i = 0; i < index; i++) {
-      totalSeconds += Math.floor(Math.abs(items[i].duration));
-    }
-    return formatDuration(totalSeconds);
-  };
-
-  const Icon = getItemIcon(item);
+  // Get display information using the centralized helper
+  const displayInfo = getDisplayInfo(item);
   const airTime = calculateAirTime(index, items);
-  const badgeColor = getItemBadgeColor(item);
+  const Icon = displayInfo.icon;
 
   return (
     <div
@@ -388,7 +164,7 @@ function SortableClockItem({
 
       <div className="clock-grid__cell clock-grid__cell--type">
         <Badge
-          color={badgeColor}
+          color={displayInfo.badgeColor}
           size="sm"
           before={<Icon size={16} />}
           style={
@@ -400,16 +176,16 @@ function SortableClockItem({
             } as React.CSSProperties
           }
         >
-          {getItemTypeLabel(item)}
+          {displayInfo.typeLabel}
         </Badge>
       </div>
 
       <div className="clock-grid__cell clock-grid__cell--title">
-        {getItemTitle(item)}
+        {displayInfo.title}
       </div>
 
       <div className="clock-grid__cell clock-grid__cell--artist">
-        {getItemArtist(item)}
+        {/* Empty for now */}
       </div>
 
       <div className="clock-grid__cell clock-grid__cell--duration">
@@ -417,7 +193,7 @@ function SortableClockItem({
       </div>
 
       <div className="clock-grid__cell clock-grid__cell--item-id">
-        {getItemSourceId(item).slice(-6)}
+        {displayInfo.sourceId.slice(-6)}
       </div>
 
       <div className="clock-grid__cell clock-grid__cell--actions">

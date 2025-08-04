@@ -18,7 +18,7 @@ import { arrayMove } from '@dnd-kit/sortable';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Dialog, Input, Textarea, Badge } from '@soundwaves/components';
 import { useDebouncedCallback } from '@tanstack/react-pacer';
-import { useState, useCallback, useRef, useMemo } from 'react';
+import { useState, useCallback, useRef, useMemo, useReducer } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -26,12 +26,6 @@ import { FloatingBar } from '@/components/common';
 import {
   ClockIcon,
   EditIcon,
-  AudioIcon,
-  GenreIcon,
-  CategoryIcon,
-  NoteIcon,
-  CommandIcon,
-  AdIcon,
   GripVerticalIcon,
 } from '@/components/icons';
 import {
@@ -52,68 +46,25 @@ import {
 
 import { ClockGrid } from './ClockGrid';
 import { ClockItemLibrary } from './ClockItemLibrary';
-import { QueryMusicClock, QueryMusicClockItem } from './types';
+import { QueryMusicClock, QueryMusicClockItem, LibraryItemType, LibraryItemData, DragData } from './types';
+import { 
+  isGridItemDrag, 
+  isLibraryItemDrag, 
+  getDisplayInfo, 
+  getLibraryDisplayInfo,
+  clockEditorReducer,
+  createInitialClockEditorState
+} from './utils';
 
 // Drag overlay component to show the item being dragged
-function DragOverlayItem({
-  activeItem,
-}: {
-  activeItem: {
-    type?: string;
-    itemType?: string;
-    data?: Record<string, unknown>;
-    item?: QueryMusicClockItem;
-  };
-}) {
+function DragOverlayItem({ activeItem }: { activeItem: DragData | null }) {
   if (!activeItem) {
     return <div className="drag-overlay">Dragging item...</div>;
   }
 
   // Handle grid items
-  if (activeItem.type === 'grid-item' && activeItem.item) {
-    const gridItem = activeItem.item;
-    let title = 'Grid Item';
-    let Icon = AudioIcon;
-
-    // Type-safe property access
-    switch (gridItem.__typename) {
-      case 'TrackClockItem':
-        title = gridItem.track?.title || 'Track';
-        Icon = AudioIcon;
-        break;
-      case 'NoteClockItem':
-        title = gridItem.content || 'Note';
-        Icon = NoteIcon;
-        break;
-      case 'CommandClockItem':
-        title = gridItem.command || 'Command';
-        Icon = CommandIcon;
-        break;
-      case 'AdBreakClockItem':
-        title = gridItem.scheduledStartTime || 'Ad Break';
-        Icon = AdIcon;
-        break;
-      case 'SubcategoryClockItem':
-        title = gridItem.subcategory?.name || 'Category';
-        Icon = CategoryIcon;
-        break;
-      case 'GenreClockItem':
-        title = gridItem.genre?.name || 'Genre';
-        Icon = GenreIcon;
-        break;
-      case 'LibraryNoteClockItem':
-        title = gridItem.note?.content || 'Library Note';
-        Icon = NoteIcon;
-        break;
-      case 'LibraryCommandClockItem':
-        title = gridItem.libraryCommand?.command || 'Library Command';
-        Icon = CommandIcon;
-        break;
-      case 'LibraryAdBreakClockItem':
-        title = gridItem.adBreak?.scheduledStartTime || 'Library Ad Break';
-        Icon = AdIcon;
-        break;
-    }
+  if (isGridItemDrag(activeItem)) {
+    const { title, icon: Icon } = getDisplayInfo(activeItem.item);
 
     return (
       <div className="clock-item-library__item clock-item-library__item--dragging">
@@ -133,51 +84,31 @@ function DragOverlayItem({
   }
 
   // Handle library items
-  if (activeItem.type !== 'library-item') {
-    return <div className="drag-overlay">Unknown item type</div>;
+  if (isLibraryItemDrag(activeItem)) {
+    const { icon: Icon, title, description } = getLibraryDisplayInfo(
+      activeItem.itemType,
+      activeItem.data
+    );
+
+    return (
+      <div className="clock-item-library__item clock-item-library__item--dragging">
+        <div className="clock-item-library__item-icon">
+          <Icon size={16} />
+        </div>
+        <div className="clock-item-library__item-content">
+          <div className="clock-item-library__item-title">{title}</div>
+          <div className="clock-item-library__item-description">{description}</div>
+        </div>
+        <div className="clock-item-library__item-actions">
+          <div className="clock-item-library__drag-handle">
+            <GripVerticalIcon size={14} />
+          </div>
+        </div>
+      </div>
+    );
   }
 
-  const { itemType, data } = activeItem;
-
-  // Get the appropriate icon based on item type
-  let Icon = AudioIcon;
-  if (itemType === 'genre') Icon = GenreIcon;
-  else if (itemType === 'subcategory') Icon = CategoryIcon;
-  else if (itemType === 'note' || itemType === 'library_note') Icon = NoteIcon;
-  else if (itemType === 'command' || itemType === 'library_command')
-    Icon = CommandIcon;
-  else if (itemType === 'ad_break' || itemType === 'library_ad_break')
-    Icon = AdIcon;
-  else if (itemType === 'track') Icon = AudioIcon;
-
-  return (
-    <div className="clock-item-library__item clock-item-library__item--dragging">
-      <div className="clock-item-library__item-icon">
-        <Icon size={16} />
-      </div>
-      <div className="clock-item-library__item-content">
-        <div className="clock-item-library__item-title">
-          {(data?.name as string) || 'Item'}
-        </div>
-        <div className="clock-item-library__item-description">
-          {itemType === 'track' &&
-            `${formatDuration((data?.duration as number) || 0)}`}
-          {itemType === 'genre' && 'Genre'}
-          {itemType === 'subcategory' && 'Category'}
-          {(itemType === 'note' || itemType === 'library_note') && 'Note'}
-          {(itemType === 'command' || itemType === 'library_command') &&
-            'Command'}
-          {(itemType === 'ad_break' || itemType === 'library_ad_break') &&
-            `${(data?.duration as number) || 180}s`}
-        </div>
-      </div>
-      <div className="clock-item-library__item-actions">
-        <div className="clock-item-library__drag-handle">
-          <GripVerticalIcon size={14} />
-        </div>
-      </div>
-    </div>
-  );
+  return <div className="drag-overlay">Unknown item type</div>;
 }
 
 const clockFormSchema = z.object({
@@ -199,20 +130,10 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
   const { currentNetwork } = useNetwork();
   const isEditing = !!clock;
 
-  const [clockItems, setClockItems] = useState<QueryMusicClockItem[]>(
-    clock?.items || [],
+  const [state, dispatch] = useReducer(
+    clockEditorReducer, 
+    createInitialClockEditorState(clock?.items || [])
   );
-  const [isClockDialogOpen, setIsClockDialogOpen] = useState(false);
-
-  // DND
-  const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
-  const [activeItem, setActiveItem] = useState<{
-    type?: string;
-    itemType?: string;
-    data?: Record<string, unknown>;
-    item?: QueryMusicClockItem;
-  } | null>(null);
-  const [insertionIndex, setInsertionIndex] = useState<number | null>(null);
   const lastOverId = useRef<UniqueIdentifier | null>(null);
   const recentlyMovedToNewContainer = useRef(false);
   const draggableContainers = useMemo(
@@ -229,7 +150,7 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
 
   // Create a clock item from library drag data
   const createClockItemFromLibraryData = useCallback(
-    (itemType: string, data: Record<string, unknown>): QueryMusicClockItem => {
+    (itemType: LibraryItemType, data: LibraryItemData): QueryMusicClockItem => {
       const baseItem = {
         id: `temp-${Date.now()}-${Math.random()}`,
         clockId: '',
@@ -468,7 +389,7 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
   });
 
   const handleAddItem = useCallback(
-    (itemType: string, data: Record<string, unknown>, position?: number) => {
+    (itemType: LibraryItemType, data: LibraryItemData, position?: number) => {
       const newItem = createClockItemFromLibraryData(itemType, data);
 
       setClockItems((prev) => {
@@ -604,7 +525,7 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
   // Drag event handlers
   const handleDragStart = useCallback((event: DragStartEvent) => {
     setActiveId(event.active.id);
-    setActiveItem(event.active.data.current || null);
+    setActiveItem((event.active.data.current as DragData) || null);
   }, []);
 
   const handleDragOver = useCallback(
@@ -615,11 +536,11 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
         return;
       }
 
-      const activeData = active.data.current;
+      const activeData = active.data.current as DragData;
       const overId = over.id;
 
       // Handle dragging from library to grid
-      if (activeData?.type === 'library-item') {
+      if (isLibraryItemDrag(activeData)) {
         if (overId === 'clock-grid') {
           // Dropping at the end
           setInsertionIndex(clockItems.length);
@@ -630,7 +551,7 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
             setInsertionIndex(overIndex);
           }
         }
-      } else if (activeData?.type === 'grid-item') {
+      } else if (isGridItemDrag(activeData)) {
         // For grid item reordering, don't show ghost insertion preview
         // The drag overlay already shows what's being moved
         setInsertionIndex(null);
@@ -648,11 +569,11 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
 
       if (!over) return;
 
-      const activeData = active.data.current;
+      const activeData = active.data.current as DragData;
       const overId = over.id;
 
       // Handle dropping library item into grid
-      if (activeData?.type === 'library-item') {
+      if (isLibraryItemDrag(activeData)) {
         let position: number | undefined;
 
         if (overId === 'clock-grid') {
@@ -671,7 +592,7 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
       }
 
       // Handle reordering within grid or deletion by dragging to trash
-      if (activeData?.type === 'grid-item') {
+      if (isGridItemDrag(activeData)) {
         // Check if dropped on library (trash)
         if (overId === TRASH_ID) {
           handleItemDelete(active.id as string);

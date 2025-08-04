@@ -7,7 +7,7 @@ import {
   isSubcategoryClockItem,
   isGenreClockItem,
   isNoteClockItem,
-} from '../utils';
+} from './utils';
 
 type ClockQueryResult = NonNullable<GetMusicClockQuery['musicClock']>;
 
@@ -23,11 +23,9 @@ export const ClockPreview = ({ clock }: ClockPreviewProps) => {
   };
 
   const getItemTypeColor = (item: ClockQueryResult['items'][number]) => {
-    if (isTrackClockItem(item)) {
-      return 'status-badge--music';
-    } else if (isSubcategoryClockItem(item)) {
-      return 'status-badge--music';
-    } else if (isGenreClockItem(item)) {
+    if (isTrackClockItem(item) ||
+        isSubcategoryClockItem(item) ||
+        isGenreClockItem(item)) {
       return 'status-badge--music';
     } else if (isNoteClockItem(item)) {
       return 'status-badge--note';
@@ -36,11 +34,9 @@ export const ClockPreview = ({ clock }: ClockPreviewProps) => {
   };
 
   const getItemIcon = (item: ClockQueryResult['items'][number]) => {
-    if (isTrackClockItem(item)) {
-      return '🎵';
-    } else if (isSubcategoryClockItem(item)) {
-      return '🎵';
-    } else if (isGenreClockItem(item)) {
+    if (isTrackClockItem(item) ||
+        isSubcategoryClockItem(item) ||
+        isGenreClockItem(item)) {
       return '🎵';
     } else if (isNoteClockItem(item)) {
       return '📝';
@@ -49,15 +45,10 @@ export const ClockPreview = ({ clock }: ClockPreviewProps) => {
   };
 
   const getItemTypeName = (item: ClockQueryResult['items'][number]) => {
-    if (isTrackClockItem(item)) {
-      return 'Track';
-    } else if (isSubcategoryClockItem(item)) {
-      return 'Subcategory';
-    } else if (isGenreClockItem(item)) {
-      return 'Genre';
-    } else if (isNoteClockItem(item)) {
-      return 'Note';
-    }
+    if (isTrackClockItem(item)) return 'Track';
+    if (isSubcategoryClockItem(item)) return item.subcategory?.name || 'Subcategory';
+    if (isGenreClockItem(item)) return item.genre?.name || 'Genre';
+    if (isNoteClockItem(item)) return 'Note';
     return 'Unknown';
   };
 
@@ -113,7 +104,11 @@ export const ClockPreview = ({ clock }: ClockPreviewProps) => {
                           </span>
                           <div className="timeline-item__info">
                             <div className="timeline-item__name">
-                              {'label' in item ? item.label : 'Unknown'}
+                              {isTrackClockItem(item) ? item.track?.title || 'Unknown Track' :
+                               isSubcategoryClockItem(item) ? item.subcategory?.name || 'Subcategory' :
+                               isGenreClockItem(item) ? item.genre?.name || 'Genre' :
+                               isNoteClockItem(item) ? (item.content || 'Note') :
+                               'Unknown'}
                             </div>
                             <div
                               className={`status-badge ${getItemTypeColor(
@@ -126,26 +121,25 @@ export const ClockPreview = ({ clock }: ClockPreviewProps) => {
                         </div>
 
                         {/* Type-specific details */}
-                        {isTrackClockItem(item) && (
+                        {item.__typename === 'TrackClockItem' && (
                           <div className="timeline-item__details">
-                            Track: {item.track?.title || 'Unknown'} by{' '}
-                            {item.track?.artist || 'Unknown'}
+                            Track: {item.track?.title || 'Unknown'}
                           </div>
                         )}
 
-                        {isSubcategoryClockItem(item) && (
+                        {item.__typename === 'SubcategoryClockItem' && (
                           <div className="timeline-item__details">
                             Subcategory: {item.subcategory?.name || 'Unknown'}
                           </div>
                         )}
 
-                        {isGenreClockItem(item) && (
+                        {item.__typename === 'GenreClockItem' && (
                           <div className="timeline-item__details">
                             Genre: {item.genre?.name || 'Unknown'}
                           </div>
                         )}
 
-                        {isNoteClockItem(item) && item.content && (
+                        {item.__typename === 'NoteClockItem' && item.content && (
                           <div className="timeline-item__details">
                             {item.content}
                           </div>
