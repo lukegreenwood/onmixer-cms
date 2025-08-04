@@ -9,9 +9,11 @@ export const calculateAirTime = (
   index: number,
   items: QueryMusicClockItem[],
 ): string => {
-  let totalSeconds = 0;
-  for (let i = 0; i < index; i++) {
-    totalSeconds += Math.floor(Math.abs(items[i].duration));
-  }
+  const totalSeconds = items
+    .slice(0, index)
+    .reduce((accumulator: number, item: QueryMusicClockItem): number => {
+      return accumulator + Math.floor(Math.abs(item.duration));
+    }, 0);
+
   return formatDuration(totalSeconds);
 };

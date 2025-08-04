@@ -138,7 +138,7 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
   const draggableContainers = useMemo(
     () => ({
       library: [] as Array<string>,
-      clockItems: clockItems.map((items) => items.id),
+      clockItems: clockItems.map((item) => item.id),
     }),
     [clockItems],
   );
