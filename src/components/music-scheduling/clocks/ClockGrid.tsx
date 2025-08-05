@@ -101,12 +101,6 @@ interface ClockGridProps {
   items: ClockItem[];
   onItemEdit: (item: ClockItem) => void;
   onItemDelete: (itemId: string) => void;
-  onItemReorder?: (fromIndex: number, toIndex: number) => void;
-  onItemAdd?: (
-    itemType: import('./types').LibraryItemType,
-    data: import('./types').LibraryItemData,
-    position?: number,
-  ) => void;
   insertionIndex?: number | null;
   draggedItem?: DragData | null;
 }
@@ -175,7 +169,7 @@ function SortableClockItem({
         <div className="clock-grid__cell clock-grid__cell--type">
           <Badge
             color={displayInfo.badgeColor}
-            size="sm"
+            size="md"
             before={<Icon size={16} />}
             className={
               item.__typename === 'SubcategoryClockItem' &&
@@ -202,15 +196,23 @@ function SortableClockItem({
         </div>
 
         <div className="clock-grid__cell clock-grid__cell--artist">
-          {/* Empty for now */}
+          {item.__typename === 'TrackClockItem' ? item.track.artist : ''}
         </div>
 
         <div className="clock-grid__cell clock-grid__cell--duration">
+          {item.__typename === 'SubcategoryClockItem' ||
+          item.__typename === 'GenreClockItem'
+            ? '~'
+            : ''}
           {formatDuration(Math.floor(Math.abs(item.duration)))}
         </div>
 
         <div className="clock-grid__cell clock-grid__cell--item-id">
-          {displayInfo.sourceId.slice(-6)}
+          {item.__typename === 'TrackClockItem' ? (
+            <Badge color="gray" size="sm" stroke>
+              {displayInfo.sourceId}
+            </Badge>
+          ) : null}
         </div>
 
         <div className="clock-grid__cell clock-grid__cell--actions">

@@ -56,12 +56,12 @@ export const getTypeLabel = (item: QueryMusicClockItem): string => {
   if (isTrackClockItem(item)) return 'Track';
   if (isSubcategoryClockItem(item)) return item.subcategory?.name || 'Category';
   if (isGenreClockItem(item)) return item.genre?.name || 'Genre';
-  if (isNoteClockItem(item)) return 'Note';
-  if (isCommandClockItem(item)) return 'Command';
-  if (isAdBreakClockItem(item)) return 'Commercial';
-  if (isLibraryNoteClockItem(item)) return 'Library Note';
-  if (isLibraryCommandClockItem(item)) return 'Library Command';
-  if (isLibraryAdBreakClockItem(item)) return 'Library Ad Break';
+  if (isNoteClockItem(item)) return 'Log Note';
+  if (isCommandClockItem(item)) return 'Log Command';
+  if (isAdBreakClockItem(item)) return 'Log Commerical';
+  if (isLibraryNoteClockItem(item)) return 'Note';
+  if (isLibraryCommandClockItem(item)) return 'Command';
+  if (isLibraryAdBreakClockItem(item)) return 'Commerical';
   return 'Unknown';
 };
 
@@ -69,14 +69,14 @@ export const getTypeLabel = (item: QueryMusicClockItem): string => {
  * Get the badge color for a clock item
  */
 export const getBadgeColor = (item: QueryMusicClockItem): BadgeColor => {
-  if (isTrackClockItem(item)) return 'blue';
+  if (isTrackClockItem(item)) return 'gray';
   if (isSubcategoryClockItem(item)) return 'green';
   if (isGenreClockItem(item)) return 'orange';
   if (isNoteClockItem(item) || isLibraryNoteClockItem(item)) return 'gray';
   if (isCommandClockItem(item) || isLibraryCommandClockItem(item))
     return 'purple';
   if (isAdBreakClockItem(item) || isLibraryAdBreakClockItem(item)) return 'red';
-  return 'blue'; // Default fallback
+  return 'gray'; // Default fallback
 };
 
 /**

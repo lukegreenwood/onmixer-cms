@@ -150,7 +150,6 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
     }),
     [clockItems],
   );
-  // End DND
 
   const [updateClock, { loading: updateLoading }] =
     useMutation(UPDATE_MUSIC_CLOCK);
@@ -177,6 +176,7 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
               id: data.trackId as string,
               title:
                 (data.name as string).split(' - ')[1] || (data.name as string),
+              artist: (data.artist as string | undefined) ?? '',
             },
           };
         case 'subcategory':
@@ -187,7 +187,7 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
               __typename: 'Subcategory' as const,
               id: data.subcategoryId as string,
               name: data.name as string,
-              color: null,
+              color: data.color as string,
               category: {
                 __typename: 'Category' as const,
                 id: '',
@@ -459,16 +459,16 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
           onCompleted: (result) => {
             if (result?.updateMusicClock?.clock?.items) {
               setClockItems(result.updateMusicClock.clock.items);
-              toast('Item deleted successfully', 'success');
+              toast('Item removed from clock', 'success');
             }
           },
           onError: () => {
-            toast('Failed to delete item', 'error');
+            toast('Failed to remove item from clock', 'error');
           },
         });
       } catch (error) {
         console.error('Error deleting clock item:', error);
-        toast('Failed to delete item', 'error');
+        toast('Failed to remove item from clock', 'error');
       }
     },
     [clock?.id, clockItems, convertClockItemToInput, isEditing, updateClock],
@@ -810,8 +810,6 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
                 items={clockItems}
                 onItemEdit={handleItemEdit}
                 onItemDelete={handleItemDelete}
-                onItemReorder={handleItemReorder}
-                onItemAdd={handleAddItem}
                 insertionIndex={insertionIndex}
                 draggedItem={activeItem}
               />

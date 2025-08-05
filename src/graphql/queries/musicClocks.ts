@@ -56,6 +56,7 @@ export const GET_MUSIC_CLOCK = gql(/* GraphQL */ `
           track {
             id
             title
+            artist
           }
         }
         ... on SubcategoryClockItem {

@@ -559,6 +559,10 @@
     &.clock-grid__card--unscheduled {
       background-color: palette.$white-50;
       border-style: dashed;
+
+      .clock-grid__cell.clock-grid__cell--title {
+        color: palette.$gray-600;
+      }
     }
   }
 
@@ -607,7 +611,8 @@
       }
     }
 
-    &--title {
+    &--title,
+    &--artist {
       .clock-grid__cell-text {
         text-overflow: ellipsis;
         overflow: hidden;
@@ -620,15 +625,15 @@
     }
 
     &--duration {
-      font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+      @include text.text-xs-leading-6-font-normal;
       color: palette.$gray-600;
       font-variant-numeric: tabular-nums;
     }
 
     &--item-id {
-      font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
-      font-size: 0.75rem;
-      color: palette.$gray-500;
+      .badge {
+        background-color: transparent !important;
+      }
     }
 
     &--actions {
