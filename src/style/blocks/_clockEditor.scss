@@ -214,6 +214,37 @@
         color: palette.$gray-800;
       }
     }
+
+    &--dark {
+      color: palette.$gray-800;
+
+      svg,
+      span {
+        color: palette.$gray-800;
+      }
+    }
+
+    // Dark backgrounds get light text
+    &--light {
+      color: palette.$white-900;
+
+      .clock-item-library__item-title {
+        color: palette.$white-100;
+      }
+
+      .clock-item-library__item-description {
+        color: palette.$gray-100;
+      }
+
+      .clock-item-library__drag-handle:hover {
+        background-color: rgba(palette.$gray-900, 0.1);
+      }
+
+      svg,
+      span {
+        color: palette.$white-900;
+      }
+    }
   }
 
   &__item-icon {

@@ -656,7 +656,6 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
       if (overId != null) {
         if (overId === TRASH_ID) {
           // If the intersecting droppable is the trash, return early
-          // Remove this if you're not using trashable functionality in your app
           return intersections;
         }
 
@@ -664,9 +663,7 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
           const containerItems =
             draggableContainers[overId as keyof typeof draggableContainers];
 
-          // If a container is matched and it contains items (columns 'A', 'B', 'C')
           if (containerItems.length > 0) {
-            // Return the closest droppable within that container
             overId = closestCenter({
               ...args,
               droppableContainers: args.droppableContainers.filter(

@@ -3,6 +3,7 @@
 import { useLazyQuery, useMutation } from '@apollo/client';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
 import { Input, Button, Dialog } from '@soundwaves/components';
+import clsx from 'clsx';
 import { useState } from 'react';
 
 import {
@@ -45,6 +46,8 @@ import { SEARCH_TRACKS_V2 } from '@/graphql/queries/tracks';
 import { useNetwork } from '@/hooks';
 import { toast } from '@/lib/toast';
 
+import { getContrastColor } from './utils';
+
 interface ClockItemLibraryProps {
   onAddItem?: (itemType: string, data: Record<string, unknown>) => void;
 }
@@ -58,6 +61,7 @@ interface DraggableLibraryItemProps {
   description?: string;
   onDelete?: () => void;
   style?: React.CSSProperties;
+  className?: string;
 }
 
 function DraggableLibraryItem({
@@ -69,16 +73,16 @@ function DraggableLibraryItem({
   description,
   onDelete,
   style,
+  className,
 }: DraggableLibraryItemProps) {
-  const { attributes, listeners, setNodeRef } =
-    useDraggable({
-      id,
-      data: {
-        type: 'library-item',
-        itemType,
-        data,
-      },
-    });
+  const { attributes, listeners, setNodeRef } = useDraggable({
+    id,
+    data: {
+      type: 'library-item',
+      itemType,
+      data,
+    },
+  });
 
   // For library items, we don't want to apply transform (keeps original in place)
   // The drag overlay will handle the visual feedback
@@ -86,7 +90,10 @@ function DraggableLibraryItem({
   return (
     <div
       ref={setNodeRef}
-      className={`clock-item-library__item clock-item-library__item--draggable`}
+      className={clsx(
+        `clock-item-library__item clock-item-library__item--draggable`,
+        className,
+      )}
       style={style}
       {...attributes}
       {...listeners}
@@ -135,7 +142,6 @@ type LibraryView =
   | 'commands'
   | 'adbreaks';
 type LibraryItemType = MusicClockLibraryItemType;
-
 
 export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
   const { currentNetwork } = useNetwork();
@@ -557,7 +563,11 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
               }
 
               let description = '';
-              if (type === MusicClockLibraryItemType.Command && 'command' in item && item.command) {
+              if (
+                type === MusicClockLibraryItemType.Command &&
+                'command' in item &&
+                item.command
+              ) {
                 description = item.command;
               } else if (type === MusicClockLibraryItemType.AdBreak) {
                 description = `${item.duration || 180}s`;
@@ -729,9 +739,12 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
                 subcategoryId: subcategory.id,
                 name: subcategory.name,
                 duration: subcategory.averageDuration?.raw || 0,
+                color: subcategory.color,
               };
               const subcategoryStyle = {
-                '--item-background-color': subcategory.color,
+                '--item-background-color': subcategory?.color
+                  ? subcategory.color
+                  : undefined,
               } as React.CSSProperties;
               return (
                 <DraggableLibraryItem
@@ -746,6 +759,13 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
                       ? `~${subcategory.averageDuration.formatted}`
                       : ''
                   }
+                  className={
+                    subcategory?.color
+                      ? `clock-item-library__item--${getContrastColor(
+                          subcategory.color,
+                        )}`
+                      : undefined
+                  }
                   style={subcategoryStyle}
                 />
               );
@@ -757,9 +777,14 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
 
   // Only show drop target styling when dragging a grid item (not library item)
   const isGridItemOver = isOver && active?.data.current?.type === 'grid-item';
-  
+
   return (
-    <div ref={setNodeRef} className={`clock-item-library ${isGridItemOver ? 'clock-item-library--drop-target' : ''}`}>
+    <div
+      ref={setNodeRef}
+      className={`clock-item-library ${
+        isGridItemOver ? 'clock-item-library--drop-target' : ''
+      }`}
+    >
       <div className="clock-item-library__header">
         {currentView !== 'main' && (
           <button

@@ -8,6 +8,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Badge, Button, DropdownMenu } from '@soundwaves/components';
+import clsx from 'clsx';
 import React from 'react';
 
 import {
@@ -29,7 +30,6 @@ import {
   calculateAirTime,
   getContrastColor,
 } from './utils';
-import clsx from 'clsx';
 
 type ClockItem = QueryMusicClockItem;
 
