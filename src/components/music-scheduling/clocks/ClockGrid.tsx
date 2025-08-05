@@ -29,6 +29,7 @@ import {
   calculateAirTime,
   getContrastColor,
 } from './utils';
+import clsx from 'clsx';
 
 type ClockItem = QueryMusicClockItem;
 
@@ -166,7 +167,11 @@ function SortableClockItem({
       <div className="clock-grid__cell clock-grid__cell--air-time">
         <span>{airTime}</span>
       </div>
-      <div className="clock-grid__card">
+      <div
+        className={clsx('clock-grid__card', {
+          'clock-grid__card--unscheduled': displayInfo.isUnscheduled,
+        })}
+      >
         <div className="clock-grid__cell clock-grid__cell--type">
           <Badge
             color={displayInfo.badgeColor}
@@ -193,7 +198,7 @@ function SortableClockItem({
         </div>
 
         <div className="clock-grid__cell clock-grid__cell--title">
-          {displayInfo.title}
+          <div className="clock-grid__cell-text">{displayInfo.title}</div>
         </div>
 
         <div className="clock-grid__cell clock-grid__cell--artist">

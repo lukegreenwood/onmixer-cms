@@ -90,7 +90,7 @@ export const getSourceId = (item: QueryMusicClockItem): string => {
   if (isLibraryCommandClockItem(item))
     return item.libraryCommand?.id || item.id;
   if (isLibraryAdBreakClockItem(item)) return item.adBreak?.id || item.id;
-  return item.id; // Fallback to clock item ID
+  return ''; // Fallback to clock item ID
 };
 
 /**

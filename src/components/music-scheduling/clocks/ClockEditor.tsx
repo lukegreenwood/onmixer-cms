@@ -18,16 +18,13 @@ import { arrayMove } from '@dnd-kit/sortable';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Dialog, Input, Textarea, Badge } from '@soundwaves/components';
 import { useDebouncedCallback } from '@tanstack/react-pacer';
+import clsx from 'clsx';
 import { useState, useCallback, useRef, useMemo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { FloatingBar } from '@/components/common';
-import {
-  ClockIcon,
-  EditIcon,
-  GripVerticalIcon,
-} from '@/components/icons';
+import { ClockIcon, EditIcon, GripVerticalIcon } from '@/components/icons';
 import {
   MusicClockItemInput,
   MusicClockItemType,
@@ -46,12 +43,18 @@ import {
 
 import { ClockGrid } from './ClockGrid';
 import { ClockItemLibrary } from './ClockItemLibrary';
-import { QueryMusicClock, QueryMusicClockItem, LibraryItemType, LibraryItemData, DragData } from './types';
-import { 
-  isGridItemDrag, 
-  isLibraryItemDrag, 
-  getDisplayInfo, 
-  getLibraryDisplayInfo
+import {
+  QueryMusicClock,
+  QueryMusicClockItem,
+  LibraryItemType,
+  LibraryItemData,
+  DragData,
+} from './types';
+import {
+  isGridItemDrag,
+  isLibraryItemDrag,
+  getDisplayInfo,
+  getLibraryDisplayInfo,
 } from './utils';
 
 // Drag overlay component to show the item being dragged
@@ -83,10 +86,11 @@ function DragOverlayItem({ activeItem }: { activeItem: DragData | null }) {
 
   // Handle library items
   if (isLibraryItemDrag(activeItem)) {
-    const { icon: Icon, title, description } = getLibraryDisplayInfo(
-      activeItem.itemType,
-      activeItem.data
-    );
+    const {
+      icon: Icon,
+      title,
+      description,
+    } = getLibraryDisplayInfo(activeItem.itemType, activeItem.data);
 
     return (
       <div className="clock-item-library__item clock-item-library__item--dragging">
@@ -95,7 +99,9 @@ function DragOverlayItem({ activeItem }: { activeItem: DragData | null }) {
         </div>
         <div className="clock-item-library__item-content">
           <div className="clock-item-library__item-title">{title}</div>
-          <div className="clock-item-library__item-description">{description}</div>
+          <div className="clock-item-library__item-description">
+            {description}
+          </div>
         </div>
         <div className="clock-item-library__item-actions">
           <div className="clock-item-library__drag-handle">
@@ -128,7 +134,9 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
   const { currentNetwork } = useNetwork();
   const isEditing = !!clock;
 
-  const [clockItems, setClockItems] = useState<QueryMusicClockItem[]>(clock?.items || []);
+  const [clockItems, setClockItems] = useState<QueryMusicClockItem[]>(
+    clock?.items || [],
+  );
   const [isClockDialogOpen, setIsClockDialogOpen] = useState(false);
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [activeItem, setActiveItem] = useState<DragData | null>(null);
@@ -811,29 +819,24 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
                 draggedItem={activeItem}
               />
             </div>
+            <FloatingBar>
+              <span className="floating-bar__label">Current Duration</span>
+              <div
+                className={clsx('floating-bar__duration', {
+                  'floating-bar__duration--overtime': runtimeDiff.isOver,
+                  'floating-bar__duration--undertime': runtimeDiff.isUnder,
+                })}
+              >
+                <span>{formatDuration(totalDuration)}</span>{' '}
+                {!runtimeDiff.isPerfect && (
+                  <span className="floating-bar__label">
+                    ({runtimeDiff.isOver ? '+' : '-'}
+                    {formatDuration(runtimeDiff.difference)})
+                  </span>
+                )}
+              </div>
+            </FloatingBar>
           </div>
-
-          {/* Floating Duration Bar */}
-          <FloatingBar
-            className={
-              runtimeDiff.isOver
-                ? 'floating-bar__overtime'
-                : runtimeDiff.isUnder
-                ? 'floating-bar__undertime'
-                : ''
-            }
-          >
-            <span className="floating-bar__label">Duration:</span>
-            <span className="floating-bar__duration">
-              {formatDuration(totalDuration)}
-            </span>
-            {!runtimeDiff.isPerfect && (
-              <span className="floating-bar__label">
-                ({runtimeDiff.isOver ? '+' : '-'}
-                {formatDuration(runtimeDiff.difference)})
-              </span>
-            )}
-          </FloatingBar>
         </div>
 
         <DragOverlay>

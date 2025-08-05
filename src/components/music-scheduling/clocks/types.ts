@@ -8,15 +8,42 @@ export type QueryMusicClock = NonNullable<GetMusicClockQuery['musicClock']>;
 export type QueryMusicClockItem = QueryMusicClock['items'][number];
 
 // Discriminated union types for type-safe clock items
-export type TrackClockItem = Extract<QueryMusicClockItem, { __typename?: 'TrackClockItem' }>;
-export type SubcategoryClockItem = Extract<QueryMusicClockItem, { __typename?: 'SubcategoryClockItem' }>;
-export type GenreClockItem = Extract<QueryMusicClockItem, { __typename?: 'GenreClockItem' }>;
-export type NoteClockItem = Extract<QueryMusicClockItem, { __typename?: 'NoteClockItem' }>;
-export type CommandClockItem = Extract<QueryMusicClockItem, { __typename?: 'CommandClockItem' }>;
-export type AdBreakClockItem = Extract<QueryMusicClockItem, { __typename?: 'AdBreakClockItem' }>;
-export type LibraryNoteClockItem = Extract<QueryMusicClockItem, { __typename?: 'LibraryNoteClockItem' }>;
-export type LibraryCommandClockItem = Extract<QueryMusicClockItem, { __typename?: 'LibraryCommandClockItem' }>;
-export type LibraryAdBreakClockItem = Extract<QueryMusicClockItem, { __typename?: 'LibraryAdBreakClockItem' }>;
+export type TrackClockItem = Extract<
+  QueryMusicClockItem,
+  { __typename?: 'TrackClockItem' }
+>;
+export type SubcategoryClockItem = Extract<
+  QueryMusicClockItem,
+  { __typename?: 'SubcategoryClockItem' }
+>;
+export type GenreClockItem = Extract<
+  QueryMusicClockItem,
+  { __typename?: 'GenreClockItem' }
+>;
+export type NoteClockItem = Extract<
+  QueryMusicClockItem,
+  { __typename?: 'NoteClockItem' }
+>;
+export type CommandClockItem = Extract<
+  QueryMusicClockItem,
+  { __typename?: 'CommandClockItem' }
+>;
+export type AdBreakClockItem = Extract<
+  QueryMusicClockItem,
+  { __typename?: 'AdBreakClockItem' }
+>;
+export type LibraryNoteClockItem = Extract<
+  QueryMusicClockItem,
+  { __typename?: 'LibraryNoteClockItem' }
+>;
+export type LibraryCommandClockItem = Extract<
+  QueryMusicClockItem,
+  { __typename?: 'LibraryCommandClockItem' }
+>;
+export type LibraryAdBreakClockItem = Extract<
+  QueryMusicClockItem,
+  { __typename?: 'LibraryAdBreakClockItem' }
+>;
 
 // Drag and drop data structures
 export interface LibraryItemDragData {
@@ -33,7 +60,7 @@ export interface GridItemDragData {
 export type DragData = LibraryItemDragData | GridItemDragData;
 
 // Supported library item types
-export type LibraryItemType = 
+export type LibraryItemType =
   | 'track'
   | 'genre'
   | 'subcategory'
@@ -59,7 +86,14 @@ export interface LibraryItemData {
 }
 
 // Badge color options
-export type BadgeColor = 'blue' | 'green' | 'red' | 'purple' | 'gray' | 'yellow' | 'orange';
+export type BadgeColor =
+  | 'blue'
+  | 'green'
+  | 'red'
+  | 'purple'
+  | 'gray'
+  | 'yellow'
+  | 'orange';
 
 // Clock item display information
 export interface ClockItemDisplayInfo {
@@ -69,6 +103,7 @@ export interface ClockItemDisplayInfo {
   badgeColor: BadgeColor;
   description?: string;
   sourceId: string;
+  isUnscheduled?: boolean;
 }
 
 // Library item display information

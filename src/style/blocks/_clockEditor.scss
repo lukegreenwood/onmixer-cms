@@ -2,6 +2,7 @@
 @use '../theme/sizing';
 @use '../utils/mixins';
 @use '../theme/shadows';
+@use '../theme/text';
 
 .clock-editor {
   display: grid;
@@ -24,6 +25,7 @@
     width: 100%;
     height: 100%;
     overflow: hidden;
+    position: relative;
   }
 
   .clock-editor__header {
@@ -66,45 +68,46 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    height: calc(100% - 80px); // Account for header height
+    height: calc(100% - 60px); // Account for header height
   }
 }
 
 // Floating bar for current duration
 .floating-bar {
-  position: fixed;
-  bottom: mixins.spacing(6);
-  right: mixins.spacing(6);
-  background: palette.$gray-800;
-  color: palette.$white-900;
-  padding: mixins.spacing(3) mixins.spacing(5);
-  border-radius: sizing.$radius-lg;
-  box-shadow: 0 10px 25px -5px rgba(#000, 0.1), 0 4px 6px -2px rgba(#000, 0.05);
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: palette.$white-900;
+  color: palette.$gray-900;
+  padding: mixins.spacing(2) mixins.spacing(4);
+  border-radius: sizing.$radius-md;
+  border: 1px solid palette.$gray-200;
+  box-shadow: shadows.$shadows--overlay--light;
   display: flex;
-  align-items: center;
-  gap: mixins.spacing(2);
+  flex-direction: column;
+  gap: mixins.spacing(0.5);
   z-index: 50;
 
   &__label {
-    font-size: 0.875rem;
-    font-weight: 500;
-    opacity: 0.9;
+    @include text.text-xs-leading-4-font-normal;
   }
 
   &__duration {
-    font-size: 1.25rem;
-    font-weight: 700;
-    font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
-    letter-spacing: 0.05em;
+    @include text.text-base-leading-6-font-medium;
     font-variant-numeric: tabular-nums;
-  }
 
-  &__overtime {
-    color: palette.$red-400;
-  }
+    &--overtime {
+      .floating-bar__label {
+        color: palette.$green-400;
+      }
+    }
 
-  &__undertime {
-    color: palette.$green-400;
+    &--undertime {
+      .floating-bar__label {
+        color: palette.$red-400;
+      }
+    }
   }
 }
 
@@ -390,14 +393,15 @@
 // Clock grid
 .clock-grid {
   display: grid;
-  grid-template-columns: 48px 10ch max-content 1fr 1fr 1fr 1fr 60px;
+  grid-template-columns:
+    48px 7ch max-content minmax(200px, 1fr) minmax(200px, 1fr)
+    7ch 6ch 60px;
   overflow-y: auto;
 
   &__header {
     display: grid;
     grid-template-columns: subgrid;
     grid-column: 1 / -1;
-    gap: mixins.spacing(2);
     padding: mixins.spacing(3) mixins.spacing(4);
     background: palette.$gray-50;
     border-bottom: 1px solid palette.$gray-200;
@@ -425,7 +429,7 @@
     grid-column: 1 / -1;
     // overflow-y: auto;
     // overflow-x: hidden;
-    padding-block-end: mixins.spacing(16);
+    padding-block-end: mixins.spacing(20);
   }
 
   &__row {
@@ -436,7 +440,7 @@
     // padding: mixins.spacing(3) mixins.spacing(4);
     border-bottom: 1px solid palette.$gray-100;
     transition: background-color 0.15s ease;
-    min-height: 48px;
+    min-height: 54px;
 
     &:hover {
       background: palette.$gray-50;
@@ -509,15 +513,30 @@
     display: grid;
     grid-template-columns: subgrid;
     grid-column: 3 / -1;
+
+    margin: mixins.spacing(1) 0;
+    margin-inline-end: mixins.spacing(4);
+    border-radius: sizing.$radius-sm;
+    background-color: palette.$gray-50;
+    border: 1px solid palette.$gray-100;
+    padding: mixins.spacing(1);
+
+    .clock-grid__cell {
+      padding: 0;
+    }
+
+    &.clock-grid__card--unscheduled {
+      background-color: palette.$white-50;
+      border-style: dashed;
+    }
   }
 
   &__cell {
     display: flex;
     align-items: center;
-    font-size: 0.875rem;
+    @include text.text-sm-leading-6-font-normal;
     color: palette.$gray-900;
-    min-height: 42px;
-    padding: mixins.spacing(3) 0;
+    padding: mixins.spacing(2) 0;
 
     &--air-time {
       gap: mixins.spacing(2);
@@ -558,7 +577,11 @@
     }
 
     &--title {
-      font-weight: 500;
+      .clock-grid__cell-text {
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+      }
     }
 
     &--artist {
