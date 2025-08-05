@@ -71,7 +71,7 @@ export const getTypeLabel = (item: QueryMusicClockItem): string => {
 export const getBadgeColor = (item: QueryMusicClockItem): BadgeColor => {
   if (isTrackClockItem(item)) return 'blue';
   if (isSubcategoryClockItem(item)) return 'green';
-  if (isGenreClockItem(item)) return 'blue';
+  if (isGenreClockItem(item)) return 'orange';
   if (isNoteClockItem(item) || isLibraryNoteClockItem(item)) return 'gray';
   if (isCommandClockItem(item) || isLibraryCommandClockItem(item))
     return 'purple';
@@ -182,7 +182,10 @@ export const getEditableName = (item: QueryMusicClockItem): string => {
 /**
  * Update a clock item with an editable name (only for items that support it)
  */
-export const updateItemWithEditableName = (item: QueryMusicClockItem, name: string): QueryMusicClockItem => {
+export const updateItemWithEditableName = (
+  item: QueryMusicClockItem,
+  name: string,
+): QueryMusicClockItem => {
   if (isNoteClockItem(item)) {
     return { ...item, label: name };
   }

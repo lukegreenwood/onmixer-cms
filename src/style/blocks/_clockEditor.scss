@@ -505,6 +505,12 @@
     animation: pulse 1s ease-in-out infinite alternate;
   }
 
+  &__card {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-column: 3 / -1;
+  }
+
   &__cell {
     display: flex;
     align-items: center;

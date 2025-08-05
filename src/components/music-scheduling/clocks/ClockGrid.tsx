@@ -69,27 +69,28 @@ function GhostClockItem({ draggedItem }: { draggedItem: DragData }) {
       <div className="clock-grid__cell clock-grid__cell--air-time">
         <span>--:--</span>
       </div>
+      <div className="clock-grid__card">
+        <div className="clock-grid__cell clock-grid__cell--type">
+          <Badge color="gray" size="sm" before={<Icon size={16} />}>
+            {typeLabel}
+          </Badge>
+        </div>
 
-      <div className="clock-grid__cell clock-grid__cell--type">
-        <Badge color="gray" size="sm" before={<Icon size={16} />}>
-          {typeLabel}
-        </Badge>
-      </div>
+        <div className="clock-grid__cell clock-grid__cell--title">{title}</div>
 
-      <div className="clock-grid__cell clock-grid__cell--title">{title}</div>
+        <div className="clock-grid__cell clock-grid__cell--artist">
+          {/* Empty for now */}
+        </div>
 
-      <div className="clock-grid__cell clock-grid__cell--artist">
-        {/* Empty for now */}
-      </div>
+        <div className="clock-grid__cell clock-grid__cell--duration">
+          {description || formatDuration(180)}
+        </div>
 
-      <div className="clock-grid__cell clock-grid__cell--duration">
-        {description || formatDuration(180)}
-      </div>
+        <div className="clock-grid__cell clock-grid__cell--item-id">------</div>
 
-      <div className="clock-grid__cell clock-grid__cell--item-id">------</div>
-
-      <div className="clock-grid__cell clock-grid__cell--actions">
-        {/* Empty for ghost */}
+        <div className="clock-grid__cell clock-grid__cell--actions">
+          {/* Empty for ghost */}
+        </div>
       </div>
     </div>
   );
@@ -165,69 +166,70 @@ function SortableClockItem({
       <div className="clock-grid__cell clock-grid__cell--air-time">
         <span>{airTime}</span>
       </div>
+      <div className="clock-grid__card">
+        <div className="clock-grid__cell clock-grid__cell--type">
+          <Badge
+            color={displayInfo.badgeColor}
+            size="sm"
+            before={<Icon size={16} />}
+            className={
+              item.__typename === 'SubcategoryClockItem' &&
+              item.subcategory?.color
+                ? `badge--${getContrastColor(item.subcategory.color)}`
+                : undefined
+            }
+            style={
+              {
+                '--badge-color':
+                  item.__typename === 'SubcategoryClockItem' &&
+                  item.subcategory?.color
+                    ? item.subcategory.color
+                    : undefined,
+              } as React.CSSProperties
+            }
+          >
+            {displayInfo.typeLabel}
+          </Badge>
+        </div>
 
-      <div className="clock-grid__cell clock-grid__cell--type">
-        <Badge
-          color={displayInfo.badgeColor}
-          size="sm"
-          before={<Icon size={16} />}
-          className={
-            item.__typename === 'SubcategoryClockItem' &&
-            item.subcategory?.color
-              ? `badge--${getContrastColor(item.subcategory.color)}`
-              : undefined
-          }
-          style={
-            {
-              '--badge-color':
-                item.__typename === 'SubcategoryClockItem' &&
-                item.subcategory?.color
-                  ? item.subcategory.color
-                  : undefined,
-            } as React.CSSProperties
-          }
-        >
-          {displayInfo.typeLabel}
-        </Badge>
-      </div>
+        <div className="clock-grid__cell clock-grid__cell--title">
+          {displayInfo.title}
+        </div>
 
-      <div className="clock-grid__cell clock-grid__cell--title">
-        {displayInfo.title}
-      </div>
+        <div className="clock-grid__cell clock-grid__cell--artist">
+          {/* Empty for now */}
+        </div>
 
-      <div className="clock-grid__cell clock-grid__cell--artist">
-        {/* Empty for now */}
-      </div>
+        <div className="clock-grid__cell clock-grid__cell--duration">
+          {formatDuration(Math.floor(Math.abs(item.duration)))}
+        </div>
 
-      <div className="clock-grid__cell clock-grid__cell--duration">
-        {formatDuration(Math.floor(Math.abs(item.duration)))}
-      </div>
+        <div className="clock-grid__cell clock-grid__cell--item-id">
+          {displayInfo.sourceId.slice(-6)}
+        </div>
 
-      <div className="clock-grid__cell clock-grid__cell--item-id">
-        {displayInfo.sourceId.slice(-6)}
-      </div>
-
-      <div className="clock-grid__cell clock-grid__cell--actions">
-        <DropdownMenu>
-          <DropdownMenu.Trigger asChild>
-            <Button variant="transparent" size="sm" isIconOnly>
-              <MoreHorizontalIcon />
-            </Button>
-          </DropdownMenu.Trigger>
-          <DropdownMenu.Content align="end">
-            <DropdownMenu.Item onClick={() => onItemEdit(item)}>
-              <EditIcon size={16} />
-              Edit
-            </DropdownMenu.Item>
-            <DropdownMenu.Item
-              onClick={() => onItemDelete(item.id)}
-              destructive
-            >
-              <DeleteIcon size={16} />
-              Remove
-            </DropdownMenu.Item>
-          </DropdownMenu.Content>
-        </DropdownMenu>
+        <div className="clock-grid__cell clock-grid__cell--actions">
+          <DropdownMenu>
+            <DropdownMenu.Trigger asChild>
+              <Button variant="transparent" size="sm" isIconOnly>
+                <MoreHorizontalIcon />
+              </Button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content align="end">
+              <DropdownMenu.Item onClick={() => onItemEdit(item)}>
+                <EditIcon size={16} />
+                Edit
+              </DropdownMenu.Item>
+              <DropdownMenu.Item
+                onClick={() => onItemDelete(item.id)}
+                destructive
+              >
+                <DeleteIcon size={16} />
+                Remove
+              </DropdownMenu.Item>
+            </DropdownMenu.Content>
+          </DropdownMenu>
+        </div>
       </div>
     </div>
   );
@@ -264,7 +266,8 @@ export const ClockGrid = ({
         >
           {items.map((item, index) => {
             const showGhostBefore = insertionIndex === index;
-            const shouldShowGhost = showGhostBefore && draggedItem && isLibraryItemDrag(draggedItem);
+            const shouldShowGhost =
+              showGhostBefore && draggedItem && isLibraryItemDrag(draggedItem);
             return (
               <React.Fragment key={item.id}>
                 {shouldShowGhost && (
@@ -280,9 +283,11 @@ export const ClockGrid = ({
               </React.Fragment>
             );
           })}
-          {insertionIndex === items.length && draggedItem && isLibraryItemDrag(draggedItem) && (
-            <GhostClockItem draggedItem={draggedItem} />
-          )}
+          {insertionIndex === items.length &&
+            draggedItem &&
+            isLibraryItemDrag(draggedItem) && (
+              <GhostClockItem draggedItem={draggedItem} />
+            )}
         </SortableContext>
       </div>
     </div>
