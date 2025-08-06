@@ -122,8 +122,8 @@ interface SortableItemProps {
   onItemMoveUp: (itemId: string) => void;
   onItemMoveDown: (itemId: string) => void;
   onItemDuplicate: (itemId: string) => void;
-  onAddNoteBelow: (itemId: string, label: string, content: string) => void;
-  onAddCommercialBelow: (itemId: string, duration: number, scheduledStartTime?: string) => void;
+  onOpenNoteDialog: (itemId: string, isEdit: boolean) => void;
+  onOpenCommercialDialog: (itemId: string, isEdit: boolean) => void;
 }
 
 function SortableClockItem({
@@ -135,50 +135,21 @@ function SortableClockItem({
   onItemMoveUp,
   onItemMoveDown,
   onItemDuplicate,
-  onAddNoteBelow,
-  onAddCommercialBelow,
+  onOpenNoteDialog,
+  onOpenCommercialDialog,
 }: SortableItemProps) {
-  const [noteDialogOpen, setNoteDialogOpen] = useState(false);
-  const [commercialDialogOpen, setCommercialDialogOpen] = useState(false);
-  const [editingNote, setEditingNote] = useState(false);
-  const [editingCommercial, setEditingCommercial] = useState(false);
-
   const canMoveUp = index > 0;
   const canMoveDown = index < items.length - 1;
 
-  const handleNoteSubmit = useCallback((label: string, content: string) => {
-    if (editingNote) {
-      // Handle edit case - pass updated item to onItemEdit
-      const updatedItem = { ...item, label, content };
-      onItemEdit(updatedItem as QueryMusicClockItem);
-      setEditingNote(false);
-    } else {
-      onAddNoteBelow(item.id, label, content);
-    }
-  }, [item, editingNote, onItemEdit, onAddNoteBelow]);
-
-  const handleCommercialSubmit = useCallback((duration: number, scheduledStartTime?: string) => {
-    if (editingCommercial) {
-      // Handle edit case - pass updated item to onItemEdit
-      const updatedItem = { ...item, duration, scheduledStartTime: scheduledStartTime || null };
-      onItemEdit(updatedItem as QueryMusicClockItem);
-      setEditingCommercial(false);
-    } else {
-      onAddCommercialBelow(item.id, duration, scheduledStartTime);
-    }
-  }, [item, editingCommercial, onItemEdit, onAddCommercialBelow]);
-
   const handleEditClick = useCallback(() => {
     if (item.__typename === 'NoteClockItem') {
-      setEditingNote(true);
-      setNoteDialogOpen(true);
+      onOpenNoteDialog(item.id, true);
     } else if (item.__typename === 'AdBreakClockItem') {
-      setEditingCommercial(true);
-      setCommercialDialogOpen(true);
+      onOpenCommercialDialog(item.id, true);
     } else {
       onItemEdit(item);
     }
-  }, [item, onItemEdit]);
+  }, [item, onItemEdit, onOpenNoteDialog, onOpenCommercialDialog]);
   const {
     attributes,
     listeners,
@@ -282,7 +253,7 @@ function SortableClockItem({
               </Button>
             </DropdownMenu.Trigger>
             <DropdownMenu.Content align="end">
-              <DropdownMenu.Item onClick={handleEditClick}>
+              <DropdownMenu.Item onClick={() => setTimeout(() => handleEditClick(), 0)}>
                 <EditIcon size={16} />
                 Edit
               </DropdownMenu.Item>
@@ -305,11 +276,11 @@ function SortableClockItem({
                 Duplicate
               </DropdownMenu.Item>
               <DropdownMenu.Separator />
-              <DropdownMenu.Item onClick={() => setNoteDialogOpen(true)}>
+              <DropdownMenu.Item onClick={() => setTimeout(() => onOpenNoteDialog(item.id, false), 0)}>
                 <NoteIcon size={16} />
                 Add note below
               </DropdownMenu.Item>
-              <DropdownMenu.Item onClick={() => setCommercialDialogOpen(true)}>
+              <DropdownMenu.Item onClick={() => setTimeout(() => onOpenCommercialDialog(item.id, false), 0)}>
                 <AdIcon size={16} />
                 Add commercial below
               </DropdownMenu.Item>
@@ -325,28 +296,6 @@ function SortableClockItem({
           </DropdownMenu>
         </div>
       </div>
-      
-      <AddNoteModal
-        open={noteDialogOpen}
-        onOpenChange={(open) => {
-          setNoteDialogOpen(open);
-          if (!open) setEditingNote(false);
-        }}
-        onSubmit={handleNoteSubmit}
-        initialLabel={editingNote && item.__typename === 'NoteClockItem' ? item.label || undefined : undefined}
-        initialContent={editingNote && item.__typename === 'NoteClockItem' ? item.content || undefined : undefined}
-      />
-      
-      <AddCommercialModal
-        open={commercialDialogOpen}
-        onOpenChange={(open) => {
-          setCommercialDialogOpen(open);
-          if (!open) setEditingCommercial(false);
-        }}
-        onSubmit={handleCommercialSubmit}
-        initialDuration={editingCommercial && item.__typename === 'AdBreakClockItem' ? item.duration : undefined}
-        initialScheduledStartTime={editingCommercial && item.__typename === 'AdBreakClockItem' ? item.scheduledStartTime : undefined}
-      />
     </div>
   );
 }
@@ -359,6 +308,13 @@ export const ClockGrid = ({
   insertionIndex,
   draggedItem,
 }: ClockGridProps) => {
+  // Global modal state for all items
+  const [noteDialogOpen, setNoteDialogOpen] = useState(false);
+  const [commercialDialogOpen, setCommercialDialogOpen] = useState(false);
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
+  
+  const editingItem = editingItemId ? items.find(item => item.id === editingItemId) : null;
   
   const handleItemMoveUp = useCallback((itemId: string) => {
     const itemIndex = items.findIndex(item => item.id === itemId);
@@ -456,6 +412,75 @@ export const ClockGrid = ({
       onItemsUpdate(reorderedItems);
     }
   }, [items, onItemsUpdate]);
+
+  // Centralized modal handlers
+  const handleOpenNoteDialog = useCallback((itemId: string, isEdit: boolean) => {
+    // Prevent double-opening
+    if (noteDialogOpen || commercialDialogOpen) return;
+    
+    setEditingItemId(itemId);
+    setIsEditMode(isEdit);
+    setNoteDialogOpen(true);
+  }, [noteDialogOpen, commercialDialogOpen]);
+
+  const handleOpenCommercialDialog = useCallback((itemId: string, isEdit: boolean) => {
+    // Prevent double-opening
+    if (noteDialogOpen || commercialDialogOpen) return;
+    
+    setEditingItemId(itemId);
+    setIsEditMode(isEdit);
+    setCommercialDialogOpen(true);
+  }, [noteDialogOpen, commercialDialogOpen]);
+
+  const handleNoteDialogClose = useCallback((open: boolean) => {
+    setNoteDialogOpen(open);
+    if (!open) {
+      // Ensure all modal state is cleared
+      setEditingItemId(null);
+      setIsEditMode(false);
+      setCommercialDialogOpen(false); // Ensure other modal is also closed
+    }
+  }, []);
+
+  const handleCommercialDialogClose = useCallback((open: boolean) => {
+    setCommercialDialogOpen(open);
+    if (!open) {
+      // Ensure all modal state is cleared
+      setEditingItemId(null);
+      setIsEditMode(false);
+      setNoteDialogOpen(false); // Ensure other modal is also closed
+    }
+  }, []);
+
+  const handleNoteSubmit = useCallback((label: string, content: string) => {
+    if (editingItemId) {
+      if (isEditMode) {
+        // Edit existing item
+        const updatedItem = { ...editingItem!, label, content };
+        onItemEdit(updatedItem as QueryMusicClockItem);
+      } else {
+        // Add new item below
+        handleAddNoteBelow(editingItemId, label, content);
+      }
+    }
+    // Close modal after successful submit
+    handleNoteDialogClose(false);
+  }, [editingItemId, isEditMode, editingItem, onItemEdit, handleAddNoteBelow, handleNoteDialogClose]);
+
+  const handleCommercialSubmit = useCallback((duration: number, scheduledStartTime?: string) => {
+    if (editingItemId) {
+      if (isEditMode) {
+        // Edit existing item
+        const updatedItem = { ...editingItem!, duration, scheduledStartTime: scheduledStartTime || null };
+        onItemEdit(updatedItem as QueryMusicClockItem);
+      } else {
+        // Add new item below
+        handleAddCommercialBelow(editingItemId, duration, scheduledStartTime);
+      }
+    }
+    // Close modal after successful submit
+    handleCommercialDialogClose(false);
+  }, [editingItemId, isEditMode, editingItem, onItemEdit, handleAddCommercialBelow, handleCommercialDialogClose]);
   const { setNodeRef } = useDroppable({
     id: 'clock-grid',
   });
@@ -496,8 +521,8 @@ export const ClockGrid = ({
                   onItemMoveUp={handleItemMoveUp}
                   onItemMoveDown={handleItemMoveDown}
                   onItemDuplicate={handleItemDuplicate}
-                  onAddNoteBelow={handleAddNoteBelow}
-                  onAddCommercialBelow={handleAddCommercialBelow}
+                  onOpenNoteDialog={handleOpenNoteDialog}
+                  onOpenCommercialDialog={handleOpenCommercialDialog}
                 />
               </React.Fragment>
             );
@@ -509,6 +534,25 @@ export const ClockGrid = ({
             )}
         </SortableContext>
       </div>
+      
+      {/* Global modals for all items */}
+      <AddNoteModal
+        key={`note-${editingItemId}-${isEditMode}`}
+        open={noteDialogOpen}
+        onOpenChange={handleNoteDialogClose}
+        onSubmit={handleNoteSubmit}
+        initialLabel={isEditMode && editingItem?.__typename === 'NoteClockItem' ? editingItem.label || undefined : undefined}
+        initialContent={isEditMode && editingItem?.__typename === 'NoteClockItem' ? editingItem.content || undefined : undefined}
+      />
+      
+      <AddCommercialModal
+        key={`commercial-${editingItemId}-${isEditMode}`}
+        open={commercialDialogOpen}
+        onOpenChange={handleCommercialDialogClose}
+        onSubmit={handleCommercialSubmit}
+        initialDuration={isEditMode && editingItem?.__typename === 'AdBreakClockItem' ? editingItem.duration : undefined}
+        initialScheduledStartTime={isEditMode && editingItem?.__typename === 'AdBreakClockItem' ? editingItem.scheduledStartTime : undefined}
+      />
     </div>
   );
 };

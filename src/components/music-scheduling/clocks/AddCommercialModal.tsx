@@ -3,7 +3,11 @@
 import { Button, Dialog, Input } from '@soundwaves/components';
 import { useForm } from 'react-hook-form';
 
-import { formatTimeForDisplay, formatTimeForBackend, isValidMmSsFormat } from './utils/timeFormatting';
+import {
+  formatTimeForDisplay,
+  formatTimeForBackend,
+  isValidMmSsFormat,
+} from './utils/timeFormatting';
 
 interface AddCommercialFormData {
   duration: number;
@@ -41,9 +45,10 @@ export const AddCommercialModal = ({
   });
 
   const onFormSubmit = (data: AddCommercialFormData) => {
-    const backendTime = data.scheduledStartTime ? formatTimeForBackend(data.scheduledStartTime) : undefined;
+    const backendTime = data.scheduledStartTime
+      ? formatTimeForBackend(data.scheduledStartTime)
+      : undefined;
     onSubmit(data.duration, backendTime);
-    onOpenChange(false);
   };
 
   const handleCancel = () => {
@@ -51,19 +56,24 @@ export const AddCommercialModal = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange} modal>
       <Dialog.Overlay />
       <Dialog.Content className="add-commercial-modal">
-        <Dialog.Title>{initialDuration ? 'Edit Commercial' : 'Add Commercial Below'}</Dialog.Title>
-        
+        <Dialog.Title>
+          {initialDuration ? 'Edit Commercial' : 'Add Commercial Below'}
+        </Dialog.Title>
+
         <form onSubmit={handleSubmit(onFormSubmit)}>
           <div className="add-commercial-modal__content">
             <Input
               label="Duration (seconds)"
               type="number"
-              {...register('duration', { 
+              {...register('duration', {
                 required: 'Duration is required',
-                min: { value: 1, message: 'Duration must be at least 1 second' },
+                min: {
+                  value: 1,
+                  message: 'Duration must be at least 1 second',
+                },
                 valueAsNumber: true,
               })}
               placeholder="30"
@@ -73,15 +83,17 @@ export const AddCommercialModal = ({
             <Input
               label="Scheduled Start Time (optional)"
               {...register('scheduledStartTime', {
-                validate: (value) => 
-                  !value || isValidMmSsFormat(value) || 'Please enter time in MM:SS format (e.g., 15:30)',
+                validate: (value) =>
+                  !value ||
+                  isValidMmSsFormat(value) ||
+                  'Please enter time in MM:SS format (e.g., 15:30)',
               })}
               placeholder="MM:SS (e.g., 15:30)"
               pattern="[0-5]?[0-9]:[0-5][0-9]"
               helperText={errors.scheduledStartTime?.message}
             />
           </div>
-          
+
           <div className="add-commercial-modal__actions">
             <Button variant="tertiary" type="button" onClick={handleCancel}>
               Cancel

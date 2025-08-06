@@ -40,7 +40,6 @@ export const AddNoteModal = ({
 
   const onFormSubmit = (data: AddNoteFormData) => {
     onSubmit(data.label, data.content);
-    onOpenChange(false);
   };
 
   const handleCancel = () => {
@@ -48,11 +47,13 @@ export const AddNoteModal = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange} modal>
       <Dialog.Overlay />
       <Dialog.Content className="add-note-modal">
-        <Dialog.Title>{initialLabel ? 'Edit Note' : 'Add Note Below'}</Dialog.Title>
-        
+        <Dialog.Title>
+          {initialLabel ? 'Edit Note' : 'Add Note Below'}
+        </Dialog.Title>
+
         <form onSubmit={handleSubmit(onFormSubmit)}>
           <div className="add-note-modal__content">
             <Input
@@ -69,7 +70,7 @@ export const AddNoteModal = ({
               helperText={errors.content?.message}
             />
           </div>
-          
+
           <div className="add-note-modal__actions">
             <Button variant="tertiary" type="button" onClick={handleCancel}>
               Cancel
