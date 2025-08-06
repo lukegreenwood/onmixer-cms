@@ -167,11 +167,11 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
   const [libraryItems, setLibraryItems] = useState<
     GetMusicClockItemLibraryQuery['musicClockItemLibrary']['items']
   >([]);
-  const [universalSearchResults, setUniversalSearchResults] = useState<
-    UniversalClockItemSearchQuery | null
-  >(null);
+  const [universalSearchResults, setUniversalSearchResults] =
+    useState<UniversalClockItemSearchQuery | null>(null);
   const [universalSearchTerm, setUniversalSearchTerm] = useState('');
-  const [isUniversalSearchLoading, setIsUniversalSearchLoading] = useState(false);
+  const [isUniversalSearchLoading, setIsUniversalSearchLoading] =
+    useState(false);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newItemType, setNewItemType] = useState<LibraryItemType>(
     MusicClockLibraryItemType.Note,
@@ -212,7 +212,7 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
   const debouncedUniversalSearch = useDebouncedCallback(
     (searchTerm: string) => {
       if (!currentNetwork?.id) return;
-      
+
       if (searchTerm.trim()) {
         setIsUniversalSearchLoading(true);
         fetchUniversalSearch({
@@ -230,7 +230,7 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
     {
       wait: 300,
       trailing: true,
-    }
+    },
   );
 
   const handleUniversalSearch = (term: string) => {
@@ -485,32 +485,43 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
   const renderUniversalSearchResults = () => {
     if (!universalSearchResults) return null;
 
-    const { tracksV2, genresV2, subcategories, libraryNotes, libraryCommands, libraryAdBreaks } = universalSearchResults;
+    const {
+      tracksV2,
+      genresV2,
+      subcategories,
+      libraryNotes,
+      libraryCommands,
+      libraryAdBreaks,
+    } = universalSearchResults;
 
     // Filter library items to only include the correct types (server-side search already applied)
-    const filteredLibraryNotes = libraryNotes.items.filter(item => 
-      item.__typename === 'MusicClockLibraryNote'
+    const filteredLibraryNotes = libraryNotes.items.filter(
+      (item) => item.__typename === 'MusicClockLibraryNote',
     );
-    const filteredLibraryCommands = libraryCommands.items.filter(item => 
-      item.__typename === 'MusicClockLibraryCommand'
+    const filteredLibraryCommands = libraryCommands.items.filter(
+      (item) => item.__typename === 'MusicClockLibraryCommand',
     );
-    const filteredLibraryAdBreaks = libraryAdBreaks.items.filter(item => 
-      item.__typename === 'MusicClockLibraryAdBreak'
+    const filteredLibraryAdBreaks = libraryAdBreaks.items.filter(
+      (item) => item.__typename === 'MusicClockLibraryAdBreak',
     );
 
-    const hasResults = tracksV2.items.length > 0 || genresV2.items.length > 0 ||
-                      subcategories.length > 0 || filteredLibraryNotes.length > 0 ||
-                      filteredLibraryCommands.length > 0 || filteredLibraryAdBreaks.length > 0;
+    const hasResults =
+      tracksV2.items.length > 0 ||
+      genresV2.items.length > 0 ||
+      subcategories.length > 0 ||
+      filteredLibraryNotes.length > 0 ||
+      filteredLibraryCommands.length > 0 ||
+      filteredLibraryAdBreaks.length > 0;
 
     return (
       <div className="clock-item-library__items clock-item-library__items--scrollable">
         {isUniversalSearchLoading && (
           <div className="clock-item-library__loading">Searching...</div>
         )}
-        
+
         {!isUniversalSearchLoading && !hasResults && (
           <div className="clock-item-library__no-results">
-            No results found for "{universalSearchTerm}"
+            No results found for &quot;{universalSearchTerm}&quot;
           </div>
         )}
 
@@ -602,7 +613,9 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
                   }
                   className={
                     subcategory?.color
-                      ? `clock-item-library__item--${getContrastColor(subcategory.color)}`
+                      ? `clock-item-library__item--${getContrastColor(
+                          subcategory.color,
+                        )}`
                       : undefined
                   }
                   style={subcategoryStyle}
@@ -1115,15 +1128,17 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
         )}
       </div>
 
-      {/* Universal Search Input - only show on main view */}
-      {currentView === 'main' && (
+      {/* Universal Search Input - show on main view and search results view */}
+      {(currentView === 'main' || currentView === 'universal-search') && (
         <div className="clock-item-library__search clock-item-library__search--universal">
           <div className="search-input">
             <SearchIcon className="search-input__icon" size={16} />
             <Input
               placeholder="Search all items..."
               value={universalSearchTerm}
-              onChange={(e) => handleUniversalSearch((e.target as HTMLInputElement).value)}
+              onChange={(e) =>
+                handleUniversalSearch((e.target as HTMLInputElement).value)
+              }
               className="search-input__field"
             />
           </div>
