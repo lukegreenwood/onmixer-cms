@@ -1,32 +1,52 @@
 'use client';
 
 import { Button, Dialog, Input } from '@soundwaves/components';
-import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+
+import { formatTimeForDisplay, formatTimeForBackend, isValidMmSsFormat } from './utils/timeFormatting';
+
+interface AddCommercialFormData {
+  duration: number;
+  scheduledStartTime: string;
+}
 
 interface AddCommercialModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (duration: number, scheduledStartTime?: string) => void;
+  initialDuration?: number;
+  initialScheduledStartTime?: string;
 }
 
 export const AddCommercialModal = ({
   open,
   onOpenChange,
   onSubmit,
+  initialDuration,
+  initialScheduledStartTime,
 }: AddCommercialModalProps) => {
-  const [duration, setDuration] = useState(30);
-  const [scheduledStartTime, setScheduledStartTime] = useState('');
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<AddCommercialFormData>({
+    defaultValues: {
+      duration: 30,
+      scheduledStartTime: '',
+    },
+    values: {
+      duration: initialDuration || 30,
+      scheduledStartTime: formatTimeForDisplay(initialScheduledStartTime),
+    },
+  });
 
-  const handleSubmit = () => {
-    onSubmit(duration, scheduledStartTime || undefined);
-    setDuration(30);
-    setScheduledStartTime('');
+  const onFormSubmit = (data: AddCommercialFormData) => {
+    const backendTime = data.scheduledStartTime ? formatTimeForBackend(data.scheduledStartTime) : undefined;
+    onSubmit(data.duration, backendTime);
     onOpenChange(false);
   };
 
   const handleCancel = () => {
-    setDuration(30);
-    setScheduledStartTime('');
     onOpenChange(false);
   };
 
@@ -34,34 +54,43 @@ export const AddCommercialModal = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <Dialog.Overlay />
       <Dialog.Content className="add-commercial-modal">
-        <Dialog.Title>Add Commercial Below</Dialog.Title>
+        <Dialog.Title>{initialDuration ? 'Edit Commercial' : 'Add Commercial Below'}</Dialog.Title>
         
-        <div className="add-commercial-modal__content">
-          <Input
-            label="Duration (seconds)"
-            type="number"
-            value={duration.toString()}
-            onChange={(e) => setDuration(parseInt((e.target as HTMLInputElement).value) || 30)}
-            placeholder="30"
-            min={1}
-          />
-          <Input
-            label="Scheduled Start Time (optional)"
-            type="time"
-            value={scheduledStartTime}
-            onChange={(e) => setScheduledStartTime((e.target as HTMLInputElement).value)}
-            placeholder="HH:MM"
-          />
-        </div>
-        
-        <div className="add-commercial-modal__actions">
-          <Button variant="tertiary" onClick={handleCancel}>
-            Cancel
-          </Button>
-          <Button variant="primary" onClick={handleSubmit}>
-            Add Commercial
-          </Button>
-        </div>
+        <form onSubmit={handleSubmit(onFormSubmit)}>
+          <div className="add-commercial-modal__content">
+            <Input
+              label="Duration (seconds)"
+              type="number"
+              {...register('duration', { 
+                required: 'Duration is required',
+                min: { value: 1, message: 'Duration must be at least 1 second' },
+                valueAsNumber: true,
+              })}
+              placeholder="30"
+              min={1}
+              helperText={errors.duration?.message}
+            />
+            <Input
+              label="Scheduled Start Time (optional)"
+              {...register('scheduledStartTime', {
+                validate: (value) => 
+                  !value || isValidMmSsFormat(value) || 'Please enter time in MM:SS format (e.g., 15:30)',
+              })}
+              placeholder="MM:SS (e.g., 15:30)"
+              pattern="[0-5]?[0-9]:[0-5][0-9]"
+              helperText={errors.scheduledStartTime?.message}
+            />
+          </div>
+          
+          <div className="add-commercial-modal__actions">
+            <Button variant="tertiary" type="button" onClick={handleCancel}>
+              Cancel
+            </Button>
+            <Button variant="primary" type="submit">
+              {initialDuration ? 'Update Commercial' : 'Add Commercial'}
+            </Button>
+          </div>
+        </form>
       </Dialog.Content>
     </Dialog>
   );

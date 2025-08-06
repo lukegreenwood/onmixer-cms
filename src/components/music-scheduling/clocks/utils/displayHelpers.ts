@@ -1,4 +1,5 @@
 import { formatDuration } from './formatting';
+import { formatTimeForDisplay } from './timeFormatting';
 import {
   isTrackClockItem,
   isSubcategoryClockItem,
@@ -35,7 +36,7 @@ export const getTitle = (item: QueryMusicClockItem): string => {
     return item.command || 'Command';
   }
   if (isAdBreakClockItem(item)) {
-    return item.scheduledStartTime || '00:00';
+    return formatTimeForDisplay(item.scheduledStartTime) || '00:00';
   }
   if (isLibraryNoteClockItem(item)) {
     return item.note?.content || item.note?.label || 'Library Note';
@@ -44,7 +45,7 @@ export const getTitle = (item: QueryMusicClockItem): string => {
     return item.libraryCommand?.command || 'Library Command';
   }
   if (isLibraryAdBreakClockItem(item)) {
-    return item.adBreak?.scheduledStartTime || '00:00';
+    return formatTimeForDisplay(item.adBreak?.scheduledStartTime) || '00:00';
   }
   return 'Unknown';
 };

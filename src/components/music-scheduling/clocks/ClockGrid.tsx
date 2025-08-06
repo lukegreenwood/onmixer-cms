@@ -140,17 +140,45 @@ function SortableClockItem({
 }: SortableItemProps) {
   const [noteDialogOpen, setNoteDialogOpen] = useState(false);
   const [commercialDialogOpen, setCommercialDialogOpen] = useState(false);
+  const [editingNote, setEditingNote] = useState(false);
+  const [editingCommercial, setEditingCommercial] = useState(false);
 
   const canMoveUp = index > 0;
   const canMoveDown = index < items.length - 1;
 
   const handleNoteSubmit = useCallback((label: string, content: string) => {
-    onAddNoteBelow(item.id, label, content);
-  }, [item.id, onAddNoteBelow]);
+    if (editingNote) {
+      // Handle edit case - pass updated item to onItemEdit
+      const updatedItem = { ...item, label, content };
+      onItemEdit(updatedItem as QueryMusicClockItem);
+      setEditingNote(false);
+    } else {
+      onAddNoteBelow(item.id, label, content);
+    }
+  }, [item, editingNote, onItemEdit, onAddNoteBelow]);
 
   const handleCommercialSubmit = useCallback((duration: number, scheduledStartTime?: string) => {
-    onAddCommercialBelow(item.id, duration, scheduledStartTime);
-  }, [item.id, onAddCommercialBelow]);
+    if (editingCommercial) {
+      // Handle edit case - pass updated item to onItemEdit
+      const updatedItem = { ...item, duration, scheduledStartTime: scheduledStartTime || null };
+      onItemEdit(updatedItem as QueryMusicClockItem);
+      setEditingCommercial(false);
+    } else {
+      onAddCommercialBelow(item.id, duration, scheduledStartTime);
+    }
+  }, [item, editingCommercial, onItemEdit, onAddCommercialBelow]);
+
+  const handleEditClick = useCallback(() => {
+    if (item.__typename === 'NoteClockItem') {
+      setEditingNote(true);
+      setNoteDialogOpen(true);
+    } else if (item.__typename === 'AdBreakClockItem') {
+      setEditingCommercial(true);
+      setCommercialDialogOpen(true);
+    } else {
+      onItemEdit(item);
+    }
+  }, [item, onItemEdit]);
   const {
     attributes,
     listeners,
@@ -254,7 +282,7 @@ function SortableClockItem({
               </Button>
             </DropdownMenu.Trigger>
             <DropdownMenu.Content align="end">
-              <DropdownMenu.Item onClick={() => onItemEdit(item)}>
+              <DropdownMenu.Item onClick={handleEditClick}>
                 <EditIcon size={16} />
                 Edit
               </DropdownMenu.Item>
@@ -300,14 +328,24 @@ function SortableClockItem({
       
       <AddNoteModal
         open={noteDialogOpen}
-        onOpenChange={setNoteDialogOpen}
+        onOpenChange={(open) => {
+          setNoteDialogOpen(open);
+          if (!open) setEditingNote(false);
+        }}
         onSubmit={handleNoteSubmit}
+        initialLabel={editingNote && item.__typename === 'NoteClockItem' ? item.label || undefined : undefined}
+        initialContent={editingNote && item.__typename === 'NoteClockItem' ? item.content || undefined : undefined}
       />
       
       <AddCommercialModal
         open={commercialDialogOpen}
-        onOpenChange={setCommercialDialogOpen}
+        onOpenChange={(open) => {
+          setCommercialDialogOpen(open);
+          if (!open) setEditingCommercial(false);
+        }}
         onSubmit={handleCommercialSubmit}
+        initialDuration={editingCommercial && item.__typename === 'AdBreakClockItem' ? item.duration : undefined}
+        initialScheduledStartTime={editingCommercial && item.__typename === 'AdBreakClockItem' ? item.scheduledStartTime : undefined}
       />
     </div>
   );

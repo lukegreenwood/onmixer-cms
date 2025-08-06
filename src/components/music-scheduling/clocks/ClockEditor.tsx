@@ -427,9 +427,14 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
   );
 
   const handleItemEdit = useCallback((item: QueryMusicClockItem) => {
-    // TODO: Implement item edit dialog
-    console.log('[ClockEditor] handleItemEdit', { item });
-  }, []);
+    // Update the item in the list
+    const updatedItems = clockItems.map(existingItem => 
+      existingItem.id === item.id ? item : existingItem
+    );
+    setClockItems(updatedItems);
+    // Save to API
+    saveClockItems(updatedItems);
+  }, [clockItems, saveClockItems]);
 
   const handleItemDelete = useCallback(
     async (itemId: string) => {
