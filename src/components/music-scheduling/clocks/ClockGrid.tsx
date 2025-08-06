@@ -9,7 +9,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { Badge, Button, DropdownMenu } from '@soundwaves/components';
 import clsx from 'clsx';
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 
 import {
   AudioIcon,
@@ -17,10 +17,17 @@ import {
   EditIcon,
   DeleteIcon,
   GripVerticalIcon,
+  ChevronUpIcon,
+  ChevronDownIcon,
+  CopyIcon,
+  NoteIcon,
+  AdIcon,
 } from '@/components/icons';
 
 import { formatDuration } from '../utils';
 
+import { AddCommercialModal } from './AddCommercialModal';
+import { AddNoteModal } from './AddNoteModal';
 import { QueryMusicClockItem, DragData } from './types';
 import {
   isGridItemDrag,
@@ -101,6 +108,7 @@ interface ClockGridProps {
   items: ClockItem[];
   onItemEdit: (item: ClockItem) => void;
   onItemDelete: (itemId: string) => void;
+  onItemsUpdate: (items: ClockItem[]) => void;
   insertionIndex?: number | null;
   draggedItem?: DragData | null;
 }
@@ -111,6 +119,11 @@ interface SortableItemProps {
   items: ClockItem[];
   onItemEdit: (item: ClockItem) => void;
   onItemDelete: (itemId: string) => void;
+  onItemMoveUp: (itemId: string) => void;
+  onItemMoveDown: (itemId: string) => void;
+  onItemDuplicate: (itemId: string) => void;
+  onAddNoteBelow: (itemId: string, label: string, content: string) => void;
+  onAddCommercialBelow: (itemId: string, duration: number, scheduledStartTime?: string) => void;
 }
 
 function SortableClockItem({
@@ -119,7 +132,25 @@ function SortableClockItem({
   items,
   onItemEdit,
   onItemDelete,
+  onItemMoveUp,
+  onItemMoveDown,
+  onItemDuplicate,
+  onAddNoteBelow,
+  onAddCommercialBelow,
 }: SortableItemProps) {
+  const [noteDialogOpen, setNoteDialogOpen] = useState(false);
+  const [commercialDialogOpen, setCommercialDialogOpen] = useState(false);
+
+  const canMoveUp = index > 0;
+  const canMoveDown = index < items.length - 1;
+
+  const handleNoteSubmit = useCallback((label: string, content: string) => {
+    onAddNoteBelow(item.id, label, content);
+  }, [item.id, onAddNoteBelow]);
+
+  const handleCommercialSubmit = useCallback((duration: number, scheduledStartTime?: string) => {
+    onAddCommercialBelow(item.id, duration, scheduledStartTime);
+  }, [item.id, onAddCommercialBelow]);
   const {
     attributes,
     listeners,
@@ -228,6 +259,34 @@ function SortableClockItem({
                 Edit
               </DropdownMenu.Item>
               <DropdownMenu.Item
+                onClick={() => onItemMoveUp(item.id)}
+                disabled={!canMoveUp}
+              >
+                <ChevronUpIcon size={16} />
+                Move up
+              </DropdownMenu.Item>
+              <DropdownMenu.Item
+                onClick={() => onItemMoveDown(item.id)}
+                disabled={!canMoveDown}
+              >
+                <ChevronDownIcon size={16} />
+                Move down
+              </DropdownMenu.Item>
+              <DropdownMenu.Item onClick={() => onItemDuplicate(item.id)}>
+                <CopyIcon size={16} />
+                Duplicate
+              </DropdownMenu.Item>
+              <DropdownMenu.Separator />
+              <DropdownMenu.Item onClick={() => setNoteDialogOpen(true)}>
+                <NoteIcon size={16} />
+                Add note below
+              </DropdownMenu.Item>
+              <DropdownMenu.Item onClick={() => setCommercialDialogOpen(true)}>
+                <AdIcon size={16} />
+                Add commercial below
+              </DropdownMenu.Item>
+              <DropdownMenu.Separator />
+              <DropdownMenu.Item
                 onClick={() => onItemDelete(item.id)}
                 destructive
               >
@@ -238,6 +297,18 @@ function SortableClockItem({
           </DropdownMenu>
         </div>
       </div>
+      
+      <AddNoteModal
+        open={noteDialogOpen}
+        onOpenChange={setNoteDialogOpen}
+        onSubmit={handleNoteSubmit}
+      />
+      
+      <AddCommercialModal
+        open={commercialDialogOpen}
+        onOpenChange={setCommercialDialogOpen}
+        onSubmit={handleCommercialSubmit}
+      />
     </div>
   );
 }
@@ -246,9 +317,107 @@ export const ClockGrid = ({
   items,
   onItemEdit,
   onItemDelete,
+  onItemsUpdate,
   insertionIndex,
   draggedItem,
 }: ClockGridProps) => {
+  
+  const handleItemMoveUp = useCallback((itemId: string) => {
+    const itemIndex = items.findIndex(item => item.id === itemId);
+    if (itemIndex > 0) {
+      const newItems = [...items];
+      [newItems[itemIndex - 1], newItems[itemIndex]] = [newItems[itemIndex], newItems[itemIndex - 1]];
+      // Update order indices
+      const reorderedItems = newItems.map((item, index) => ({
+        ...item,
+        orderIndex: index,
+      }));
+      onItemsUpdate(reorderedItems);
+    }
+  }, [items, onItemsUpdate]);
+
+  const handleItemMoveDown = useCallback((itemId: string) => {
+    const itemIndex = items.findIndex(item => item.id === itemId);
+    if (itemIndex < items.length - 1) {
+      const newItems = [...items];
+      [newItems[itemIndex], newItems[itemIndex + 1]] = [newItems[itemIndex + 1], newItems[itemIndex]];
+      // Update order indices
+      const reorderedItems = newItems.map((item, index) => ({
+        ...item,
+        orderIndex: index,
+      }));
+      onItemsUpdate(reorderedItems);
+    }
+  }, [items, onItemsUpdate]);
+
+  const handleItemDuplicate = useCallback((itemId: string) => {
+    const itemToDuplicate = items.find(item => item.id === itemId);
+    if (itemToDuplicate) {
+      const itemIndex = items.findIndex(item => item.id === itemId);
+      const duplicatedItem = {
+        ...itemToDuplicate,
+        id: `temp-${Date.now()}`,
+        orderIndex: itemIndex + 1,
+      };
+      const newItems = [...items];
+      newItems.splice(itemIndex + 1, 0, duplicatedItem);
+      // Update order indices for items after insertion
+      const reorderedItems = newItems.map((item, index) => ({
+        ...item,
+        orderIndex: index,
+      }));
+      onItemsUpdate(reorderedItems);
+    }
+  }, [items, onItemsUpdate]);
+
+  const handleAddNoteBelow = useCallback((itemId: string, label: string, content: string) => {
+    const itemIndex = items.findIndex(item => item.id === itemId);
+    if (itemIndex !== -1) {
+      const noteItem: QueryMusicClockItem = {
+        __typename: 'NoteClockItem',
+        id: `temp-${Date.now()}`,
+        clockId: items[0]?.clockId || '',
+        orderIndex: itemIndex + 1,
+        duration: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        label,
+        content,
+      };
+      const newItems = [...items];
+      newItems.splice(itemIndex + 1, 0, noteItem);
+      // Update order indices for items after insertion
+      const reorderedItems = newItems.map((item, index) => ({
+        ...item,
+        orderIndex: index,
+      }));
+      onItemsUpdate(reorderedItems);
+    }
+  }, [items, onItemsUpdate]);
+
+  const handleAddCommercialBelow = useCallback((itemId: string, duration: number, scheduledStartTime?: string) => {
+    const itemIndex = items.findIndex(item => item.id === itemId);
+    if (itemIndex !== -1) {
+      const commercialItem: QueryMusicClockItem = {
+        __typename: 'AdBreakClockItem',
+        id: `temp-${Date.now()}`,
+        clockId: items[0]?.clockId || '',
+        orderIndex: itemIndex + 1,
+        duration,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        scheduledStartTime: scheduledStartTime || null,
+      };
+      const newItems = [...items];
+      newItems.splice(itemIndex + 1, 0, commercialItem);
+      // Update order indices for items after insertion
+      const reorderedItems = newItems.map((item, index) => ({
+        ...item,
+        orderIndex: index,
+      }));
+      onItemsUpdate(reorderedItems);
+    }
+  }, [items, onItemsUpdate]);
   const { setNodeRef } = useDroppable({
     id: 'clock-grid',
   });
@@ -286,6 +455,11 @@ export const ClockGrid = ({
                   items={items}
                   onItemEdit={onItemEdit}
                   onItemDelete={onItemDelete}
+                  onItemMoveUp={handleItemMoveUp}
+                  onItemMoveDown={handleItemMoveDown}
+                  onItemDuplicate={handleItemDuplicate}
+                  onAddNoteBelow={handleAddNoteBelow}
+                  onAddCommercialBelow={handleAddCommercialBelow}
                 />
               </React.Fragment>
             );

@@ -810,6 +810,7 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
                 items={clockItems}
                 onItemEdit={handleItemEdit}
                 onItemDelete={handleItemDelete}
+                onItemsUpdate={saveClockItems}
                 insertionIndex={insertionIndex}
                 draggedItem={activeItem}
               />

@@ -779,6 +779,24 @@
   pointer-events: none;
 }
 
+// Modal styles for add note and add commercial dialogs
+.add-note-modal,
+.add-commercial-modal {
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: mixins.spacing(3);
+    margin-top: mixins.spacing(3);
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: mixins.spacing(2);
+    margin-top: mixins.spacing(4);
+  }
+}
+
 // Only stack on very small mobile screens (below sm breakpoint)
 @media (max-width: 639px) {
   .clock-editor {
