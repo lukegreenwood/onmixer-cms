@@ -1,6 +1,7 @@
 'use client';
 
 import { useLazyQuery, useMutation } from '@apollo/client';
+import { useDebouncedCallback } from '@tanstack/react-pacer';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
 import { Input, Button, Dialog } from '@soundwaves/components';
 import clsx from 'clsx';
@@ -25,6 +26,7 @@ import type {
   GetGenresQuery,
   SearchTracksV2Query,
   GetMusicClockItemLibraryQuery,
+  UniversalClockItemSearchQuery,
 } from '@/graphql/__generated__/graphql';
 import {
   MusicClockLibraryItemType,
@@ -43,6 +45,7 @@ import { GET_CATEGORIES } from '@/graphql/queries/categories';
 import { GET_GENRES } from '@/graphql/queries/genres';
 import { GET_MUSIC_CLOCK_ITEM_LIBRARY } from '@/graphql/queries/musicClockItemLibrary';
 import { SEARCH_TRACKS_V2 } from '@/graphql/queries/tracks';
+import { UNIVERSAL_CLOCK_ITEM_SEARCH } from '@/graphql/queries/universalClockItemSearch';
 import { useNetwork } from '@/hooks';
 import { toast } from '@/lib/toast';
 
@@ -134,6 +137,7 @@ function DraggableLibraryItem({
 
 type LibraryView =
   | 'main'
+  | 'universal-search'
   | 'audio'
   | 'categories'
   | 'category-detail'
@@ -163,6 +167,11 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
   const [libraryItems, setLibraryItems] = useState<
     GetMusicClockItemLibraryQuery['musicClockItemLibrary']['items']
   >([]);
+  const [universalSearchResults, setUniversalSearchResults] = useState<
+    UniversalClockItemSearchQuery | null
+  >(null);
+  const [universalSearchTerm, setUniversalSearchTerm] = useState('');
+  const [isUniversalSearchLoading, setIsUniversalSearchLoading] = useState(false);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newItemType, setNewItemType] = useState<LibraryItemType>(
     MusicClockLibraryItemType.Note,
@@ -186,12 +195,64 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
     onCompleted: (data) => setLibraryItems(data.musicClockItemLibrary.items),
   });
 
+  const [fetchUniversalSearch] = useLazyQuery(UNIVERSAL_CLOCK_ITEM_SEARCH, {
+    onCompleted: (data) => {
+      setUniversalSearchResults(data);
+      setIsUniversalSearchLoading(false);
+    },
+    onError: () => {
+      setIsUniversalSearchLoading(false);
+    },
+  });
+
   const [createLibraryItem] = useMutation(CREATE_MUSIC_CLOCK_LIBRARY_ITEM);
   const [deleteLibraryItem] = useMutation(DELETE_MUSIC_CLOCK_LIBRARY_ITEM);
+
+  // Debounced universal search
+  const debouncedUniversalSearch = useDebouncedCallback(
+    (searchTerm: string) => {
+      if (!currentNetwork?.id) return;
+      
+      if (searchTerm.trim()) {
+        setIsUniversalSearchLoading(true);
+        fetchUniversalSearch({
+          variables: {
+            searchTerm: searchTerm.trim(),
+            networkId: currentNetwork.id,
+            limit: 15,
+          },
+        });
+      } else {
+        setUniversalSearchResults(null);
+        setIsUniversalSearchLoading(false);
+      }
+    },
+    {
+      wait: 300,
+      trailing: true,
+    }
+  );
+
+  const handleUniversalSearch = (term: string) => {
+    setUniversalSearchTerm(term);
+    if (term.trim()) {
+      setCurrentView('universal-search');
+      debouncedUniversalSearch(term);
+    } else {
+      setCurrentView('main');
+      setUniversalSearchResults(null);
+    }
+  };
 
   const handleViewChange = (view: LibraryView) => {
     setCurrentView(view);
     setSearchTerm('');
+
+    // Reset universal search when changing views
+    if (view !== 'universal-search') {
+      setUniversalSearchTerm('');
+      setUniversalSearchResults(null);
+    }
 
     // Reset category when leaving category views
     if (view !== 'categories' && view !== 'category-detail') {
@@ -420,6 +481,231 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
       onClick: () => handleViewChange('genres'),
     },
   ];
+
+  const renderUniversalSearchResults = () => {
+    if (!universalSearchResults) return null;
+
+    const { tracksV2, genresV2, subcategories, libraryNotes, libraryCommands, libraryAdBreaks } = universalSearchResults;
+
+    // Filter library items to only include the correct types (server-side search already applied)
+    const filteredLibraryNotes = libraryNotes.items.filter(item => 
+      item.__typename === 'MusicClockLibraryNote'
+    );
+    const filteredLibraryCommands = libraryCommands.items.filter(item => 
+      item.__typename === 'MusicClockLibraryCommand'
+    );
+    const filteredLibraryAdBreaks = libraryAdBreaks.items.filter(item => 
+      item.__typename === 'MusicClockLibraryAdBreak'
+    );
+
+    const hasResults = tracksV2.items.length > 0 || genresV2.items.length > 0 ||
+                      subcategories.length > 0 || filteredLibraryNotes.length > 0 ||
+                      filteredLibraryCommands.length > 0 || filteredLibraryAdBreaks.length > 0;
+
+    return (
+      <div className="clock-item-library__items clock-item-library__items--scrollable">
+        {isUniversalSearchLoading && (
+          <div className="clock-item-library__loading">Searching...</div>
+        )}
+        
+        {!isUniversalSearchLoading && !hasResults && (
+          <div className="clock-item-library__no-results">
+            No results found for "{universalSearchTerm}"
+          </div>
+        )}
+
+        {/* Tracks */}
+        {tracksV2.items.length > 0 && (
+          <>
+            <div className="clock-item-library__group-header">
+              <AudioIcon size={16} />
+              <span>Tracks ({tracksV2.items.length})</span>
+            </div>
+            {tracksV2.items.map((track) => {
+              const trackData = {
+                trackId: track.id,
+                name: `${track.artist} - ${track.title}`,
+                duration: track.duration?.raw || 0,
+                artist: track.artist,
+              };
+              return (
+                <DraggableLibraryItem
+                  key={track.id}
+                  id={`search-track-${track.id}`}
+                  itemType="track"
+                  data={trackData}
+                  icon={AudioIcon}
+                  title={`${track.artist} - ${track.title}`}
+                  description={track.duration?.formatted || '0:00'}
+                />
+              );
+            })}
+          </>
+        )}
+
+        {/* Genres */}
+        {genresV2.items.length > 0 && (
+          <>
+            <div className="clock-item-library__group-header">
+              <GenreIcon size={16} />
+              <span>Genres ({genresV2.items.length})</span>
+            </div>
+            {genresV2.items.map((genre) => {
+              const genreData = {
+                genreId: genre.id,
+                name: genre.name,
+                duration: 180,
+              };
+              return (
+                <DraggableLibraryItem
+                  key={genre.id}
+                  id={`search-genre-${genre.id}`}
+                  itemType="genre"
+                  data={genreData}
+                  icon={GenreIcon}
+                  title={genre.name}
+                />
+              );
+            })}
+          </>
+        )}
+
+        {/* Subcategories */}
+        {subcategories.length > 0 && (
+          <>
+            <div className="clock-item-library__group-header">
+              <CategoryIcon size={16} />
+              <span>Categories ({subcategories.length})</span>
+            </div>
+            {subcategories.map((subcategory) => {
+              const subcategoryData = {
+                subcategoryId: subcategory.id,
+                name: subcategory.name,
+                duration: subcategory.averageDuration?.raw || 0,
+                color: subcategory.color,
+              };
+              const subcategoryStyle = {
+                '--item-background-color': subcategory?.color || undefined,
+              } as React.CSSProperties;
+              return (
+                <DraggableLibraryItem
+                  key={subcategory.id}
+                  id={`search-subcategory-${subcategory.id}`}
+                  itemType="subcategory"
+                  data={subcategoryData}
+                  icon={CategoryIcon}
+                  title={subcategory.name}
+                  description={
+                    subcategory.averageDuration?.formatted
+                      ? `~${subcategory.averageDuration.formatted}`
+                      : ''
+                  }
+                  className={
+                    subcategory?.color
+                      ? `clock-item-library__item--${getContrastColor(subcategory.color)}`
+                      : undefined
+                  }
+                  style={subcategoryStyle}
+                />
+              );
+            })}
+          </>
+        )}
+
+        {/* Library Notes */}
+        {filteredLibraryNotes.length > 0 && (
+          <>
+            <div className="clock-item-library__group-header">
+              <NoteIcon size={16} />
+              <span>Library Notes ({filteredLibraryNotes.length})</span>
+            </div>
+            {filteredLibraryNotes.map((item) => {
+              if (item.__typename !== 'MusicClockLibraryNote') return null;
+              const dragData = {
+                libraryItemId: item.id,
+                name: item.label || item.id,
+                duration: 0,
+                content: item.content || '',
+              };
+              return (
+                <DraggableLibraryItem
+                  key={item.id}
+                  id={`search-library-note-${item.id}`}
+                  itemType="library_note"
+                  data={dragData}
+                  icon={NoteIcon}
+                  title={item.label || item.id}
+                  onDelete={() => handleDeleteLibraryItem(item.id)}
+                />
+              );
+            })}
+          </>
+        )}
+
+        {/* Library Commands */}
+        {filteredLibraryCommands.length > 0 && (
+          <>
+            <div className="clock-item-library__group-header">
+              <CommandIcon size={16} />
+              <span>Library Commands ({filteredLibraryCommands.length})</span>
+            </div>
+            {filteredLibraryCommands.map((item) => {
+              if (item.__typename !== 'MusicClockLibraryCommand') return null;
+              const dragData = {
+                libraryItemId: item.id,
+                name: item.label || item.id,
+                duration: item.duration || 0,
+                command: item.command || '',
+              };
+              return (
+                <DraggableLibraryItem
+                  key={item.id}
+                  id={`search-library-command-${item.id}`}
+                  itemType="library_command"
+                  data={dragData}
+                  icon={CommandIcon}
+                  title={item.label || item.id}
+                  description={item.command}
+                  onDelete={() => handleDeleteLibraryItem(item.id)}
+                />
+              );
+            })}
+          </>
+        )}
+
+        {/* Library Ad Breaks */}
+        {filteredLibraryAdBreaks.length > 0 && (
+          <>
+            <div className="clock-item-library__group-header">
+              <AdIcon size={16} />
+              <span>Library Ad Breaks ({filteredLibraryAdBreaks.length})</span>
+            </div>
+            {filteredLibraryAdBreaks.map((item) => {
+              if (item.__typename !== 'MusicClockLibraryAdBreak') return null;
+              const dragData = {
+                libraryItemId: item.id,
+                name: `Ad Break (${item.duration}s)`,
+                duration: item.duration || 180,
+                scheduledStartTime: item.scheduledStartTime || '00:00',
+              };
+              return (
+                <DraggableLibraryItem
+                  key={item.id}
+                  id={`search-library-adbreak-${item.id}`}
+                  itemType="library_ad_break"
+                  data={dragData}
+                  icon={AdIcon}
+                  title={`Ad Break`}
+                  description={`${item.duration || 180}s`}
+                  onDelete={() => handleDeleteLibraryItem(item.id)}
+                />
+              );
+            })}
+          </>
+        )}
+      </div>
+    );
+  };
 
   const renderMainView = () => (
     <div className="clock-item-library__items">
@@ -786,7 +1072,7 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
       }`}
     >
       <div className="clock-item-library__header">
-        {currentView !== 'main' && (
+        {currentView !== 'main' && currentView !== 'universal-search' && (
           <button
             className="clock-item-library__back"
             onClick={() => {
@@ -802,6 +1088,7 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
         )}
         <h3>
           {currentView === 'main' && 'Library'}
+          {currentView === 'universal-search' && 'Search Results'}
           {currentView === 'audio' && 'Audio'}
           {currentView === 'categories' && 'Categories'}
           {currentView === 'category-detail' && currentCategory?.name}
@@ -828,7 +1115,23 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
         )}
       </div>
 
-      {currentView === 'main' && renderMainView()}
+      {/* Universal Search Input - only show on main view */}
+      {currentView === 'main' && (
+        <div className="clock-item-library__search clock-item-library__search--universal">
+          <div className="search-input">
+            <SearchIcon className="search-input__icon" size={16} />
+            <Input
+              placeholder="Search all items..."
+              value={universalSearchTerm}
+              onChange={(e) => handleUniversalSearch((e.target as HTMLInputElement).value)}
+              className="search-input__field"
+            />
+          </div>
+        </div>
+      )}
+
+      {currentView === 'main' && !universalSearchTerm && renderMainView()}
+      {currentView === 'universal-search' && renderUniversalSearchResults()}
       {currentView === 'audio' && renderAudioView()}
       {currentView === 'categories' && renderCategoriesView()}
       {currentView === 'category-detail' && renderCategoryDetailView()}

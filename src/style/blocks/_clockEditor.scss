@@ -705,6 +705,62 @@
     font-size: 0.875rem;
     color: palette.$gray-900;
   }
+
+  // Universal search specific styles
+  &__search--universal {
+    background: palette.$white-900;
+    border-bottom: 1px solid palette.$gray-200;
+  }
+
+  // Group headers for search results
+  &__group-header {
+    display: flex;
+    align-items: center;
+    gap: mixins.spacing(2);
+    padding: mixins.spacing(3) mixins.spacing(4) mixins.spacing(2);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: palette.$gray-600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: palette.$gray-50;
+    border-bottom: 1px solid palette.$gray-100;
+    margin: 0 mixins.spacing(-1);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+
+    svg {
+      color: palette.$gray-500;
+    }
+
+    &:first-child {
+      margin-top: 0;
+    }
+
+    &:not(:first-child) {
+      margin-top: mixins.spacing(2);
+      border-top: 1px solid palette.$gray-100;
+    }
+  }
+
+  // Loading and no results states
+  &__loading,
+  &__no-results {
+    padding: mixins.spacing(8) mixins.spacing(4);
+    text-align: center;
+    color: palette.$gray-500;
+    font-size: 0.875rem;
+  }
+
+  &__loading {
+    color: palette.$blue-600;
+  }
+
+  &__no-results {
+    color: palette.$gray-400;
+    font-style: italic;
+  }
 }
 
 .search-input {
