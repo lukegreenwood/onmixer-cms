@@ -19,7 +19,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Dialog, Input, Textarea, Badge } from '@soundwaves/components';
 import { useDebouncedCallback } from '@tanstack/react-pacer';
 import clsx from 'clsx';
-import { useState, useCallback, useRef, useMemo } from 'react';
+import { useState, useCallback, useRef, useMemo, useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -126,18 +126,25 @@ type ClockFormData = z.infer<typeof clockFormSchema>;
 
 interface ClockEditorProps {
   clock?: QueryMusicClock;
-  onRefetch?: () => void;
 }
 
 export const TRASH_ID = 'library';
 
-export const ClockEditor = ({ clock, onRefetch }: ClockEditorProps) => {
+export const ClockEditor = ({ clock }: ClockEditorProps) => {
   const { currentNetwork } = useNetwork();
   const isEditing = !!clock;
 
   const [clockItems, setClockItems] = useState<QueryMusicClockItem[]>(
     clock?.items || [],
   );
+
+  // Sync local state with clock prop changes (e.g., after refetch)
+  useEffect(() => {
+    if (clock?.items) {
+      setClockItems(clock.items);
+    }
+  }, [clock?.items]);
+
   const [isClockDialogOpen, setIsClockDialogOpen] = useState(false);
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [activeItem, setActiveItem] = useState<DragData | null>(null);
@@ -819,7 +826,6 @@ export const ClockEditor = ({ clock, onRefetch }: ClockEditorProps) => {
                 onItemsUpdate={saveClockItems}
                 insertionIndex={insertionIndex}
                 draggedItem={activeItem}
-                onRefetch={onRefetch}
               />
             </div>
             <FloatingBar>

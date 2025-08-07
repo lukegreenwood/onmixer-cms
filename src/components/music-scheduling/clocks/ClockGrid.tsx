@@ -115,7 +115,6 @@ interface ClockGridProps {
   onItemsUpdate: (items: ClockItem[]) => void;
   insertionIndex?: number | null;
   draggedItem?: DragData | null;
-  onRefetch?: () => void;
 }
 
 interface SortableItemProps {
@@ -350,10 +349,11 @@ export const ClockGrid = ({
   onItemsUpdate,
   insertionIndex,
   draggedItem,
-  onRefetch,
 }: ClockGridProps) => {
   // GraphQL mutations
-  const [updateLibraryItem] = useMutation(UPDATE_MUSIC_CLOCK_LIBRARY_ITEM);
+  const [updateLibraryItem] = useMutation(UPDATE_MUSIC_CLOCK_LIBRARY_ITEM, {
+    refetchQueries: ['GetMusicClock'],
+  });
 
   // Global modal state for all items
   const [noteDialogOpen, setNoteDialogOpen] = useState(false);
@@ -587,11 +587,6 @@ export const ClockGrid = ({
                 },
               });
 
-              // Refetch the clock data to get updated library item
-              if (onRefetch) {
-                onRefetch();
-              }
-
               toast('Library note updated successfully', 'success');
             } catch (error) {
               console.error('Error updating library note:', error);
@@ -616,7 +611,6 @@ export const ClockGrid = ({
       editingItem,
       isLibraryItem,
       updateLibraryItem,
-      onRefetch,
       onItemEdit,
       handleAddNoteBelow,
       handleNoteDialogClose,
@@ -649,11 +643,6 @@ export const ClockGrid = ({
                 },
               });
 
-              // Refetch the clock data to get updated library item
-              if (onRefetch) {
-                onRefetch();
-              }
-
               toast('Library commercial updated successfully', 'success');
             } catch (error) {
               console.error('Error updating library commercial:', error);
@@ -682,7 +671,6 @@ export const ClockGrid = ({
       editingItem,
       isLibraryItem,
       updateLibraryItem,
-      onRefetch,
       onItemEdit,
       handleAddCommercialBelow,
       handleCommercialDialogClose,
@@ -714,11 +702,6 @@ export const ClockGrid = ({
                 },
               });
 
-              // Refetch the clock data to get updated library item
-              if (onRefetch) {
-                onRefetch();
-              }
-
               toast('Library command updated successfully', 'success');
             } catch (error) {
               console.error('Error updating library command:', error);
@@ -741,7 +724,6 @@ export const ClockGrid = ({
       editingItem,
       isLibraryItem,
       updateLibraryItem,
-      onRefetch,
       onItemEdit,
       handleCommandDialogClose,
     ],
