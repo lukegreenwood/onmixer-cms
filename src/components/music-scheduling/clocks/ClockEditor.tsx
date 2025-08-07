@@ -126,11 +126,12 @@ type ClockFormData = z.infer<typeof clockFormSchema>;
 
 interface ClockEditorProps {
   clock?: QueryMusicClock;
+  onRefetch?: () => void;
 }
 
 export const TRASH_ID = 'library';
 
-export const ClockEditor = ({ clock }: ClockEditorProps) => {
+export const ClockEditor = ({ clock, onRefetch }: ClockEditorProps) => {
   const { currentNetwork } = useNetwork();
   const isEditing = !!clock;
 
@@ -818,6 +819,7 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
                 onItemsUpdate={saveClockItems}
                 insertionIndex={insertionIndex}
                 draggedItem={activeItem}
+                onRefetch={onRefetch}
               />
             </div>
             <FloatingBar>

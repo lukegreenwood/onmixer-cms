@@ -10,7 +10,7 @@ interface ClockEditPageProps {
 }
 
 export const ClockEditPage = ({ clockId }: ClockEditPageProps) => {
-  const { data } = useSuspenseQuery(GET_MUSIC_CLOCK, {
+  const { data, refetch } = useSuspenseQuery(GET_MUSIC_CLOCK, {
     variables: { id: clockId },
   });
 
@@ -18,5 +18,5 @@ export const ClockEditPage = ({ clockId }: ClockEditPageProps) => {
     return <div>Clock not found</div>;
   }
 
-  return <ClockEditor clock={data.musicClock} />;
+  return <ClockEditor clock={data.musicClock} onRefetch={refetch} />;
 };

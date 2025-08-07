@@ -1,5 +1,6 @@
 'use client';
 
+import { useMutation } from '@apollo/client';
 import { useDroppable } from '@dnd-kit/core';
 import {
   useSortable,
@@ -23,6 +24,8 @@ import {
   NoteIcon,
   AdIcon,
 } from '@/components/icons';
+import { UPDATE_MUSIC_CLOCK_LIBRARY_ITEM } from '@/graphql/mutations/musicClockLibraryItem';
+import { toast } from '@/lib/toast';
 
 import { formatDuration } from '../utils';
 
@@ -112,6 +115,7 @@ interface ClockGridProps {
   onItemsUpdate: (items: ClockItem[]) => void;
   insertionIndex?: number | null;
   draggedItem?: DragData | null;
+  onRefetch?: () => void;
 }
 
 interface SortableItemProps {
@@ -346,7 +350,11 @@ export const ClockGrid = ({
   onItemsUpdate,
   insertionIndex,
   draggedItem,
+  onRefetch,
 }: ClockGridProps) => {
+  // GraphQL mutations
+  const [updateLibraryItem] = useMutation(UPDATE_MUSIC_CLOCK_LIBRARY_ITEM);
+
   // Global modal state for all items
   const [noteDialogOpen, setNoteDialogOpen] = useState(false);
   const [commercialDialogOpen, setCommercialDialogOpen] = useState(false);
@@ -357,6 +365,13 @@ export const ClockGrid = ({
   const editingItem = editingItemId
     ? items.find((item) => item.id === editingItemId)
     : null;
+
+  // Helper function to check if an item is a library item
+  const isLibraryItem = useCallback((item: ClockItem) => {
+    return item.__typename === 'LibraryNoteClockItem' ||
+           item.__typename === 'LibraryAdBreakClockItem' ||
+           item.__typename === 'LibraryCommandClockItem';
+  }, []);
 
   const handleItemMoveUp = useCallback(
     (itemId: string) => {
@@ -547,12 +562,46 @@ export const ClockGrid = ({
   }, []);
 
   const handleNoteSubmit = useCallback(
-    (label: string, content: string) => {
+    async (label: string, content: string) => {
       if (editingItemId) {
-        if (isEditMode) {
-          // Edit existing item
-          const updatedItem = { ...editingItem!, label, content };
-          onItemEdit(updatedItem as QueryMusicClockItem);
+        if (isEditMode && editingItem) {
+          // Check if it's a library item
+          if (isLibraryItem(editingItem)) {
+            try {
+              // Update library item using GraphQL mutation
+              let libraryItemId: string;
+              if (editingItem.__typename === 'LibraryNoteClockItem') {
+                libraryItemId = editingItem.note?.id || '';
+              } else {
+                // This shouldn't happen for notes, but handle gracefully
+                return;
+              }
+
+              await updateLibraryItem({
+                variables: {
+                  input: {
+                    id: libraryItemId,
+                    label,
+                    content,
+                  },
+                },
+              });
+
+              // Refetch the clock data to get updated library item
+              if (onRefetch) {
+                onRefetch();
+              }
+
+              toast('Library note updated successfully', 'success');
+            } catch (error) {
+              console.error('Error updating library note:', error);
+              toast('Failed to update library note', 'error');
+            }
+          } else {
+            // Regular item - use existing logic
+            const updatedItem = { ...editingItem!, label, content };
+            onItemEdit(updatedItem as QueryMusicClockItem);
+          }
         } else {
           // Add new item below
           handleAddNoteBelow(editingItemId, label, content);
@@ -565,6 +614,9 @@ export const ClockGrid = ({
       editingItemId,
       isEditMode,
       editingItem,
+      isLibraryItem,
+      updateLibraryItem,
+      onRefetch,
       onItemEdit,
       handleAddNoteBelow,
       handleNoteDialogClose,
@@ -572,16 +624,50 @@ export const ClockGrid = ({
   );
 
   const handleCommercialSubmit = useCallback(
-    (duration: number, scheduledStartTime?: string) => {
+    async (duration: number, scheduledStartTime?: string) => {
       if (editingItemId) {
-        if (isEditMode) {
-          // Edit existing item
-          const updatedItem = {
-            ...editingItem!,
-            duration,
-            scheduledStartTime: scheduledStartTime || null,
-          };
-          onItemEdit(updatedItem as QueryMusicClockItem);
+        if (isEditMode && editingItem) {
+          // Check if it's a library item
+          if (isLibraryItem(editingItem)) {
+            try {
+              // Update library item using GraphQL mutation
+              let libraryItemId: string;
+              if (editingItem.__typename === 'LibraryAdBreakClockItem') {
+                libraryItemId = editingItem.adBreak?.id || '';
+              } else {
+                // This shouldn't happen for commercials, but handle gracefully
+                return;
+              }
+
+              await updateLibraryItem({
+                variables: {
+                  input: {
+                    id: libraryItemId,
+                    duration,
+                    scheduledStartTime: scheduledStartTime || null,
+                  },
+                },
+              });
+
+              // Refetch the clock data to get updated library item
+              if (onRefetch) {
+                onRefetch();
+              }
+
+              toast('Library commercial updated successfully', 'success');
+            } catch (error) {
+              console.error('Error updating library commercial:', error);
+              toast('Failed to update library commercial', 'error');
+            }
+          } else {
+            // Regular item - use existing logic
+            const updatedItem = {
+              ...editingItem!,
+              duration,
+              scheduledStartTime: scheduledStartTime || null,
+            };
+            onItemEdit(updatedItem as QueryMusicClockItem);
+          }
         } else {
           // Add new item below
           handleAddCommercialBelow(editingItemId, duration, scheduledStartTime);
@@ -594,6 +680,9 @@ export const ClockGrid = ({
       editingItemId,
       isEditMode,
       editingItem,
+      isLibraryItem,
+      updateLibraryItem,
+      onRefetch,
       onItemEdit,
       handleAddCommercialBelow,
       handleCommercialDialogClose,
@@ -601,12 +690,45 @@ export const ClockGrid = ({
   );
 
   const handleCommandSubmit = useCallback(
-    (command: string) => {
+    async (command: string) => {
       if (editingItemId) {
-        if (isEditMode) {
-          // Edit existing item
-          const updatedItem = { ...editingItem!, command };
-          onItemEdit(updatedItem as QueryMusicClockItem);
+        if (isEditMode && editingItem) {
+          // Check if it's a library item
+          if (isLibraryItem(editingItem)) {
+            try {
+              // Update library item using GraphQL mutation
+              let libraryItemId: string;
+              if (editingItem.__typename === 'LibraryCommandClockItem') {
+                libraryItemId = editingItem.libraryCommand?.id || '';
+              } else {
+                // This shouldn't happen for commands, but handle gracefully
+                return;
+              }
+
+              await updateLibraryItem({
+                variables: {
+                  input: {
+                    id: libraryItemId,
+                    command,
+                  },
+                },
+              });
+
+              // Refetch the clock data to get updated library item
+              if (onRefetch) {
+                onRefetch();
+              }
+
+              toast('Library command updated successfully', 'success');
+            } catch (error) {
+              console.error('Error updating library command:', error);
+              toast('Failed to update library command', 'error');
+            }
+          } else {
+            // Regular item - use existing logic
+            const updatedItem = { ...editingItem!, command };
+            onItemEdit(updatedItem as QueryMusicClockItem);
+          }
         }
         // Commands don't have "add below" functionality in this context
       }
@@ -617,6 +739,9 @@ export const ClockGrid = ({
       editingItemId,
       isEditMode,
       editingItem,
+      isLibraryItem,
+      updateLibraryItem,
+      onRefetch,
       onItemEdit,
       handleCommandDialogClose,
     ],
