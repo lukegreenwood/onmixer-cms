@@ -434,15 +434,18 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
     [createClockItemFromLibraryData, saveClockItems],
   );
 
-  const handleItemEdit = useCallback((item: QueryMusicClockItem) => {
-    // Update the item in the list
-    const updatedItems = clockItems.map(existingItem => 
-      existingItem.id === item.id ? item : existingItem
-    );
-    setClockItems(updatedItems);
-    // Save to API
-    saveClockItems(updatedItems);
-  }, [clockItems, saveClockItems]);
+  const handleItemEdit = useCallback(
+    (item: QueryMusicClockItem) => {
+      // Update the item in the list
+      const updatedItems = clockItems.map((existingItem) =>
+        existingItem.id === item.id ? item : existingItem,
+      );
+      setClockItems(updatedItems);
+      // Save to API
+      saveClockItems(updatedItems);
+    },
+    [clockItems, saveClockItems],
+  );
 
   const handleItemDelete = useCallback(
     async (itemId: string) => {
@@ -521,6 +524,7 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
       if (isEditing) {
         updateClock({
           variables: { input: { id: clock.id, ...input } },
+          refetchQueries: ['GetMusicClock'],
           onCompleted: (result) => {
             if (result.updateMusicClock.clock) {
               toast('Clock updated successfully', 'success');
@@ -751,9 +755,10 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
                   </Button>
                 </Dialog.Trigger>
                 <Dialog.Overlay />
-                <Dialog.Content className="max-w-md">
+                <Dialog.Content className="clock-editor__dialog" dismissable>
                   <Dialog.Title>Edit Clock Properties</Dialog.Title>
-                  <div className="p-4 space-y-4">
+
+                  <div className="clock-editor__dialog-content">
                     <Input
                       label="Clock Name"
                       {...form.register('name')}
@@ -764,24 +769,28 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
                       label="Description"
                       {...form.register('description')}
                       placeholder="Optional description"
-                      rows={2}
+                      rows={3}
                     />
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium mb-2">
-                          Color
-                        </label>
-                        <div className="flex gap-2">
+                    <div className="clock-editor__dialog-form-row">
+                      <div className="form-control clock-editor__dialog-color-field">
+                        <div className="form-label">
+                          <label className="form-label__label">Color</label>
+                        </div>
+                        <div className="clock-editor__dialog-color-input">
                           <input
                             type="color"
-                            {...form.register('color')}
-                            className="w-12 h-10 rounded border border-gray-300"
+                            defaultValue={clock?.color}
+                            onChange={(e) => {
+                              form.setValue('color', e.target.value);
+                              form.trigger('color');
+                            }}
+                            className="clock-editor__dialog-color-picker"
                           />
                           <Input
                             {...form.register('color')}
                             placeholder="#FF6B6B"
-                            className="flex-1"
+                            className="clock-editor__dialog-hex-input"
                           />
                         </div>
                       </div>
@@ -795,11 +804,10 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
                       />
                     </div>
 
-                    <div className="flex gap-2 pt-4">
+                    <div className="clock-editor__dialog-actions">
                       <Button
                         variant="secondary"
                         onClick={() => setIsClockDialogOpen(false)}
-                        className="flex-1"
                       >
                         Cancel
                       </Button>
@@ -807,7 +815,6 @@ export const ClockEditor = ({ clock }: ClockEditorProps) => {
                         variant="primary"
                         onClick={() => form.handleSubmit(handleClockSubmit)()}
                         disabled={updateLoading}
-                        className="flex-1"
                       >
                         Save Changes
                       </Button>

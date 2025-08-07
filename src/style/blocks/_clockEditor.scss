@@ -855,6 +855,72 @@
 }
 
 // Only stack on very small mobile screens (below sm breakpoint)
+// Clock Editor Dialog Styles
+.clock-editor__dialog {
+  &-content {
+    display: flex;
+    flex-direction: column;
+    gap: mixins.spacing(6);
+  }
+
+  &-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: mixins.spacing(6);
+  }
+
+  &-color-field {
+    display: flex;
+    flex-direction: column;
+    gap: mixins.spacing(2);
+  }
+
+  &-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: palette.$gray-900;
+  }
+
+  &-color-input {
+    display: flex;
+    gap: mixins.spacing(3);
+    align-items: center;
+  }
+
+  &-color-picker {
+    width: 42px;
+    height: 42px;
+    border-radius: sizing.$radius-md;
+    border: 1px solid palette.$gray-300;
+    cursor: pointer;
+    background: none;
+    padding: 0;
+
+    &:focus {
+      outline: 2px solid palette.$purple-500;
+      outline-offset: 2px;
+    }
+
+    &::-moz-color-swatch,
+    &::-webkit-color-swatch {
+      border: none;
+      border: none;
+    }
+  }
+
+  &-hex-input {
+    flex: 1;
+  }
+
+  &-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: mixins.spacing(3);
+    padding-top: mixins.spacing(4);
+    border-top: 1px solid palette.$gray-200;
+  }
+}
+
 @media (max-width: 639px) {
   .clock-editor {
     flex-direction: column;
@@ -889,6 +955,26 @@
       flex-direction: column;
       align-items: flex-start;
       gap: mixins.spacing(2);
+    }
+  }
+
+  // Responsive dialog styles
+  .clock-editor__dialog {
+    max-width: calc(100vw - mixins.spacing(8));
+
+    &-form-row {
+      grid-template-columns: 1fr;
+      gap: mixins.spacing(4);
+    }
+
+    &-content {
+      padding: mixins.spacing(4);
+      gap: mixins.spacing(4);
+    }
+
+    &-actions {
+      gap: mixins.spacing(2);
+      padding-top: mixins.spacing(3);
     }
   }
 }
