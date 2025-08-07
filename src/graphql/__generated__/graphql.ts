@@ -2740,6 +2740,7 @@ export type Query = {
   history: HistoryList;
   job?: Maybe<Job>;
   jobs: Array<Job>;
+  me?: Maybe<User>;
   /** ID or key of the media object */
   media: Media;
   mediaList: MediaList;
@@ -3173,6 +3174,13 @@ export enum RichContentElementType {
   List = 'LIST',
   Paragraph = 'PARAGRAPH',
   Quote = 'QUOTE'
+}
+
+export enum Role {
+  Admin = 'ADMIN',
+  Editor = 'EDITOR',
+  Guest = 'GUEST',
+  User = 'USER'
 }
 
 export enum RuleBreakable {
@@ -4197,6 +4205,20 @@ export type UpdateWeeklyOverrideInput = {
   clockId?: InputMaybe<Scalars['ID']['input']>;
   id: Scalars['ID']['input'];
   reason?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type User = {
+  __typename?: 'User';
+  email: Scalars['String']['output'];
+  firstName?: Maybe<Scalars['String']['output']>;
+  hasPassword?: Maybe<Scalars['Boolean']['output']>;
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  lastName?: Maybe<Scalars['String']['output']>;
+  permissions: Array<Scalars['String']['output']>;
+  roles: Array<Role>;
+  totpEnabled?: Maybe<Scalars['Boolean']['output']>;
+  username: Scalars['String']['output'];
 };
 
 export type YouTubeBulkSearchResult = {

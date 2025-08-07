@@ -1,4 +1,5 @@
 import { Inter } from 'next/font/google';
+import { cookies } from 'next/headers';
 import { Suspense } from 'react';
 import { Toaster } from 'sonner';
 
@@ -23,18 +24,21 @@ export const metadata: Metadata = {
   description: 'Manage your networks with ease',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const requestCookies = await cookies();
+  const cookieString = requestCookies.toString();
+
   return (
     <html lang="en">
       <head>
         <link rel="icon" href="/favicon.svg" />
       </head>
       <body className={inter.className}>
-        <ApolloWrapper>
+        <ApolloWrapper cookieString={cookieString}>
           <NetworkProvider>
             <DrawerProvider>
               <ErrorBoundary>

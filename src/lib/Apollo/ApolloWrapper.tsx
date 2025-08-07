@@ -23,9 +23,15 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
   if (networkError) console.error(`[Network error]: ${networkError}`);
 });
 
-const client = () => {
+const getMakeClient = (cookieString?: string) => () => {
   const httpLink = new HttpLink({
     uri: process.env.NEXT_PUBLIC_GRAPHQL_URL,
+    credentials: 'include',
+    headers: cookieString
+      ? {
+          Cookie: cookieString,
+        }
+      : undefined,
   });
 
   return new ApolloClient({
@@ -81,9 +87,12 @@ const client = () => {
   });
 };
 
-export function ApolloWrapper({ children }: React.PropsWithChildren) {
+export function ApolloWrapper({
+  children,
+  cookieString,
+}: React.PropsWithChildren<{ cookieString?: string }>) {
   return (
-    <ApolloNextAppProvider makeClient={client}>
+    <ApolloNextAppProvider makeClient={getMakeClient(cookieString)}>
       {children}
     </ApolloNextAppProvider>
   );
