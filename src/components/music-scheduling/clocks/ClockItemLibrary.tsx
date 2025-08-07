@@ -50,6 +50,7 @@ import { useNetwork } from '@/hooks';
 import { toast } from '@/lib/toast';
 
 import { getContrastColor } from './utils';
+import { formatTimeForDisplay } from './utils/timeFormatting';
 
 interface ClockItemLibraryProps {
   onAddItem?: (itemType: string, data: Record<string, unknown>) => void;
@@ -708,8 +709,10 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
                   itemType="library_ad_break"
                   data={dragData}
                   icon={AdIcon}
-                  title={`Ad Break`}
-                  description={`${item.duration || 180}s`}
+                  title={
+                    formatTimeForDisplay(item.scheduledStartTime) || '00:00'
+                  }
+                  description={`${item.duration || 0}s`}
                   onDelete={() => handleDeleteLibraryItem(item.id)}
                 />
               );
@@ -845,7 +848,10 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
                 itemType = 'library_ad_break';
                 dragData = {
                   libraryItemId: item.id,
-                  name: 'label' in item ? item.label : item.id,
+                  name:
+                    'scheduledStartTime' in item
+                      ? formatTimeForDisplay(item.scheduledStartTime)
+                      : item.id,
                   duration: item.duration || 180,
                   scheduledStartTime:
                     'scheduledStartTime' in item
@@ -872,6 +878,14 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
                 description = `${item.duration || 180}s`;
               }
 
+              const title =
+                type === MusicClockLibraryItemType.AdBreak &&
+                'scheduledStartTime' in item
+                  ? formatTimeForDisplay(item.scheduledStartTime) || '00:00'
+                  : 'label' in item
+                  ? item.label
+                  : item.id;
+
               return (
                 <DraggableLibraryItem
                   key={item.id as string}
@@ -879,7 +893,7 @@ export const ClockItemLibrary = ({ onAddItem }: ClockItemLibraryProps) => {
                   itemType={itemType}
                   data={dragData}
                   icon={icon}
-                  title={'label' in item ? item.label : item.id}
+                  title={title}
                   description={description}
                   onDelete={() => handleDeleteLibraryItem(item.id)}
                 />
