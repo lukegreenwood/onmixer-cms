@@ -835,9 +835,10 @@
   pointer-events: none;
 }
 
-// Modal styles for add note and add commercial dialogs
+// Modal styles for add note, add commercial, and add command dialogs
 .add-note-modal,
-.add-commercial-modal {
+.add-commercial-modal,
+.add-command-modal {
   &__content {
     display: flex;
     flex-direction: column;

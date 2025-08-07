@@ -1,9 +1,9 @@
 'use client';
 
 import { useLazyQuery, useMutation } from '@apollo/client';
-import { useDebouncedCallback } from '@tanstack/react-pacer';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
 import { Input, Button, Dialog } from '@soundwaves/components';
+import { useDebouncedCallback } from '@tanstack/react-pacer';
 import clsx from 'clsx';
 import { useState } from 'react';
 
