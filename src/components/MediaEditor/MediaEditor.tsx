@@ -122,12 +122,21 @@ export const MediaEditor = forwardRef<HTMLDivElement, MediaEditorProps>(
       [onChange],
     );
 
-    // Configure dropzone for image-only uploads
+    // Configure dropzone based on media type
+    const defaultImageTypes = {
+      'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.webp'],
+    } as const;
+    
+    const brandAssetTypes = {
+      'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.webp', '.svg'],
+      'image/svg+xml': ['.svg'],
+    } as const;
+    
+    const acceptedTypes = type === MediaType.BrandAsset ? brandAssetTypes : defaultImageTypes;
+
     const { getRootProps, getInputProps, isDragActive, isDragReject } =
       useDropzone({
-        accept: {
-          'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.webp'],
-        },
+        accept: acceptedTypes,
         multiple,
         disabled: uploading,
         onDrop: async (acceptedFiles) => {
@@ -167,11 +176,20 @@ export const MediaEditor = forwardRef<HTMLDivElement, MediaEditorProps>(
           {/* Medium image with delete on hover */}
           <div className="media-editor__existing-item media-editor__existing-item--medium">
             <div className="media-editor__existing-preview">
-              <img
-                src={currentMedia.urls.medium}
-                alt={currentMedia.key}
-                className="media-editor__existing-image"
-              />
+              {currentMedia.mimeType === 'image/svg+xml' ? (
+                <div 
+                  className="media-editor__existing-svg"
+                  dangerouslySetInnerHTML={{
+                    __html: `<object data="${currentMedia.urls.original}" type="image/svg+xml" style="width: 100%; height: 100%; object-fit: contain;"></object>`
+                  }}
+                />
+              ) : (
+                <img
+                  src={currentMedia.urls.medium}
+                  alt={currentMedia.key}
+                  className="media-editor__existing-image"
+                />
+              )}
               <div className="media-editor__existing-overlay">
                 <div className="media-editor__existing-info">
                   <div className="media-editor__existing-key">
@@ -205,11 +223,20 @@ export const MediaEditor = forwardRef<HTMLDivElement, MediaEditorProps>(
           {/* Square image */}
           <div className="media-editor__existing-item media-editor__existing-item--square">
             <div className="media-editor__existing-preview">
-              <img
-                src={currentMedia.urls.square}
-                alt={currentMedia.key}
-                className="media-editor__existing-image"
-              />
+              {currentMedia.mimeType === 'image/svg+xml' ? (
+                <div 
+                  className="media-editor__existing-svg"
+                  dangerouslySetInnerHTML={{
+                    __html: `<object data="${currentMedia.urls.original}" type="image/svg+xml" style="width: 100%; height: 100%; object-fit: contain;"></object>`
+                  }}
+                />
+              ) : (
+                <img
+                  src={currentMedia.urls.square}
+                  alt={currentMedia.key}
+                  className="media-editor__existing-image"
+                />
+              )}
             </div>
           </div>
         </div>
@@ -240,18 +267,28 @@ export const MediaEditor = forwardRef<HTMLDivElement, MediaEditorProps>(
         <p className="media-editor__upload-text">
           {isDragActive
             ? isDragReject
-              ? 'Only image files are supported'
+              ? `Only ${type === MediaType.BrandAsset ? 'image and SVG' : 'image'} files are supported`
               : 'Drop image here'
             : 'Drag image here or click to select'}
         </p>
         <p className="media-editor__upload-hint">
-          {multiple
-            ? 'Images only (JPEG, PNG, GIF, WebP) - Multiple files supported'
-            : 'Images only (JPEG, PNG, GIF, WebP) - Single file only'}
+          {type === MediaType.BrandAsset
+            ? multiple
+              ? 'Images and SVG files (JPEG, PNG, GIF, WebP, SVG) - Multiple files supported'
+              : 'Images and SVG files (JPEG, PNG, GIF, WebP, SVG) - Single file only'
+            : multiple
+              ? 'Images only (JPEG, PNG, GIF, WebP) - Multiple files supported'
+              : 'Images only (JPEG, PNG, GIF, WebP) - Single file only'
+          }
         </p>
         <div className="media-editor__upload-actions">
           <Button variant="secondary" size="sm" asChild>
-            <div>{multiple ? 'Select images' : 'Select image'}</div>
+            <div>
+              {type === MediaType.BrandAsset
+                ? multiple ? 'Select files' : 'Select file'
+                : multiple ? 'Select images' : 'Select image'
+              }
+            </div>
           </Button>
           <Button
             variant="outline"

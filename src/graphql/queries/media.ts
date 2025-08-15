@@ -12,6 +12,7 @@ export const GET_MEDIA = gql(`
         raw
       }
       urls {
+        original
         medium
         square
       }
@@ -33,6 +34,7 @@ export const SEARCH_MEDIA = gql(`
           raw
         }
         urls {
+          original
           medium
           square
         }

@@ -11,7 +11,7 @@ import { ActionBar } from '@/components/blocks/ActionBar';
 import { EntityEditForm } from '@/components/blocks/EntityEditForm';
 import { DynamicForm } from '@/components/DynamicForm/DynamicForm';
 import { SvgUploadField } from '@/components/DynamicForm/fields/SvgUploadField';
-import { Network, NetworkType } from '@/graphql/__generated__/graphql';
+import { NetworkType, MediaType } from '@/graphql/__generated__/graphql';
 import { CREATE_NETWORK } from '@/graphql/mutations/createNetwork';
 import { UPDATE_NETWORK } from '@/graphql/mutations/updateNetwork';
 import { toast } from '@/lib/toast';
@@ -22,11 +22,14 @@ const networkFormSchema = z.object({
   code: z.string().min(1, 'Code is required'),
   baseUrl: z.string().min(1, 'Base URL is required'),
   imagesUrl: z.string().min(1, 'Images URL is required'),
-  logoSvg: z.string().min(1, 'Logo SVG is required'),
+  logoMediaId: z.string().min(1, 'Logo media is required'),
+  logoIconMediaId: z.string().min(1, 'Logo icon media is required'),
+  logoSvg: z.string().optional(), // Keep for backward compatibility
   logoSvgCircular: z.string().optional(),
   logoSvgColor: z.string().optional(),
-  logoSvgIcon: z.string().min(1, 'Logo SVG Icon is required'),
+  logoSvgIcon: z.string().optional(), // Keep for backward compatibility
   networkType: z.nativeEnum(NetworkType),
+  parentId: z.string().optional(),
   tagline: z.string().optional(),
   cssUrl: z.string().optional(),
   playFormat: z.string().optional(),
@@ -36,7 +39,7 @@ const networkFormSchema = z.object({
 export type NetworkFormData = z.infer<typeof networkFormSchema>;
 
 export interface NetworkFormProps {
-  network?: Network;
+  network?: any; // Use any for now to handle GraphQL query result types
   onSubmit?: (data: NetworkFormData) => void;
   className?: string;
 }
@@ -50,13 +53,16 @@ export const NetworkForm = ({ network, onSubmit }: NetworkFormProps) => {
     ? {
         name: network.name,
         code: network.code,
-        baseUrl: network.baseUrl,
-        imagesUrl: network.imagesUrl,
-        logoSvg: network.logoSvg,
+        baseUrl: network.baseUrl || '',
+        imagesUrl: network.imagesUrl || '',
+        logoMediaId: network.logoMedia?.id || '',
+        logoIconMediaId: network.logoIconMedia?.id || '',
+        logoSvg: network.logoSvg || undefined,
         logoSvgCircular: network.logoSvgCircular || undefined,
         logoSvgColor: network.logoSvgColor || undefined,
-        logoSvgIcon: network.logoSvgIcon,
-        networkType: network.networkType,
+        logoSvgIcon: network.logoSvgIcon || undefined,
+        networkType: network.networkType || NetworkType.Station,
+        parentId: undefined, // parentId is not available in Network type yet
         tagline: network.tagline || undefined,
         cssUrl: network.cssUrl || undefined,
         playFormat: network.playFormat || undefined,
@@ -74,8 +80,8 @@ export const NetworkForm = ({ network, onSubmit }: NetworkFormProps) => {
     code: '',
     baseUrl: '',
     imagesUrl: '',
-    logoSvg: '',
-    logoSvgIcon: '',
+    logoMediaId: '',
+    logoIconMediaId: '',
     networkType: NetworkType.Station,
   };
 
@@ -85,12 +91,22 @@ export const NetworkForm = ({ network, onSubmit }: NetworkFormProps) => {
   });
 
   const handleSubmit = (data: NetworkFormData) => {
+    // Transform form data to API input format
+    const apiInput = {
+      ...data,
+      logoMediaId: data.logoMediaId || undefined,
+      logoIconMediaId: data.logoIconMediaId || undefined,
+      // Keep legacy fields for backward compatibility
+      logoSvg: data.logoSvg || '',
+      logoSvgIcon: data.logoSvgIcon || '',
+    };
+
     if (isEditing) {
       updateNetwork({
         variables: {
           input: {
             id: network.id,
-            ...data,
+            ...apiInput,
           },
         },
         onCompleted: (result) => {
@@ -111,7 +127,7 @@ export const NetworkForm = ({ network, onSubmit }: NetworkFormProps) => {
     } else {
       createNetwork({
         variables: {
-          input: data,
+          input: apiInput,
         },
         onCompleted: (result) => {
           if (result.createNetwork.success) {
@@ -175,6 +191,13 @@ export const NetworkForm = ({ network, onSubmit }: NetworkFormProps) => {
       required: true,
     },
     {
+      name: 'parentId' as const,
+      component: 'networkSelector' as const,
+      label: 'Parent Network',
+      placeholder: 'Select parent network (optional)',
+      multiple: false,
+    },
+    {
       name: 'tagline' as const,
       component: 'text' as const,
       label: 'Tagline',
@@ -210,31 +233,40 @@ export const NetworkForm = ({ network, onSubmit }: NetworkFormProps) => {
             startSection={[
               <DynamicForm key="fields" fields={fields} />,
               <div
-                key="svg-uploads"
+                key="media-uploads"
                 className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6"
               >
-                <SvgUploadField
-                  name="logoSvg"
-                  label="Logo SVG"
-                  required
-                  helperText="Upload the main logo SVG"
+                <DynamicForm 
+                  key="logo-media"
+                  fields={[
+                    {
+                      name: 'logoMediaId' as const,
+                      component: 'mediaEditor' as const,
+                      label: 'Logo',
+                      type: MediaType.BrandAsset,
+                      multiple: false,
+                    },
+                    {
+                      name: 'logoIconMediaId' as const,
+                      component: 'mediaEditor' as const,
+                      label: 'Logo Icon',
+                      type: MediaType.BrandAsset,
+                      multiple: false,
+                    },
+                  ]}
                 />
-                <SvgUploadField
-                  name="logoSvgIcon"
-                  label="Logo SVG Icon"
-                  required
-                  helperText="Upload the icon version of the logo SVG"
-                />
-                <SvgUploadField
-                  name="logoSvgCircular"
-                  label="Circular Logo SVG"
-                  helperText="Upload a circular version of the logo (optional)"
-                />
-                <SvgUploadField
-                  name="logoSvgColor"
-                  label="Color Logo SVG"
-                  helperText="Upload a color version of the logo (optional)"
-                />
+                <div className="grid grid-cols-1 gap-6">
+                  <SvgUploadField
+                    name="logoSvgCircular"
+                    label="Circular Logo SVG (Legacy)"
+                    helperText="Upload a circular version of the logo (optional, legacy field)"
+                  />
+                  <SvgUploadField
+                    name="logoSvgColor"
+                    label="Color Logo SVG (Legacy)"
+                    helperText="Upload a color version of the logo (optional, legacy field)"
+                  />
+                </div>
               </div>,
             ]}
             endSection={<div />}

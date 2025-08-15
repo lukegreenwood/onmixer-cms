@@ -4,11 +4,11 @@ import { useSuspenseQuery } from '@apollo/client';
 import { useParams, usePathname } from 'next/navigation';
 import { createContext } from 'react';
 
-import { Network } from '@/graphql/__generated__/graphql';
+import { GetNetworkQuery } from '@/graphql/__generated__/graphql';
 import { GET_NETWORKS } from '@/graphql/queries/networks';
 
 interface NetworkContextType {
-  currentNetwork: Network | null;
+  currentNetwork: GetNetworkQuery['network'] | null;
   isNetworkRoute: boolean;
 }
 
@@ -25,9 +25,8 @@ export function NetworkProvider({ children }: { children: React.ReactNode }) {
 
   const { data: networksData } = useSuspenseQuery(GET_NETWORKS);
 
-  const currentNetwork = networksData?.networks?.find(
-    n => n.code === networkCode
-  ) ?? null;
+  const currentNetwork =
+    networksData?.networks?.find((n) => n.code === networkCode) ?? null;
 
   return (
     <NetworkContext.Provider

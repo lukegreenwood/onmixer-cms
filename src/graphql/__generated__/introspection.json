@@ -1,5 +1,33 @@
 {
   "possibleTypes": {
+    "Block": [
+      "ArticleBlock",
+      "FeaturedEpisodesBlock",
+      "FeaturedNetworksBlock",
+      "FeaturedPresentersBlock",
+      "FeaturedShowsBlock",
+      "FeaturedSubcategoriesBlock",
+      "FeaturedTracksBlock",
+      "ImageBlock",
+      "MediaBlock",
+      "RecentArticlesBlock",
+      "RecommendationsBlock",
+      "RichContentBlock"
+    ],
+    "BlockBase": [
+      "ArticleBlock",
+      "FeaturedEpisodesBlock",
+      "FeaturedNetworksBlock",
+      "FeaturedPresentersBlock",
+      "FeaturedShowsBlock",
+      "FeaturedSubcategoriesBlock",
+      "FeaturedTracksBlock",
+      "ImageBlock",
+      "MediaBlock",
+      "RecentArticlesBlock",
+      "RecommendationsBlock",
+      "RichContentBlock"
+    ],
     "ClockItemInterface": [
       "AdBreakClockItem",
       "CommandClockItem",
@@ -17,6 +45,7 @@
       "GenreList",
       "HistoryList",
       "MediaList",
+      "NetworkList",
       "PresenterList",
       "ScheduleList",
       "SeriesList",

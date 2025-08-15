@@ -74,6 +74,34 @@ export type ApplyDefaultScheduleInput = {
   defaultSchedule: Scalars['ID']['input'];
 };
 
+export type Article = {
+  __typename?: 'Article';
+  content: Scalars['String']['output'];
+  date: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  network: Network;
+  tags?: Maybe<Array<Scalars['String']['output']>>;
+  title: Scalars['String']['output'];
+  type?: Maybe<Scalars['String']['output']>;
+};
+
+export type ArticleBlock = BlockBase & {
+  __typename?: 'ArticleBlock';
+  article: Article;
+  createdAt: Scalars['DateTime']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  network: Network;
+  networkId: Scalars['ID']['output'];
+  page: Page;
+  pageId: Scalars['ID']['output'];
+  shortId: Scalars['String']['output'];
+  sortOrder: Scalars['Int']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
 export type AssignClockToTemplateInput = {
   clockId: Scalars['ID']['input'];
   dayOfWeek: Scalars['Int']['input'];
@@ -94,9 +122,10 @@ export type AssignMusicClockInput = {
   templateId: Scalars['ID']['input'];
 };
 
-export type Block = {
-  __typename?: 'Block';
-  config: Scalars['JSON']['output'];
+export type Block = ArticleBlock | FeaturedEpisodesBlock | FeaturedNetworksBlock | FeaturedPresentersBlock | FeaturedShowsBlock | FeaturedSubcategoriesBlock | FeaturedTracksBlock | ImageBlock | MediaBlock | RecentArticlesBlock | RecommendationsBlock | RichContentBlock;
+
+/** Common fields shared by all blocks */
+export type BlockBase = {
   createdAt: Scalars['DateTime']['output'];
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
@@ -108,7 +137,6 @@ export type Block = {
   pageId: Scalars['ID']['output'];
   shortId: Scalars['String']['output'];
   sortOrder: Scalars['Int']['output'];
-  type: BlockType;
   updatedAt: Scalars['DateTime']['output'];
 };
 
@@ -120,11 +148,18 @@ export type BlockMutationOutput = {
 };
 
 export enum BlockType {
+  Article = 'ARTICLE',
   FeaturedEpisodes = 'FEATURED_EPISODES',
+  FeaturedNetworks = 'FEATURED_NETWORKS',
+  FeaturedPresenters = 'FEATURED_PRESENTERS',
   FeaturedShows = 'FEATURED_SHOWS',
+  FeaturedSubcategories = 'FEATURED_SUBCATEGORIES',
+  FeaturedTracks = 'FEATURED_TRACKS',
   Image = 'IMAGE',
   ListenToNext = 'LISTEN_TO_NEXT',
+  Media = 'MEDIA',
   RecentArticles = 'RECENT_ARTICLES',
+  Recommendations = 'RECOMMENDATIONS',
   RichContent = 'RICH_CONTENT'
 }
 
@@ -387,19 +422,26 @@ export type CreateNetworkInput = {
   baseUrl: Scalars['String']['input'];
   code: Scalars['String']['input'];
   imagesUrl: Scalars['String']['input'];
+  isPremium?: InputMaybe<Scalars['Boolean']['input']>;
+  logoIconMediaId?: InputMaybe<Scalars['ID']['input']>;
+  logoMediaId?: InputMaybe<Scalars['ID']['input']>;
   logoSvg: Scalars['String']['input'];
   logoSvgCircular?: InputMaybe<Scalars['String']['input']>;
   logoSvgColor?: InputMaybe<Scalars['String']['input']>;
   logoSvgIcon: Scalars['String']['input'];
   name: Scalars['String']['input'];
   networkType?: InputMaybe<NetworkType>;
+  parentId?: InputMaybe<Scalars['ID']['input']>;
   tagline?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type CreatePageInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  isInNavigation?: InputMaybe<Scalars['Boolean']['input']>;
+  kind?: InputMaybe<PageKind>;
   metaData?: InputMaybe<Scalars['JSON']['input']>;
+  navOrder?: InputMaybe<Scalars['Int']['input']>;
   networkId: Scalars['ID']['input'];
   slug: Scalars['String']['input'];
   title: Scalars['String']['input'];
@@ -884,12 +926,148 @@ export type ExportOutput = {
   success: Scalars['Boolean']['output'];
 };
 
+/** Featured episodes via curated IDs or filters */
+export type FeaturedEpisodesBlock = BlockBase & {
+  __typename?: 'FeaturedEpisodesBlock';
+  createdAt: Scalars['DateTime']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  items: Array<Episode>;
+  name: Scalars['String']['output'];
+  network: Network;
+  networkId: Scalars['ID']['output'];
+  page: Page;
+  pageId: Scalars['ID']['output'];
+  shortId: Scalars['String']['output'];
+  sortOrder: Scalars['Int']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+
+/** Featured episodes via curated IDs or filters */
+export type FeaturedEpisodesBlockItemsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+};
+
 export type FeaturedEpisodesConfigInput = {
   episode_ids: Array<Scalars['Int']['input']>;
 };
 
+export type FeaturedNetworksBlock = BlockBase & {
+  __typename?: 'FeaturedNetworksBlock';
+  createdAt: Scalars['DateTime']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  items: Array<Network>;
+  name: Scalars['String']['output'];
+  network: Network;
+  networkId: Scalars['ID']['output'];
+  page: Page;
+  pageId: Scalars['ID']['output'];
+  shortId: Scalars['String']['output'];
+  sortOrder: Scalars['Int']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+
+export type FeaturedNetworksBlockItemsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type FeaturedPresentersBlock = BlockBase & {
+  __typename?: 'FeaturedPresentersBlock';
+  createdAt: Scalars['DateTime']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  items: Array<Presenter>;
+  name: Scalars['String']['output'];
+  network: Network;
+  networkId: Scalars['ID']['output'];
+  page: Page;
+  pageId: Scalars['ID']['output'];
+  shortId: Scalars['String']['output'];
+  sortOrder: Scalars['Int']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+
+export type FeaturedPresentersBlockItemsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** Featured shows via curated IDs or filters */
+export type FeaturedShowsBlock = BlockBase & {
+  __typename?: 'FeaturedShowsBlock';
+  createdAt: Scalars['DateTime']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  items: Array<Show>;
+  name: Scalars['String']['output'];
+  network: Network;
+  networkId: Scalars['ID']['output'];
+  page: Page;
+  pageId: Scalars['ID']['output'];
+  shortId: Scalars['String']['output'];
+  sortOrder: Scalars['Int']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+
+/** Featured shows via curated IDs or filters */
+export type FeaturedShowsBlockItemsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+};
+
 export type FeaturedShowsConfigInput = {
   show_ids: Array<Scalars['Int']['input']>;
+};
+
+export type FeaturedSubcategoriesBlock = BlockBase & {
+  __typename?: 'FeaturedSubcategoriesBlock';
+  createdAt: Scalars['DateTime']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  items: Array<Subcategory>;
+  name: Scalars['String']['output'];
+  network: Network;
+  networkId: Scalars['ID']['output'];
+  page: Page;
+  pageId: Scalars['ID']['output'];
+  shortId: Scalars['String']['output'];
+  sortOrder: Scalars['Int']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+
+export type FeaturedSubcategoriesBlockItemsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type FeaturedTracksBlock = BlockBase & {
+  __typename?: 'FeaturedTracksBlock';
+  createdAt: Scalars['DateTime']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  items: Array<Track>;
+  name: Scalars['String']['output'];
+  network: Network;
+  networkId: Scalars['ID']['output'];
+  page: Page;
+  pageId: Scalars['ID']['output'];
+  shortId: Scalars['String']['output'];
+  sortOrder: Scalars['Int']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+
+export type FeaturedTracksBlockItemsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export enum FilterType {
@@ -1054,6 +1232,25 @@ export enum HistoryOrderField {
   Title = 'title'
 }
 
+export type ImageBlock = BlockBase & {
+  __typename?: 'ImageBlock';
+  altText?: Maybe<Scalars['String']['output']>;
+  caption?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  image: Media;
+  isActive: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  network: Network;
+  networkId: Scalars['ID']['output'];
+  page: Page;
+  pageId: Scalars['ID']['output'];
+  shortId: Scalars['String']['output'];
+  sortOrder: Scalars['Int']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
 export type ImageConfigInput = {
   alt_text: Scalars['String']['input'];
   caption?: InputMaybe<Scalars['String']['input']>;
@@ -1141,11 +1338,6 @@ export type LibraryNoteClockItem = ClockItemInterface & {
   updatedAt: Scalars['DateTime']['output'];
 };
 
-export enum ListType {
-  Ordered = 'ORDERED',
-  Unordered = 'UNORDERED'
-}
-
 export type ListenToNextConfigInput = {
   placeholder: Scalars['String']['input'];
 };
@@ -1160,6 +1352,28 @@ export type Media = {
   type: MediaType;
   updatedAt: Scalars['DateTime']['output'];
   urls: MediaUrls;
+};
+
+export type MediaBlock = BlockBase & {
+  __typename?: 'MediaBlock';
+  createdAt: Scalars['DateTime']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  media: Array<Media>;
+  name: Scalars['String']['output'];
+  network: Network;
+  networkId: Scalars['ID']['output'];
+  page: Page;
+  pageId: Scalars['ID']['output'];
+  shortId: Scalars['String']['output'];
+  sortOrder: Scalars['Int']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+
+export type MediaBlockMediaArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type MediaBooleanFilter = {
@@ -1307,6 +1521,7 @@ export enum MediaTextFilterField {
 
 export enum MediaType {
   ArticleImage = 'ARTICLE_IMAGE',
+  BrandAsset = 'BRAND_ASSET',
   FeaturedImage = 'FEATURED_IMAGE',
   General = 'GENERAL',
   Presenter = 'PRESENTER',
@@ -2431,6 +2646,25 @@ export type MutationUpdateWeeklyOverrideArgs = {
   input: UpdateWeeklyOverrideInput;
 };
 
+export type NavigationItem = {
+  __typename?: 'NavigationItem';
+  children: Array<NavigationItem>;
+  href?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  kind: NavigationItemKind;
+  label: Scalars['String']['output'];
+  page?: Maybe<Page>;
+  staticCorePage?: Maybe<StaticCorePage>;
+};
+
+/** Kinds of navigation entries */
+export enum NavigationItemKind {
+  Group = 'GROUP',
+  Page = 'PAGE',
+  Special = 'SPECIAL',
+  StaticCore = 'STATIC_CORE'
+}
+
 export type Network = {
   __typename?: 'Network';
   baseUrl: Scalars['String']['output'];
@@ -2439,20 +2673,115 @@ export type Network = {
   cssUrl?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   imagesUrl: Scalars['String']['output'];
+  /** Whether this network is premium */
+  isPremium: Scalars['Boolean']['output'];
+  /** Icon version of logo media asset for the network */
+  logoIconMedia?: Maybe<Media>;
+  /** Logo media asset for the network */
+  logoMedia?: Maybe<Media>;
   logoSvg: Scalars['String']['output'];
   logoSvgCircular?: Maybe<Scalars['String']['output']>;
   logoSvgColor?: Maybe<Scalars['String']['output']>;
   logoSvgIcon: Scalars['String']['output'];
   name: Scalars['String']['output'];
+  /** Primary site navigation for this network */
+  navigation: Array<NavigationItem>;
   /** Type of network */
   networkType: NetworkType;
   /** Format of the live streaming audio as type */
   playFormat?: Maybe<Scalars['String']['output']>;
   /** Url to the live streaming audio for the site */
   playUrl?: Maybe<Scalars['String']['output']>;
+  /** Related networks (siblings with same parent network) */
+  relatedNetworks: NetworkList;
   shortId: Scalars['String']['output'];
   tagline?: Maybe<Scalars['String']['output']>;
 };
+
+
+export type NetworkNavigationArgs = {
+  includeCore?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type NetworkRelatedNetworksArgs = {
+  filters?: InputMaybe<NetworkListInputV2>;
+};
+
+export type NetworkBooleanFilter = {
+  field: NetworkBooleanFilterField;
+  operator: BooleanFilterOperator;
+  value: Scalars['Boolean']['input'];
+};
+
+export enum NetworkBooleanFilterField {
+  IsParentNetwork = 'isParentNetwork',
+  NonBroadcast = 'nonBroadcast'
+}
+
+export type NetworkDateFilter = {
+  field: NetworkDateFilterField;
+  operator: DateFilterOperator;
+  value?: InputMaybe<Scalars['DateTime']['input']>;
+  values?: InputMaybe<Array<Scalars['DateTime']['input']>>;
+};
+
+export enum NetworkDateFilterField {
+  CreatedAt = 'createdAt',
+  UpdatedAt = 'updatedAt'
+}
+
+export type NetworkFilterGroup = {
+  filters?: InputMaybe<Array<NetworkFilterInput>>;
+  groups?: InputMaybe<Array<NetworkFilterGroup>>;
+  operator: OperatorType;
+};
+
+export type NetworkFilterInput = {
+  booleanFilter?: InputMaybe<NetworkBooleanFilter>;
+  dateFilter?: InputMaybe<NetworkDateFilter>;
+  multiOptionFilter?: InputMaybe<NetworkMultiOptionFilter>;
+  numberFilter?: InputMaybe<NetworkNumberFilter>;
+  optionFilter?: InputMaybe<NetworkOptionFilter>;
+  textFilter?: InputMaybe<NetworkTextFilter>;
+  type: NetworkFilterType;
+};
+
+export enum NetworkFilterType {
+  Boolean = 'BOOLEAN',
+  Date = 'DATE',
+  MultiOption = 'MULTI_OPTION',
+  Number = 'NUMBER',
+  Option = 'OPTION',
+  Text = 'TEXT'
+}
+
+export type NetworkList = ItemList & {
+  __typename?: 'NetworkList';
+  items: Array<Network>;
+  total: Scalars['Int']['output'];
+};
+
+export type NetworkListInputV2 = {
+  filterGroup?: InputMaybe<NetworkFilterGroup>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order?: InputMaybe<Array<NetworkOrder>>;
+};
+
+export type NetworkMultiOptionFilter = {
+  field: NetworkMultiOptionFilterField;
+  operator: MultiOptionFilterOperator;
+  values: Array<Scalars['ID']['input']>;
+};
+
+export enum NetworkMultiOptionFilterField {
+  Episodes = 'episodes',
+  NetworkType = 'networkType',
+  Presenters = 'presenters',
+  Series = 'series',
+  Shows = 'shows'
+}
 
 export type NetworkMutationOutput = {
   __typename?: 'NetworkMutationOutput';
@@ -2460,6 +2789,59 @@ export type NetworkMutationOutput = {
   network?: Maybe<Network>;
   success: Scalars['Boolean']['output'];
 };
+
+export type NetworkNumberFilter = {
+  field: NetworkNumberFilterField;
+  operator: NumberFilterOperator;
+  value?: InputMaybe<Scalars['Int']['input']>;
+  values?: InputMaybe<Array<Scalars['Int']['input']>>;
+};
+
+export enum NetworkNumberFilterField {
+  NoFieldsAvailable = '_NO_FIELDS_AVAILABLE'
+}
+
+export type NetworkOptionFilter = {
+  field: NetworkOptionFilterField;
+  operator: OptionFilterOperator;
+  value?: InputMaybe<Scalars['String']['input']>;
+  values?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+export enum NetworkOptionFilterField {
+  Code = 'code',
+  Id = 'id',
+  NetworkType = 'networkType',
+  NonBroadcast = 'nonBroadcast'
+}
+
+export type NetworkOrder = {
+  direction: OrderDirection;
+  field: NetworkOrderField;
+};
+
+export enum NetworkOrderField {
+  Code = 'code',
+  CreatedAt = 'createdAt',
+  Id = 'id',
+  Name = 'name',
+  UpdatedAt = 'updatedAt'
+}
+
+export type NetworkTextFilter = {
+  field: NetworkTextFilterField;
+  operator: TextFilterOperator;
+  value: Scalars['String']['input'];
+};
+
+export enum NetworkTextFilterField {
+  BaseUrl = 'baseUrl',
+  Code = 'code',
+  ImagesUrl = 'imagesUrl',
+  Name = 'name',
+  ShortId = 'shortId',
+  Tagline = 'tagline'
+}
 
 export enum NetworkType {
   Internal = 'INTERNAL',
@@ -2515,7 +2897,11 @@ export type Page = {
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   isActive: Scalars['Boolean']['output'];
+  isInNavigation: Scalars['Boolean']['output'];
+  /** How the frontend should render this page */
+  kind: PageKind;
   metaData?: Maybe<Scalars['JSON']['output']>;
+  navOrder: Scalars['Int']['output'];
   network: Network;
   networkId: Scalars['ID']['output'];
   shortId: Scalars['String']['output'];
@@ -2523,6 +2909,14 @@ export type Page = {
   title: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
 };
+
+/** Rendering mode of a page */
+export enum PageKind {
+  Dynamic = 'DYNAMIC',
+  Hybrid = 'HYBRID',
+  Special = 'SPECIAL',
+  StaticCore = 'STATIC_CORE'
+}
 
 export type PageMutationOutput = {
   __typename?: 'PageMutationOutput';
@@ -2760,6 +3154,7 @@ export type Query = {
   musicbrainzRecording?: Maybe<MusicBrainzSearchResult>;
   network: Network;
   networks: Array<Network>;
+  networksV2: NetworkList;
   /** Get the current on air programme for a network */
   onairProgramme?: Maybe<ScheduleItem>;
   page?: Maybe<Page>;
@@ -2953,6 +3348,11 @@ export type QueryNetworkArgs = {
 };
 
 
+export type QueryNetworksV2Args = {
+  filters?: InputMaybe<NetworkListInputV2>;
+};
+
+
 export type QueryOnairProgrammeArgs = {
   networkId: Scalars['ID']['input'];
 };
@@ -3117,6 +3517,28 @@ export type RadioDjPlaylistMutationOutput = {
   success: Scalars['Boolean']['output'];
 };
 
+export type RecentArticlesBlock = BlockBase & {
+  __typename?: 'RecentArticlesBlock';
+  createdAt: Scalars['DateTime']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  items: Array<Article>;
+  name: Scalars['String']['output'];
+  network: Network;
+  networkId: Scalars['ID']['output'];
+  page: Page;
+  pageId: Scalars['ID']['output'];
+  shortId: Scalars['String']['output'];
+  sortOrder: Scalars['Int']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+
+export type RecentArticlesBlockItemsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+};
+
 export type RecentArticlesConfigInput = {
   filters: RecentArticlesFilterInput;
   limit: Scalars['Int']['input'];
@@ -3126,6 +3548,28 @@ export type RecentArticlesFilterInput = {
   categories?: InputMaybe<Array<Scalars['String']['input']>>;
   manual_selection?: InputMaybe<Array<Scalars['Int']['input']>>;
   tags?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+export type RecommendationsBlock = BlockBase & {
+  __typename?: 'RecommendationsBlock';
+  createdAt: Scalars['DateTime']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  items: Array<Episode>;
+  name: Scalars['String']['output'];
+  network: Network;
+  networkId: Scalars['ID']['output'];
+  page: Page;
+  pageId: Scalars['ID']['output'];
+  shortId: Scalars['String']['output'];
+  sortOrder: Scalars['Int']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+
+export type RecommendationsBlockItemsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type Request = {
@@ -3139,41 +3583,66 @@ export type Request = {
   username: Scalars['String']['output'];
 };
 
+/** A rich content block with advanced, nested elements */
+export type RichContentBlock = BlockBase & {
+  __typename?: 'RichContentBlock';
+  createdAt: Scalars['DateTime']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  network: Network;
+  networkId: Scalars['ID']['output'];
+  nodes: Array<RichNode>;
+  page: Page;
+  pageId: Scalars['ID']['output'];
+  shortId: Scalars['String']['output'];
+  sortOrder: Scalars['Int']['output'];
+  title?: Maybe<Scalars['String']['output']>;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+/** Rich content creation input (stored in JSON config) */
 export type RichContentConfigInput = {
-  elements: Array<RichContentElementInput>;
+  nodes: Array<Scalars['JSON']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type RichContentElement = {
-  __typename?: 'RichContentElement';
-  altText?: Maybe<Scalars['String']['output']>;
-  author?: Maybe<Scalars['String']['output']>;
-  content?: Maybe<Scalars['String']['output']>;
-  imageId?: Maybe<Scalars['Int']['output']>;
-  items?: Maybe<Array<Scalars['String']['output']>>;
+/** Advanced rich content schema (recursive) */
+export type RichNode = {
+  __typename?: 'RichNode';
+  attrs?: Maybe<Scalars['JSON']['output']>;
+  children?: Maybe<Array<RichNode>>;
+  episode?: Maybe<Episode>;
   level?: Maybe<Scalars['Int']['output']>;
-  listType?: Maybe<ListType>;
-  type: RichContentElementType;
+  media?: Maybe<Media>;
+  network?: Maybe<Network>;
+  presenter?: Maybe<Presenter>;
+  show?: Maybe<Show>;
+  text?: Maybe<Scalars['String']['output']>;
+  track?: Maybe<Track>;
+  type: RichNodeType;
 };
 
-export type RichContentElementInput = {
-  altText?: InputMaybe<Scalars['String']['input']>;
-  author?: InputMaybe<Scalars['String']['input']>;
-  content?: InputMaybe<Scalars['String']['input']>;
-  imageId?: InputMaybe<Scalars['Int']['input']>;
-  items?: InputMaybe<Array<Scalars['String']['input']>>;
-  level?: InputMaybe<Scalars['Int']['input']>;
-  listType?: InputMaybe<ListType>;
-  type: RichContentElementType;
-};
-
-export enum RichContentElementType {
+export enum RichNodeType {
+  Column = 'COLUMN',
   Divider = 'DIVIDER',
+  FeaturedEpisode = 'FEATURED_EPISODE',
+  FeaturedNetwork = 'FEATURED_NETWORK',
+  FeaturedPresenter = 'FEATURED_PRESENTER',
+  FeaturedShow = 'FEATURED_SHOW',
+  FeaturedTrack = 'FEATURED_TRACK',
   Heading = 'HEADING',
   Image = 'IMAGE',
   List = 'LIST',
+  ListItem = 'LIST_ITEM',
+  Media = 'MEDIA',
   Paragraph = 'PARAGRAPH',
-  Quote = 'QUOTE'
+  Quote = 'QUOTE',
+  Row = 'ROW',
+  Table = 'TABLE',
+  TableCell = 'TABLE_CELL',
+  TableRow = 'TABLE_ROW'
 }
 
 export enum Role {
@@ -3665,6 +4134,14 @@ export type StartMusicSchedulingJobInput = {
   startDate: Scalars['Date']['input'];
 };
 
+/** Static core routes provided by the frontend app */
+export enum StaticCorePage {
+  Presenters = 'PRESENTERS',
+  RecentlyPlayed = 'RECENTLY_PLAYED',
+  Schedule = 'SCHEDULE',
+  Shows = 'SHOWS'
+}
+
 export type Subcategory = {
   __typename?: 'Subcategory';
   averageDuration?: Maybe<TrackDuration>;
@@ -4099,12 +4576,16 @@ export type UpdateNetworkInput = {
   code?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
   imagesUrl?: InputMaybe<Scalars['String']['input']>;
+  isPremium?: InputMaybe<Scalars['Boolean']['input']>;
+  logoIconMediaId?: InputMaybe<Scalars['ID']['input']>;
+  logoMediaId?: InputMaybe<Scalars['ID']['input']>;
   logoSvg?: InputMaybe<Scalars['String']['input']>;
   logoSvgCircular?: InputMaybe<Scalars['String']['input']>;
   logoSvgColor?: InputMaybe<Scalars['String']['input']>;
   logoSvgIcon?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   networkType?: InputMaybe<NetworkType>;
+  parentId?: InputMaybe<Scalars['ID']['input']>;
   tagline?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -4112,7 +4593,10 @@ export type UpdatePageInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  isInNavigation?: InputMaybe<Scalars['Boolean']['input']>;
+  kind?: InputMaybe<PageKind>;
   metaData?: InputMaybe<Scalars['JSON']['input']>;
+  navOrder?: InputMaybe<Scalars['Int']['input']>;
   slug?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
 };
@@ -4658,14 +5142,14 @@ export type GetMediaQueryVariables = Exact<{
 }>;
 
 
-export type GetMediaQuery = { __typename?: 'Query', media: { __typename?: 'Media', id: string, key: string, type: MediaType, mimeType: string, fileSize?: { __typename?: 'MediaFileSize', label: string, raw: number } | null, urls: { __typename?: 'MediaUrls', medium: string, square: string } } };
+export type GetMediaQuery = { __typename?: 'Query', media: { __typename?: 'Media', id: string, key: string, type: MediaType, mimeType: string, fileSize?: { __typename?: 'MediaFileSize', label: string, raw: number } | null, urls: { __typename?: 'MediaUrls', original: string, medium: string, square: string } } };
 
 export type SearchMediaQueryVariables = Exact<{
   filters?: InputMaybe<MediaListInput>;
 }>;
 
 
-export type SearchMediaQuery = { __typename?: 'Query', mediaList: { __typename?: 'MediaList', total: number, items: Array<{ __typename?: 'Media', id: string, key: string, type: MediaType, mimeType: string, fileSize?: { __typename?: 'MediaFileSize', label: string, raw: number } | null, urls: { __typename?: 'MediaUrls', medium: string, square: string } }> } };
+export type SearchMediaQuery = { __typename?: 'Query', mediaList: { __typename?: 'MediaList', total: number, items: Array<{ __typename?: 'Media', id: string, key: string, type: MediaType, mimeType: string, fileSize?: { __typename?: 'MediaFileSize', label: string, raw: number } | null, urls: { __typename?: 'MediaUrls', original: string, medium: string, square: string } }> } };
 
 export type GetMusicClockAssignmentsQueryVariables = Exact<{
   networkId: Scalars['ID']['input'];
@@ -4724,14 +5208,14 @@ export type GetMusicRuleQuery = { __typename?: 'Query', musicRule?: { __typename
 export type GetNetworksQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetNetworksQuery = { __typename?: 'Query', networks: Array<{ __typename?: 'Network', id: string, name: string, code: string, baseUrl: string, imagesUrl: string, logoSvg: string, logoSvgCircular?: string | null, logoSvgColor?: string | null, logoSvgIcon: string, networkType: NetworkType, tagline?: string | null, cssUrl?: string | null, playFormat?: string | null, playUrl?: string | null, shortId: string }> };
+export type GetNetworksQuery = { __typename?: 'Query', networks: Array<{ __typename?: 'Network', id: string, name: string, code: string, baseUrl: string, imagesUrl: string, logoSvg: string, logoSvgCircular?: string | null, logoSvgColor?: string | null, logoSvgIcon: string, networkType: NetworkType, tagline?: string | null, cssUrl?: string | null, playFormat?: string | null, playUrl?: string | null, shortId: string, logoMedia?: { __typename?: 'Media', id: string, key: string, mimeType: string, type: MediaType, urls: { __typename?: 'MediaUrls', original: string, medium: string, square: string }, fileSize?: { __typename?: 'MediaFileSize', label: string } | null } | null, logoIconMedia?: { __typename?: 'Media', id: string, key: string, mimeType: string, type: MediaType, urls: { __typename?: 'MediaUrls', original: string, medium: string, square: string }, fileSize?: { __typename?: 'MediaFileSize', label: string } | null } | null }> };
 
 export type GetNetworkQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetNetworkQuery = { __typename?: 'Query', network: { __typename?: 'Network', id: string, name: string, code: string, baseUrl: string, imagesUrl: string, logoSvg: string, logoSvgCircular?: string | null, logoSvgColor?: string | null, logoSvgIcon: string, networkType: NetworkType, tagline?: string | null, cssUrl?: string | null, playFormat?: string | null, playUrl?: string | null, shortId: string } };
+export type GetNetworkQuery = { __typename?: 'Query', network: { __typename?: 'Network', id: string, name: string, code: string, baseUrl: string, imagesUrl: string, logoSvg: string, logoSvgCircular?: string | null, logoSvgColor?: string | null, logoSvgIcon: string, networkType: NetworkType, tagline?: string | null, cssUrl?: string | null, playFormat?: string | null, playUrl?: string | null, shortId: string, logoMedia?: { __typename?: 'Media', id: string, key: string, mimeType: string, type: MediaType, urls: { __typename?: 'MediaUrls', original: string, medium: string, square: string }, fileSize?: { __typename?: 'MediaFileSize', label: string } | null } | null, logoIconMedia?: { __typename?: 'Media', id: string, key: string, mimeType: string, type: MediaType, urls: { __typename?: 'MediaUrls', original: string, medium: string, square: string }, fileSize?: { __typename?: 'MediaFileSize', label: string } | null } | null } };
 
 export type GetPresentersQueryVariables = Exact<{
   filters?: InputMaybe<PresenterListInputV2>;
@@ -4902,8 +5386,8 @@ export const GetEpisodeDetailsDocument = {"kind":"Document","definitions":[{"kin
 export const GetGenresDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetGenres"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filters"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"GenreListInputV2"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"genresV2"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filters"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}}]} as unknown as DocumentNode<GetGenresQuery, GetGenresQueryVariables>;
 export const GetJobsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetJobs"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"status"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"JobStatus"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"type"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"JobType"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"jobs"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}},{"kind":"Argument","name":{"kind":"Name","value":"status"},"value":{"kind":"Variable","name":{"kind":"Name","value":"status"}}},{"kind":"Argument","name":{"kind":"Name","value":"type"},"value":{"kind":"Variable","name":{"kind":"Name","value":"type"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"sourceUrl"}},{"kind":"Field","name":{"kind":"Name","value":"searchQuery"}},{"kind":"Field","name":{"kind":"Name","value":"progress"}},{"kind":"Field","name":{"kind":"Name","value":"errorMessage"}},{"kind":"Field","name":{"kind":"Name","value":"songId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"completedAt"}}]}}]}}]} as unknown as DocumentNode<GetJobsQuery, GetJobsQueryVariables>;
 export const GetJobDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetJob"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"job"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"sourceUrl"}},{"kind":"Field","name":{"kind":"Name","value":"searchQuery"}},{"kind":"Field","name":{"kind":"Name","value":"progress"}},{"kind":"Field","name":{"kind":"Name","value":"errorMessage"}},{"kind":"Field","name":{"kind":"Name","value":"songId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"completedAt"}}]}}]}}]} as unknown as DocumentNode<GetJobQuery, GetJobQueryVariables>;
-export const GetMediaDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetMedia"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"media"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"key"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"mimeType"}},{"kind":"Field","name":{"kind":"Name","value":"fileSize"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"raw"}}]}},{"kind":"Field","name":{"kind":"Name","value":"urls"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"medium"}},{"kind":"Field","name":{"kind":"Name","value":"square"}}]}}]}}]}}]} as unknown as DocumentNode<GetMediaQuery, GetMediaQueryVariables>;
-export const SearchMediaDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SearchMedia"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filters"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"MediaListInput"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"mediaList"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filters"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"total"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"key"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"mimeType"}},{"kind":"Field","name":{"kind":"Name","value":"fileSize"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"raw"}}]}},{"kind":"Field","name":{"kind":"Name","value":"urls"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"medium"}},{"kind":"Field","name":{"kind":"Name","value":"square"}}]}}]}}]}}]}}]} as unknown as DocumentNode<SearchMediaQuery, SearchMediaQueryVariables>;
+export const GetMediaDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetMedia"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"media"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"key"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"mimeType"}},{"kind":"Field","name":{"kind":"Name","value":"fileSize"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"raw"}}]}},{"kind":"Field","name":{"kind":"Name","value":"urls"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"original"}},{"kind":"Field","name":{"kind":"Name","value":"medium"}},{"kind":"Field","name":{"kind":"Name","value":"square"}}]}}]}}]}}]} as unknown as DocumentNode<GetMediaQuery, GetMediaQueryVariables>;
+export const SearchMediaDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SearchMedia"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filters"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"MediaListInput"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"mediaList"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filters"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"total"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"key"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"mimeType"}},{"kind":"Field","name":{"kind":"Name","value":"fileSize"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"raw"}}]}},{"kind":"Field","name":{"kind":"Name","value":"urls"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"original"}},{"kind":"Field","name":{"kind":"Name","value":"medium"}},{"kind":"Field","name":{"kind":"Name","value":"square"}}]}}]}}]}}]}}]} as unknown as DocumentNode<SearchMediaQuery, SearchMediaQueryVariables>;
 export const GetMusicClockAssignmentsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetMusicClockAssignments"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"networkId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filters"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"MusicAssignmentFilters"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"musicClockAssignments"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"networkId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"networkId"}}},{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filters"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"clock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"targetRuntime"}}]}},{"kind":"Field","name":{"kind":"Name","value":"dayOfWeek"}},{"kind":"Field","name":{"kind":"Name","value":"hour"}},{"kind":"Field","name":{"kind":"Name","value":"startDate"}},{"kind":"Field","name":{"kind":"Name","value":"endDate"}},{"kind":"Field","name":{"kind":"Name","value":"priority"}},{"kind":"Field","name":{"kind":"Name","value":"isTemplate"}},{"kind":"Field","name":{"kind":"Name","value":"network"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<GetMusicClockAssignmentsQuery, GetMusicClockAssignmentsQueryVariables>;
 export const GetMusicPlaylistsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetMusicPlaylists"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"networkId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filters"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"MusicPlaylistFilters"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"musicPlaylists"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"networkId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"networkId"}}},{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filters"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"shortId"}},{"kind":"Field","name":{"kind":"Name","value":"scheduledDate"}},{"kind":"Field","name":{"kind":"Name","value":"scheduledHour"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"totalDuration"}},{"kind":"Field","name":{"kind":"Name","value":"estimatedDuration"}},{"kind":"Field","name":{"kind":"Name","value":"isLocked"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}},{"kind":"Field","name":{"kind":"Name","value":"clock"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"orderIndex"}},{"kind":"Field","name":{"kind":"Name","value":"itemType"}},{"kind":"Field","name":{"kind":"Name","value":"track"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"artist"}},{"kind":"Field","name":{"kind":"Name","value":"duration"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"formatted"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"scheduledStart"}},{"kind":"Field","name":{"kind":"Name","value":"scheduledEnd"}},{"kind":"Field","name":{"kind":"Name","value":"actualDuration"}},{"kind":"Field","name":{"kind":"Name","value":"isManualEdit"}},{"kind":"Field","name":{"kind":"Name","value":"notes"}}]}},{"kind":"Field","name":{"kind":"Name","value":"ruleViolations"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"rule"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"ruleType"}}]}},{"kind":"Field","name":{"kind":"Name","value":"severity"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"suggestedFix"}},{"kind":"Field","name":{"kind":"Name","value":"autoFixAvailable"}}]}},{"kind":"Field","name":{"kind":"Name","value":"network"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<GetMusicPlaylistsQuery, GetMusicPlaylistsQueryVariables>;
 export const GetMusicClockItemLibraryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetMusicClockItemLibrary"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"networkId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"type"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"MusicClockLibraryItemType"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"musicClockItemLibrary"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"networkId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"networkId"}}},{"kind":"Argument","name":{"kind":"Name","value":"type"},"value":{"kind":"Variable","name":{"kind":"Name","value":"type"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MusicClockLibraryItemInterface"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"duration"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MusicClockLibraryNote"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MusicClockLibraryAdBreak"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"duration"}},{"kind":"Field","name":{"kind":"Name","value":"scheduledStartTime"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MusicClockLibraryCommand"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"command"}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetMusicClockItemLibraryQuery, GetMusicClockItemLibraryQueryVariables>;
@@ -4911,8 +5395,8 @@ export const GetMusicClocksDocument = {"kind":"Document","definitions":[{"kind":
 export const GetMusicClockDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetMusicClock"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"musicClock"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"color"}},{"kind":"Field","name":{"kind":"Name","value":"targetRuntime"}},{"kind":"Field","name":{"kind":"Name","value":"network"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"ClockItemInterface"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"clockId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"duration"}},{"kind":"Field","name":{"kind":"Name","value":"orderIndex"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"TrackClockItem"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"track"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"artist"}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"SubcategoryClockItem"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"subcategory"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"color"}},{"kind":"Field","name":{"kind":"Name","value":"category"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"GenreClockItem"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"genre"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"NoteClockItem"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"AdBreakClockItem"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"scheduledStartTime"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CommandClockItem"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"command"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"LibraryNoteClockItem"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"note"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"duration"}},{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"LibraryAdBreakClockItem"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"adBreak"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"duration"}},{"kind":"Field","name":{"kind":"Name","value":"scheduledStartTime"}}]}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"LibraryCommandClockItem"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"libraryCommand"},"name":{"kind":"Name","value":"command"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"duration"}},{"kind":"Field","name":{"kind":"Name","value":"command"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetMusicClockQuery, GetMusicClockQueryVariables>;
 export const GetMusicRulesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetMusicRules"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"networkId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filters"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"MusicRuleFilters"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"musicRules"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"networkId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"networkId"}}},{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filters"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"ruleType"}},{"kind":"Field","name":{"kind":"Name","value":"breakable"}},{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"Field","name":{"kind":"Name","value":"unit"}},{"kind":"Field","name":{"kind":"Name","value":"criteria"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"categories"}},{"kind":"Field","name":{"kind":"Name","value":"genres"}},{"kind":"Field","name":{"kind":"Name","value":"artists"}},{"kind":"Field","name":{"kind":"Name","value":"tags"}},{"kind":"Field","name":{"kind":"Name","value":"timeWindows"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"startHour"}},{"kind":"Field","name":{"kind":"Name","value":"endHour"}},{"kind":"Field","name":{"kind":"Name","value":"daysOfWeek"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"priority"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}},{"kind":"Field","name":{"kind":"Name","value":"network"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<GetMusicRulesQuery, GetMusicRulesQueryVariables>;
 export const GetMusicRuleDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetMusicRule"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"musicRule"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"ruleType"}},{"kind":"Field","name":{"kind":"Name","value":"breakable"}},{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"Field","name":{"kind":"Name","value":"unit"}},{"kind":"Field","name":{"kind":"Name","value":"criteria"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"categories"}},{"kind":"Field","name":{"kind":"Name","value":"genres"}},{"kind":"Field","name":{"kind":"Name","value":"artists"}},{"kind":"Field","name":{"kind":"Name","value":"tags"}},{"kind":"Field","name":{"kind":"Name","value":"timeWindows"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"startHour"}},{"kind":"Field","name":{"kind":"Name","value":"endHour"}},{"kind":"Field","name":{"kind":"Name","value":"daysOfWeek"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"priority"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}},{"kind":"Field","name":{"kind":"Name","value":"network"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<GetMusicRuleQuery, GetMusicRuleQueryVariables>;
-export const GetNetworksDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetNetworks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"networks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"baseUrl"}},{"kind":"Field","name":{"kind":"Name","value":"imagesUrl"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvg"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvgCircular"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvgColor"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvgIcon"}},{"kind":"Field","name":{"kind":"Name","value":"networkType"}},{"kind":"Field","name":{"kind":"Name","value":"tagline"}},{"kind":"Field","name":{"kind":"Name","value":"cssUrl"}},{"kind":"Field","name":{"kind":"Name","value":"playFormat"}},{"kind":"Field","name":{"kind":"Name","value":"playUrl"}},{"kind":"Field","name":{"kind":"Name","value":"shortId"}}]}}]}}]} as unknown as DocumentNode<GetNetworksQuery, GetNetworksQueryVariables>;
-export const GetNetworkDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetNetwork"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"network"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"baseUrl"}},{"kind":"Field","name":{"kind":"Name","value":"imagesUrl"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvg"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvgCircular"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvgColor"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvgIcon"}},{"kind":"Field","name":{"kind":"Name","value":"networkType"}},{"kind":"Field","name":{"kind":"Name","value":"tagline"}},{"kind":"Field","name":{"kind":"Name","value":"cssUrl"}},{"kind":"Field","name":{"kind":"Name","value":"playFormat"}},{"kind":"Field","name":{"kind":"Name","value":"playUrl"}},{"kind":"Field","name":{"kind":"Name","value":"shortId"}}]}}]}}]} as unknown as DocumentNode<GetNetworkQuery, GetNetworkQueryVariables>;
+export const GetNetworksDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetNetworks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"networks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"baseUrl"}},{"kind":"Field","name":{"kind":"Name","value":"imagesUrl"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvg"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvgCircular"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvgColor"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvgIcon"}},{"kind":"Field","name":{"kind":"Name","value":"logoMedia"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"key"}},{"kind":"Field","name":{"kind":"Name","value":"mimeType"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"urls"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"original"}},{"kind":"Field","name":{"kind":"Name","value":"medium"}},{"kind":"Field","name":{"kind":"Name","value":"square"}}]}},{"kind":"Field","name":{"kind":"Name","value":"fileSize"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"label"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"logoIconMedia"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"key"}},{"kind":"Field","name":{"kind":"Name","value":"mimeType"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"urls"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"original"}},{"kind":"Field","name":{"kind":"Name","value":"medium"}},{"kind":"Field","name":{"kind":"Name","value":"square"}}]}},{"kind":"Field","name":{"kind":"Name","value":"fileSize"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"label"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"networkType"}},{"kind":"Field","name":{"kind":"Name","value":"tagline"}},{"kind":"Field","name":{"kind":"Name","value":"cssUrl"}},{"kind":"Field","name":{"kind":"Name","value":"playFormat"}},{"kind":"Field","name":{"kind":"Name","value":"playUrl"}},{"kind":"Field","name":{"kind":"Name","value":"shortId"}}]}}]}}]} as unknown as DocumentNode<GetNetworksQuery, GetNetworksQueryVariables>;
+export const GetNetworkDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetNetwork"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"network"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"baseUrl"}},{"kind":"Field","name":{"kind":"Name","value":"imagesUrl"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvg"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvgCircular"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvgColor"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvgIcon"}},{"kind":"Field","name":{"kind":"Name","value":"logoMedia"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"key"}},{"kind":"Field","name":{"kind":"Name","value":"mimeType"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"urls"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"original"}},{"kind":"Field","name":{"kind":"Name","value":"medium"}},{"kind":"Field","name":{"kind":"Name","value":"square"}}]}},{"kind":"Field","name":{"kind":"Name","value":"fileSize"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"label"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"logoIconMedia"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"key"}},{"kind":"Field","name":{"kind":"Name","value":"mimeType"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"urls"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"original"}},{"kind":"Field","name":{"kind":"Name","value":"medium"}},{"kind":"Field","name":{"kind":"Name","value":"square"}}]}},{"kind":"Field","name":{"kind":"Name","value":"fileSize"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"label"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"networkType"}},{"kind":"Field","name":{"kind":"Name","value":"tagline"}},{"kind":"Field","name":{"kind":"Name","value":"cssUrl"}},{"kind":"Field","name":{"kind":"Name","value":"playFormat"}},{"kind":"Field","name":{"kind":"Name","value":"playUrl"}},{"kind":"Field","name":{"kind":"Name","value":"shortId"}}]}}]}}]} as unknown as DocumentNode<GetNetworkQuery, GetNetworkQueryVariables>;
 export const GetPresentersDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetPresenters"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filters"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"PresenterListInputV2"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"presentersV2"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filters"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"total"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"picture"}},{"kind":"Field","name":{"kind":"Name","value":"hidden"}},{"kind":"Field","name":{"kind":"Name","value":"networks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvgIcon"}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetPresentersQuery, GetPresentersQueryVariables>;
 export const GetPresenterDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetPresenter"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"presenter"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"bio"}},{"kind":"Field","name":{"kind":"Name","value":"hero"}},{"kind":"Field","name":{"kind":"Name","value":"hidden"}},{"kind":"Field","name":{"kind":"Name","value":"shortBio"}},{"kind":"Field","name":{"kind":"Name","value":"picture"}},{"kind":"Field","name":{"kind":"Name","value":"shows"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"total"}}]}},{"kind":"Field","name":{"kind":"Name","value":"episodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"total"}}]}},{"kind":"Field","name":{"kind":"Name","value":"networks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]} as unknown as DocumentNode<GetPresenterQuery, GetPresenterQueryVariables>;
 export const ScheduleDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Schedule"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"from"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"DateTime"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"network"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"to"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"DateTime"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"schedule"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"from"},"value":{"kind":"Variable","name":{"kind":"Name","value":"from"}}},{"kind":"ObjectField","name":{"kind":"Name","value":"networkId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"network"}}},{"kind":"ObjectField","name":{"kind":"Name","value":"to"},"value":{"kind":"Variable","name":{"kind":"Name","value":"to"}}},{"kind":"ObjectField","name":{"kind":"Name","value":"amount"},"value":{"kind":"IntValue","value":"200"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"total"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"start"}},{"kind":"Field","name":{"kind":"Name","value":"end"}},{"kind":"Field","name":{"kind":"Name","value":"networks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvgIcon"}}]}},{"kind":"Field","name":{"kind":"Name","value":"episode"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"show"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"shortName"}}]}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"broadcasts"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"featuredImage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"urls"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"square"}},{"kind":"Field","name":{"kind":"Name","value":"customSquare"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"size"},"value":{"kind":"IntValue","value":"150"}}]}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"networks"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"logoSvgIcon"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<ScheduleQuery, ScheduleQueryVariables>;

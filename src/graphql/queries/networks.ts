@@ -12,6 +12,34 @@ export const GET_NETWORKS = gql(`
 			logoSvgCircular
 			logoSvgColor
 			logoSvgIcon
+			logoMedia {
+				id
+				key
+				mimeType
+				type
+				urls {
+					original
+					medium
+					square
+				}
+				fileSize {
+					label
+				}
+			}
+			logoIconMedia {
+				id
+				key
+				mimeType
+				type
+				urls {
+					original
+					medium
+					square
+				}
+				fileSize {
+					label
+				}
+			}
 			networkType
 			tagline
 			cssUrl
@@ -34,6 +62,34 @@ export const GET_NETWORK = gql(`
 			logoSvgCircular
 			logoSvgColor
 			logoSvgIcon
+			logoMedia {
+				id
+				key
+				mimeType
+				type
+				urls {
+					original
+					medium
+					square
+				}
+				fileSize {
+					label
+				}
+			}
+			logoIconMedia {
+				id
+				key
+				mimeType
+				type
+				urls {
+					original
+					medium
+					square
+				}
+				fileSize {
+					label
+				}
+			}
 			networkType
 			tagline
 			cssUrl
