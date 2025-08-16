@@ -55,6 +55,7 @@ export const GET_NETWORKS = gql(`
 				}
 			}
 			networkType
+			isPremium
 			tagline
 			cssUrl
 			playFormat
@@ -118,7 +119,12 @@ export const GET_NETWORK = gql(`
 					label
 				}
 			}
+			parent {
+				id
+				name
+			}
 			networkType
+			isPremium
 			tagline
 			cssUrl
 			playFormat

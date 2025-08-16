@@ -15,7 +15,6 @@ import {
   NetworkType,
   MediaType,
   GetNetworkQuery,
-  GetNetworksQuery,
 } from '@/graphql/__generated__/graphql';
 import { CREATE_NETWORK } from '@/graphql/mutations/createNetwork';
 import { UPDATE_NETWORK } from '@/graphql/mutations/updateNetwork';
@@ -35,6 +34,7 @@ const networkFormSchema = z.object({
   logoSvgColor: z.string().optional(),
   logoSvgIcon: z.string().optional(), // Keep for backward compatibility
   networkType: z.nativeEnum(NetworkType),
+  isPremium: z.boolean(),
   parentId: z.string().optional(),
   tagline: z.string().optional(),
   cssUrl: z.string().optional(),
@@ -45,7 +45,7 @@ const networkFormSchema = z.object({
 export type NetworkFormData = z.infer<typeof networkFormSchema>;
 
 export interface NetworkFormProps {
-  network?: GetNetworkQuery['network'] | GetNetworksQuery['networks'][number];
+  network?: GetNetworkQuery['network'];
   onSubmit?: (data: NetworkFormData) => void;
   className?: string;
 }
@@ -69,7 +69,8 @@ export const NetworkForm = ({ network, onSubmit }: NetworkFormProps) => {
         logoSvgColor: network.logoSvgColor || undefined,
         logoSvgIcon: network.logoSvgIcon || undefined,
         networkType: network.networkType || NetworkType.Station,
-        parentId: undefined, // parentId is not available in Network type yet
+        isPremium: network.isPremium || false,
+        parentId: network.parent?.id || undefined,
         tagline: network.tagline || undefined,
         cssUrl: network.cssUrl || undefined,
         playFormat: network.playFormat || undefined,
@@ -91,6 +92,7 @@ export const NetworkForm = ({ network, onSubmit }: NetworkFormProps) => {
     logoIconMediaId: undefined,
     logoLightMediaId: undefined,
     networkType: NetworkType.Station,
+    isPremium: false,
   };
 
   const methods = useForm<NetworkFormData>({
@@ -200,6 +202,11 @@ export const NetworkForm = ({ network, onSubmit }: NetworkFormProps) => {
         value: type,
       })),
       required: true,
+    },
+    {
+      name: 'isPremium' as const,
+      component: 'checkbox' as const,
+      label: 'Premium Network',
     },
     {
       name: 'parentId' as const,
