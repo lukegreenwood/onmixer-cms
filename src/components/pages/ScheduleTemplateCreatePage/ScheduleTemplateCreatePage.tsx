@@ -143,7 +143,15 @@ export function ScheduleTemplateCreatePage() {
                 input: {
                   networkId: currentNetwork.id,
                   defaultScheduleId: createdTemplateId,
-                  days: ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'],
+                  days: [
+                    'MONDAY',
+                    'TUESDAY',
+                    'WEDNESDAY',
+                    'THURSDAY',
+                    'FRIDAY',
+                    'SATURDAY',
+                    'SUNDAY',
+                  ],
                 },
               },
             });
@@ -160,11 +168,18 @@ export function ScheduleTemplateCreatePage() {
         console.error('Create template error:', error);
       }
     },
-    [createTemplate, bulkUpsertItems, assignToNetwork, currentNetwork?.id, networkGoTo],
+    [
+      createTemplate,
+      bulkUpsertItems,
+      assignToNetwork,
+      currentNetwork?.id,
+      networkGoTo,
+    ],
   );
 
   const handleInvalid = useCallback((errors: FieldErrors<TemplateFormData>) => {
-    console.log('errors', errors);
+    console.log('[ScheduleTemplateCreatePage] handleInvalid', errors);
+    toast('Please fix the errors in the form', 'error');
   }, []);
 
   return (

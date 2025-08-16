@@ -11,7 +11,12 @@ import { ActionBar } from '@/components/blocks/ActionBar';
 import { EntityEditForm } from '@/components/blocks/EntityEditForm';
 import { DynamicForm } from '@/components/DynamicForm/DynamicForm';
 import { SvgUploadField } from '@/components/DynamicForm/fields/SvgUploadField';
-import { NetworkType, MediaType } from '@/graphql/__generated__/graphql';
+import {
+  NetworkType,
+  MediaType,
+  GetNetworkQuery,
+  GetNetworksQuery,
+} from '@/graphql/__generated__/graphql';
 import { CREATE_NETWORK } from '@/graphql/mutations/createNetwork';
 import { UPDATE_NETWORK } from '@/graphql/mutations/updateNetwork';
 import { toast } from '@/lib/toast';
@@ -22,8 +27,9 @@ const networkFormSchema = z.object({
   code: z.string().min(1, 'Code is required'),
   baseUrl: z.string().min(1, 'Base URL is required'),
   imagesUrl: z.string().min(1, 'Images URL is required'),
-  logoMediaId: z.string().min(1, 'Logo media is required'),
-  logoIconMediaId: z.string().min(1, 'Logo icon media is required'),
+  logoMediaId: z.string().optional(),
+  logoIconMediaId: z.string().optional(),
+  logoLightMediaId: z.string().optional(),
   logoSvg: z.string().optional(), // Keep for backward compatibility
   logoSvgCircular: z.string().optional(),
   logoSvgColor: z.string().optional(),
@@ -39,7 +45,7 @@ const networkFormSchema = z.object({
 export type NetworkFormData = z.infer<typeof networkFormSchema>;
 
 export interface NetworkFormProps {
-  network?: any; // Use any for now to handle GraphQL query result types
+  network?: GetNetworkQuery['network'] | GetNetworksQuery['networks'][number];
   onSubmit?: (data: NetworkFormData) => void;
   className?: string;
 }
@@ -55,8 +61,9 @@ export const NetworkForm = ({ network, onSubmit }: NetworkFormProps) => {
         code: network.code,
         baseUrl: network.baseUrl || '',
         imagesUrl: network.imagesUrl || '',
-        logoMediaId: network.logoMedia?.id || '',
-        logoIconMediaId: network.logoIconMedia?.id || '',
+        logoMediaId: network.logoMedia?.id,
+        logoIconMediaId: network.logoIconMedia?.id,
+        logoLightMediaId: network.logoLightMedia?.id,
         logoSvg: network.logoSvg || undefined,
         logoSvgCircular: network.logoSvgCircular || undefined,
         logoSvgColor: network.logoSvgColor || undefined,
@@ -80,14 +87,17 @@ export const NetworkForm = ({ network, onSubmit }: NetworkFormProps) => {
     code: '',
     baseUrl: '',
     imagesUrl: '',
-    logoMediaId: '',
-    logoIconMediaId: '',
+    logoMediaId: undefined,
+    logoIconMediaId: undefined,
+    logoLightMediaId: undefined,
     networkType: NetworkType.Station,
   };
 
   const methods = useForm<NetworkFormData>({
     resolver: zodResolver(networkFormSchema),
-    ...(network ? { values: formData } : { defaultValues: defaultFormData }),
+    ...(network && formData
+      ? { values: formData }
+      : { defaultValues: defaultFormData }),
   });
 
   const handleSubmit = (data: NetworkFormData) => {
@@ -96,6 +106,7 @@ export const NetworkForm = ({ network, onSubmit }: NetworkFormProps) => {
       ...data,
       logoMediaId: data.logoMediaId || undefined,
       logoIconMediaId: data.logoIconMediaId || undefined,
+      logoLightMediaId: data.logoLightMediaId || undefined,
       // Keep legacy fields for backward compatibility
       logoSvg: data.logoSvg || '',
       logoSvgIcon: data.logoSvgIcon || '',
@@ -236,7 +247,7 @@ export const NetworkForm = ({ network, onSubmit }: NetworkFormProps) => {
                 key="media-uploads"
                 className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6"
               >
-                <DynamicForm 
+                <DynamicForm
                   key="logo-media"
                   fields={[
                     {
@@ -250,6 +261,13 @@ export const NetworkForm = ({ network, onSubmit }: NetworkFormProps) => {
                       name: 'logoIconMediaId' as const,
                       component: 'mediaEditor' as const,
                       label: 'Logo Icon',
+                      type: MediaType.BrandAsset,
+                      multiple: false,
+                    },
+                    {
+                      name: 'logoLightMediaId' as const,
+                      component: 'mediaEditor' as const,
+                      label: 'Logo Light',
                       type: MediaType.BrandAsset,
                       multiple: false,
                     },

@@ -17,10 +17,6 @@ export async function refreshAccessToken(
       ...(redirectUri && { redirect_uri: redirectUri }),
     };
 
-    console.log('Making refresh request to:', refreshUrl);
-    console.log('With client_id:', config.CLIENT_ID);
-    console.log('With redirect_uri:', redirectUri);
-
     const response = await fetch(refreshUrl, {
       method: 'POST',
       headers: {
@@ -33,12 +29,10 @@ export async function refreshAccessToken(
     });
 
     if (response.ok) {
-      console.log('Token refresh successful');
-      
       // Extract Set-Cookie headers
       const setCookieHeaders = response.headers.getSetCookie?.() || [];
       const headers: Record<string, string> = {};
-      
+
       setCookieHeaders.forEach((cookie, index) => {
         headers[`Set-Cookie-${index}`] = cookie;
       });
@@ -56,7 +50,7 @@ export async function refreshAccessToken(
         'Body:',
         errorText,
       );
-      
+
       return {
         success: false,
         message: `Token refresh failed: ${response.status} ${response.statusText}`,
@@ -66,7 +60,9 @@ export async function refreshAccessToken(
     console.error('Token refresh network error:', error);
     return {
       success: false,
-      message: `Token refresh network error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      message: `Token refresh network error: ${
+        error instanceof Error ? error.message : 'Unknown error'
+      }`,
     };
   }
 }

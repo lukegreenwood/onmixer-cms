@@ -40,6 +40,20 @@ export const GET_NETWORKS = gql(`
 					label
 				}
 			}
+			logoLightMedia {
+				id
+				key
+				mimeType
+				type
+				urls {
+					original
+					medium
+					square
+				}
+				fileSize {
+					label
+				}
+			}
 			networkType
 			tagline
 			cssUrl
@@ -77,6 +91,20 @@ export const GET_NETWORK = gql(`
 				}
 			}
 			logoIconMedia {
+				id
+				key
+				mimeType
+				type
+				urls {
+					original
+					medium
+					square
+				}
+				fileSize {
+					label
+				}
+			}
+			logoLightMedia {
 				id
 				key
 				mimeType

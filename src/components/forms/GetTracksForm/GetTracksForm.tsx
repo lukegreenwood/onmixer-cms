@@ -143,10 +143,9 @@ export function GetTracksForm() {
 
       if (result.data?.searchYouTube) {
         const searchResults = result.data.searchYouTube as SearchResult[];
-        console.log('Search results:', searchResults);
         setSingleResults(searchResults);
       } else {
-        console.log('No search results found');
+        toast('No search results found', 'info');
       }
     } catch (error) {
       toast('Failed to search YouTube', 'error');
@@ -172,7 +171,7 @@ export function GetTracksForm() {
       if (result.data?.bulkSearchYouTube) {
         const searchResults = result.data.bulkSearchYouTube
           .results as BulkSearchResult[];
-        console.log('Bulk search results:', searchResults);
+
         setBulkResults(searchResults);
         toast(
           `Processed ${result.data.bulkSearchYouTube.totalQueries} queries. ` +
@@ -181,7 +180,7 @@ export function GetTracksForm() {
           'success',
         );
       } else {
-        console.log('No bulk search results found');
+        toast('No bulk search results found', 'info');
       }
     } catch (error) {
       toast('Failed to perform bulk search', 'error');
