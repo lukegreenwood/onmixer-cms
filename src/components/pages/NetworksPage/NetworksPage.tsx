@@ -26,14 +26,19 @@ const columns = [
     id: 'image',
     cell: (props) => {
       const data = props.row.original;
+      console.log('data', data.id, data.logoIconMedia?.urls.original);
       return (
-        <Avatar size="sm">
-          <Avatar.Fallback
-            style={{ backgroundColor: 'transparent' }}
-            dangerouslySetInnerHTML={{
-              __html: data.logoSvgIcon,
-            }}
-          />
+        <Avatar size="sm" initials={data.name.charAt(0)} delayMs={300}>
+          {data.logoIconMedia?.urls.original ? (
+            <img src={data.logoIconMedia?.urls.original} alt={data.name} />
+          ) : (
+            <Avatar.Fallback
+              style={{ backgroundColor: 'transparent' }}
+              dangerouslySetInnerHTML={{
+                __html: data.logoSvgIcon,
+              }}
+            />
+          )}
         </Avatar>
       );
     },
@@ -44,6 +49,10 @@ const columns = [
   }),
   columnHelper.accessor('code', {
     header: 'Code',
+    cell: (props) => props.getValue(),
+  }),
+  columnHelper.accessor('tagline', {
+    header: 'Tagline',
     cell: (props) => props.getValue(),
   }),
   columnHelper.accessor('baseUrl', {
@@ -84,7 +93,7 @@ const columns = [
 export const NetworksPage = () => {
   const { data } = useSuspenseQuery(GET_NETWORKS);
   const router = useRouter();
-
+  console.log('data', data);
   const handleRowClick = (network: GetNetworksQuery['networks'][number]) => {
     router.push(`/networks/${network.code}/edit`);
   };
@@ -107,8 +116,8 @@ export const NetworksPage = () => {
         }
       />
       <div className="page-content">
-        <DataTable 
-          table={table} 
+        <DataTable
+          table={table}
           onRowClick={handleRowClick}
           excludeRowClickColumns={['link']}
         />

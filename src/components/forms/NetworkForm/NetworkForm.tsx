@@ -78,10 +78,18 @@ export const NetworkForm = ({ network, onSubmit }: NetworkFormProps) => {
       }
     : undefined;
 
-  const [createNetwork, { loading: createLoading }] =
-    useMutation(CREATE_NETWORK);
-  const [updateNetwork, { loading: updateLoading }] =
-    useMutation(UPDATE_NETWORK);
+  const [createNetwork, { loading: createLoading }] = useMutation(
+    CREATE_NETWORK,
+    {
+      refetchQueries: ['GetNetworks'],
+    },
+  );
+  const [updateNetwork, { loading: updateLoading }] = useMutation(
+    UPDATE_NETWORK,
+    {
+      refetchQueries: ['GetNetworks'],
+    },
+  );
 
   const defaultFormData: NetworkFormData = {
     name: '',
@@ -145,7 +153,7 @@ export const NetworkForm = ({ network, onSubmit }: NetworkFormProps) => {
         onCompleted: (result) => {
           if (result.createNetwork.success) {
             toast('Network created successfully', 'success');
-            router.push(`/networks/${data.code}`);
+            router.push(`/networks`);
           } else {
             toast(
               result.createNetwork.message || 'Failed to create network',
